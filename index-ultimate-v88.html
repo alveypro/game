@@ -96,6 +96,27 @@
         summary { list-style: none; }
         summary::-webkit-details-marker { display: none; }
         .detail-summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .stage {
+            position: relative;
+        }
+        .stage::before {
+            content: "";
+            position: absolute;
+            inset: -20px;
+            border-radius: 28px;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 209, 102, 0.35), transparent 55%);
+            z-index: -1;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(27, 26, 23, 0.08);
+            font-size: 12px;
+            color: #3b3b3b;
+        }
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -114,10 +135,11 @@
             </div>
         </div>
 
-        <!-- Contract Info Panel -->
-        <details class="glass rounded-2xl p-6 mb-6">
-            <summary class="detail-summary text-lg">📋 合约信息（可选，点击展开）</summary>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+        <!-- Admin Panel (Prize Pool Only) -->
+        <div id="adminPanel" class="hidden">
+            <details class="glass rounded-2xl p-6 mb-6">
+                <summary class="detail-summary text-lg">🔒 管理员面板（仅奖池钱包可见）</summary>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-yellow-400">🐱 MAO代币:</span>
@@ -161,18 +183,23 @@
                         <span id="burnedTotal" class="text-red-300 font-bold">加载中...</span>
                     </div>
                 </div>
-            </div>
-        </details>
+                </div>
+            </details>
+        </div>
         
         <!-- Wallet Section -->
-        <div class="glass rounded-2xl p-6 mb-8">
+        <div class="glass rounded-2xl p-6 mb-8 stage">
             <div id="walletDisconnected">
-                <button id="connectBtn" class="game-btn mx-auto block">连接 MetaMask 钱包</button>
+                <button id="connectBtn" class="game-btn mx-auto block">连接钱包开始游戏</button>
             </div>
             <div id="walletConnected" class="hidden">
                 <div class="text-center mb-4">
-                    <span class="text-slate-600">钱包已连接:</span>
+                    <span class="text-slate-600">玩家:</span>
                     <span id="walletAddress" class="font-mono text-slate-900"></span>
+                </div>
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <span class="chip">60% 中奖率</span>
+                    <span class="chip">单笔交易</span>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="glass rounded-xl p-4 text-center">
@@ -187,7 +214,7 @@
                     </div>
                 </div>
                 <div class="text-center text-sm mb-4 text-slate-600">
-                    ⛽ ALV 手续费余额: <span id="alvBalance" class="text-slate-900 font-bold">--</span>
+                    ⛽ ALV 手续费: <span id="alvBalance" class="text-slate-900 font-bold">--</span>
                 </div>
                 
                 <!-- Token Selection -->
@@ -217,8 +244,8 @@
                 <!-- Game Button -->
                 <div class="text-center">
                     <button id="spinBtn" class="game-btn">🎲 一键开转</button>
-                    <div id="gameStatus" class="mt-4 text-sm text-slate-600">✅ 智能连接系统已就绪</div>
-                    <div id="modeHint" class="mt-2 text-xs text-slate-500">快速模式：单笔交易</div>
+                    <div id="gameStatus" class="mt-4 text-sm text-slate-600">✅ 系统已就绪</div>
+                    <div id="modeHint" class="mt-2 text-xs text-slate-500">快速模式 · 单笔交易</div>
                 </div>
             </div>
         </div>
@@ -634,6 +661,7 @@
                     ]);
 
                     this.updateWallet();
+                    this.toggleAdminPanel();
                     await this.updateBalances();
                     await this.loadStats();
                     await this.updateBurnedTotal();
@@ -659,6 +687,16 @@
                 } else {
                     disc?.classList.remove('hidden');
                     conn?.classList.add('hidden');
+                }
+            }
+
+            toggleAdminPanel() {
+                const adminPanel = document.getElementById('adminPanel');
+                if (!adminPanel) return;
+                if (this.state.wallet?.address?.toLowerCase() === this.addresses.PRIZE_POOL.toLowerCase()) {
+                    adminPanel.classList.remove('hidden');
+                } else {
+                    adminPanel.classList.add('hidden');
                 }
             }
 
