@@ -102,14 +102,15 @@
         }
     </style>
 </head>
-<body class="text-white">
+<body class="text-slate-900">
     <div class="container mx-auto p-8">
-        <h1 class="text-4xl font-bold text-center mb-8 hero-title">🎰 MAO Real Blockchain Game</h1>
+        <h1 class="text-4xl font-bold text-center mb-4 hero-title">MAO High Roller</h1>
+        <p class="text-center text-sm text-slate-600 mb-8">一局一瞬 · 单笔交易 · 中奖率 60%</p>
         
         <!-- Status Bar -->
         <div class="glass rounded-2xl p-4 mb-6">
             <div class="flex items-center justify-center">
-                <span id="networkStatus" class="text-sm">🔗 初始化智能区块链连接...</span>
+                <span id="networkStatus" class="text-sm text-slate-600">🔗 初始化智能区块链连接...</span>
             </div>
         </div>
 
@@ -120,25 +121,25 @@
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-yellow-400">🐱 MAO代币:</span>
-                        <span class="contract-info text-green-300">0x22f49bcb3dad370a9268ba3fca33cb037ca3d022</span>
+                        <span class="contract-info text-emerald-600">0x22f49bcb3dad370a9268ba3fca33cb037ca3d022</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-purple-400">🥧 PI代币:</span>
-                        <span class="contract-info text-green-300">0xfd4680e25e05b3435c7f698668d1ce80d2a9f444</span>
+                        <span class="contract-info text-emerald-600">0xfd4680e25e05b3435c7f698668d1ce80d2a9f444</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-blue-400">🎮 游戏合约:</span>
-                        <span class="contract-info text-green-300">0x562A68418995A6632260F842Bc5267cE0Bd52117</span>
+                        <span class="contract-info text-emerald-600">0x562A68418995A6632260F842Bc5267cE0Bd52117</span>
                     </div>
                 </div>
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-orange-400">💼 营销钱包:</span>
-                        <span class="contract-info text-green-300">0x861A48051eFaA1876D4B38904516C9F7bbCca36d</span>
+                        <span class="contract-info text-emerald-600">0x861A48051eFaA1876D4B38904516C9F7bbCca36d</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-emerald-400">🏆 奖金池:</span>
-                        <span class="contract-info text-green-300">0x7fE15654952947ea4462A6FB52075A432dE49Eb0</span>
+                        <span class="contract-info text-emerald-600">0x7fE15654952947ea4462A6FB52075A432dE49Eb0</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-cyan-300">🏦 合约MAO余额:</span>
@@ -170,8 +171,8 @@
             </div>
             <div id="walletConnected" class="hidden">
                 <div class="text-center mb-4">
-                    <span class="text-green-400">钱包已连接:</span>
-                    <span id="walletAddress" class="font-mono"></span>
+                    <span class="text-slate-600">钱包已连接:</span>
+                    <span id="walletAddress" class="font-mono text-slate-900"></span>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="glass rounded-xl p-4 text-center">
@@ -185,8 +186,8 @@
                         <div class="text-sm">PI</div>
                     </div>
                 </div>
-                <div class="text-center text-sm mb-4">
-                    ⛽ ALV 手续费余额: <span id="alvBalance" class="text-blue-300 font-bold">--</span>
+                <div class="text-center text-sm mb-4 text-slate-600">
+                    ⛽ ALV 手续费余额: <span id="alvBalance" class="text-slate-900 font-bold">--</span>
                 </div>
                 
                 <!-- Token Selection -->
@@ -215,52 +216,71 @@
                 
                 <!-- Game Button -->
                 <div class="text-center">
-                    <button id="spinBtn" class="game-btn">🎲 真实区块链转盘</button>
-                    <div id="gameStatus" class="mt-4 text-sm">✅ 智能连接系统已就绪</div>
-                    <div id="modeHint" class="mt-2 text-xs text-blue-200">快速模式：单笔交易</div>
+                    <button id="spinBtn" class="game-btn">🎲 一键开转</button>
+                    <div id="gameStatus" class="mt-4 text-sm text-slate-600">✅ 智能连接系统已就绪</div>
+                    <div id="modeHint" class="mt-2 text-xs text-slate-500">快速模式：单笔交易</div>
                 </div>
             </div>
         </div>
         
-        <!-- Enhanced Stats with Token-specific display -->
+        <!-- Prize Odds -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🎯 中奖概率一览（MAO）</h3>
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">未中奖</div>
+                    <div class="text-2xl font-bold text-slate-700">40%</div>
+                    <div class="text-sm text-slate-500">0 MAO</div>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">小奖</div>
+                    <div class="text-2xl font-bold text-emerald-600">25%</div>
+                    <div class="text-sm text-slate-500">105 MAO</div>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">中奖</div>
+                    <div class="text-2xl font-bold text-emerald-600">20%</div>
+                    <div class="text-sm text-slate-500">125 MAO</div>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">大奖</div>
+                    <div class="text-2xl font-bold text-amber-600">10%</div>
+                    <div class="text-sm text-slate-500">200 MAO</div>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">超级大奖</div>
+                    <div class="text-2xl font-bold text-amber-600">4%</div>
+                    <div class="text-sm text-slate-500">600 MAO</div>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">终极大奖</div>
+                    <div class="text-2xl font-bold text-rose-600">1%</div>
+                    <div class="text-sm text-slate-500">1000 MAO</div>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-4">PI 模式按相同比例放大为 1000/1050/1250/2000/6000/10000 PI。</p>
+        </div>
+
+        <!-- Lightweight Stats -->
         <details class="glass rounded-2xl p-6 mb-6">
-            <summary class="detail-summary text-xl">📊 游戏统计（可选，点击展开）</summary>
+            <summary class="detail-summary text-lg">📊 我的统计（点击展开）</summary>
             <h3 class="text-xl font-semibold mb-4 mt-4">真实区块链统计 - <span id="statsTokenType">MAO</span> 游戏</h3>
-            <div class="grid grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-400" id="totalGames">0</div>
+                    <div class="text-2xl font-bold text-slate-700" id="totalGames">0</div>
                     <div class="text-sm">总局数</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-green-400" id="winCount">0</div>
+                    <div class="text-2xl font-bold text-emerald-600" id="winCount">0</div>
                     <div class="text-sm">胜利数</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-yellow-400" id="winRate">0%</div>
+                    <div class="text-2xl font-bold text-amber-600" id="winRate">0%</div>
                     <div class="text-sm">胜率</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-purple-400" id="totalReward">0</div>
+                    <div class="text-2xl font-bold text-indigo-600" id="totalReward">0</div>
                     <div class="text-sm">总奖励</div>
-                </div>
-            </div>
-        </details>
-
-        <!-- Game Distribution Info -->
-        <details class="glass rounded-2xl p-6">
-            <summary class="detail-summary text-lg">🎯 游戏分配机制（可选，点击展开）</summary>
-            <div class="grid grid-cols-3 gap-4 text-center mt-4">
-                <div class="glass rounded-xl p-4">
-                    <div class="text-red-400 text-2xl font-bold">15%</div>
-                    <div class="text-sm">🔥 销毁</div>
-                </div>
-                <div class="glass rounded-xl p-4">
-                    <div class="text-orange-400 text-2xl font-bold">15%</div>
-                    <div class="text-sm">💼 营销</div>
-                </div>
-                <div class="glass rounded-xl p-4">
-                    <div class="text-emerald-400 text-2xl font-bold">70%</div>
-                    <div class="text-sm">🏆 奖金池</div>
                 </div>
             </div>
         </details>
