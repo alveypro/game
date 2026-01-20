@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎰 MAO Real Blockchain Wheel - ULTIMATE FIXED v8.8</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap">
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; font-family: Inter, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; font-family: "Space Grotesk", "Trebuchet MS", sans-serif; }
         .glass { background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3); }
         .wheel { width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(from 0deg, #ef4444 0deg 180deg, #10b981 180deg 360deg); transition: transform 4s ease; position: relative; }
         .spinning { animation: spin 4s ease; }
@@ -18,6 +19,9 @@
         .loading { width: 20px; height: 20px; border: 2px solid #fff; border-top: 2px solid #f59e0b; border-radius: 50%; animation: rotate 1s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .contract-info { font-family: 'Courier New', monospace; font-size: 0.75rem; }
+        summary { list-style: none; }
+        summary::-webkit-details-marker { display: none; }
+        .detail-summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body class="text-white">
@@ -32,9 +36,9 @@
         </div>
 
         <!-- Contract Info Panel -->
-        <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-lg font-semibold mb-4">📋 智能合约信息</h3>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <details class="glass rounded-2xl p-6 mb-6">
+            <summary class="detail-summary text-lg">📋 合约信息（可选，点击展开）</summary>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-yellow-400">🐱 MAO代币:</span>
@@ -72,7 +76,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </details>
         
         <!-- Wallet Section -->
         <div class="glass rounded-2xl p-6 mb-8">
@@ -95,6 +99,9 @@
                         <div class="text-green-400 text-2xl font-bold" id="piBalance">0</div>
                         <div class="text-sm">PI</div>
                     </div>
+                </div>
+                <div class="text-center text-sm mb-4">
+                    ⛽ ALV 手续费余额: <span id="alvBalance" class="text-blue-300 font-bold">--</span>
                 </div>
                 
                 <!-- Token Selection -->
@@ -125,13 +132,15 @@
                 <div class="text-center">
                     <button id="spinBtn" class="game-btn">🎲 真实区块链转盘</button>
                     <div id="gameStatus" class="mt-4 text-sm">✅ 智能连接系统已就绪</div>
+                    <div id="modeHint" class="mt-2 text-xs text-blue-200">安全模式：需要两笔交易</div>
                 </div>
             </div>
         </div>
         
         <!-- Enhanced Stats with Token-specific display -->
-        <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">📊 真实区块链统计 - <span id="statsTokenType">MAO</span> 游戏</h3>
+        <details class="glass rounded-2xl p-6 mb-6">
+            <summary class="detail-summary text-xl">📊 游戏统计（可选，点击展开）</summary>
+            <h3 class="text-xl font-semibold mb-4 mt-4">真实区块链统计 - <span id="statsTokenType">MAO</span> 游戏</h3>
             <div class="grid grid-cols-4 gap-4">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-blue-400" id="totalGames">0</div>
@@ -150,12 +159,12 @@
                     <div class="text-sm">总奖励</div>
                 </div>
             </div>
-        </div>
+        </details>
 
         <!-- Game Distribution Info -->
-        <div class="glass rounded-2xl p-6">
-            <h3 class="text-lg font-semibold mb-4">🎯 游戏分配机制</h3>
-            <div class="grid grid-cols-3 gap-4 text-center">
+        <details class="glass rounded-2xl p-6">
+            <summary class="detail-summary text-lg">🎯 游戏分配机制（可选，点击展开）</summary>
+            <div class="grid grid-cols-3 gap-4 text-center mt-4">
                 <div class="glass rounded-xl p-4">
                     <div class="text-red-400 text-2xl font-bold">15%</div>
                     <div class="text-sm">🔥 销毁</div>
@@ -169,7 +178,7 @@
                     <div class="text-sm">🏆 奖金池</div>
                 </div>
             </div>
-        </div>
+        </details>
     </div>
 
     <!-- Result Modal -->
@@ -204,6 +213,12 @@
                 
                 this.gameMode = 'commit';
                 this.commitConfig = { minBlocks: 1, maxBlocks: 200 };
+                this.gasLimits = {
+                    approve: 150000,
+                    commit: 300000,
+                    reveal: { MAO: 1500000, PI: 1800000 },
+                    play: { MAO: 1500000, PI: 1800000 }
+                };
                 
                 // 🔧 完全统一的合约地址配置 - 与.env文件现在完全一致
                 this.addresses = {
@@ -525,6 +540,7 @@
                     await this.updateBalances();
                     await this.loadStats();
                     await this.updateBurnedTotal();
+                    await this.updateNativeBalance();
                     await this.updateContractBalances();
                     this.loadPendingCommit();
                     this.setStatus('🚀 智能区块链系统已完全连接', 'success');
@@ -560,10 +576,41 @@
 
                     document.getElementById('maoBalance').textContent = this.formatNumber(ethers.utils.formatEther(maoBalance));
                     document.getElementById('piBalance').textContent = this.formatNumber(ethers.utils.formatEther(piBalance));
+                    await this.updateNativeBalance();
                     await this.updateContractBalances();
                 } catch (error) {
                     console.error('更新余额失败:', error);
                     this.setStatus('余额查询失败，网络可能有延迟', 'warning');
+                }
+            }
+
+            async updateNativeBalance() {
+                if (!this.state.wallet.provider) return;
+                try {
+                    const nativeBalance = await this.state.wallet.provider.getBalance(this.state.wallet.address);
+                    document.getElementById('alvBalance').textContent = `${ethers.utils.formatEther(nativeBalance)} ALV`;
+                } catch (error) {
+                    console.error('获取ALV余额失败:', error);
+                    document.getElementById('alvBalance').textContent = '查询失败';
+                }
+            }
+
+            async ensureGasBalance(selectedToken, needsApprove) {
+                const gasPrice = await this.state.wallet.provider.getGasPrice();
+                let gasLimit = ethers.BigNumber.from(0);
+                if (needsApprove) {
+                    gasLimit = gasLimit.add(this.gasLimits.approve);
+                }
+                if (this.gameMode === 'commit') {
+                    gasLimit = gasLimit.add(this.gasLimits.commit).add(this.gasLimits.reveal[selectedToken]);
+                } else {
+                    gasLimit = gasLimit.add(this.gasLimits.play[selectedToken]);
+                }
+                const estimatedCost = gasPrice.mul(gasLimit);
+                const nativeBalance = await this.state.wallet.provider.getBalance(this.state.wallet.address);
+                if (nativeBalance.lt(estimatedCost)) {
+                    const costText = ethers.utils.formatEther(estimatedCost);
+                    throw new Error(`ALV手续费不足，建议至少 ${costText} ALV`);
                 }
             }
 
@@ -687,6 +734,7 @@
                         3,
                         "授权查询"
                     );
+                    await this.ensureGasBalance(selectedToken, allowance.lt(amount));
                     
                     if (allowance.lt(amount)) {
                         this.setStatus('授权智能合约访问代币...', 'loading');
@@ -786,7 +834,9 @@
                     
                     let errorMsg = error.message;
                     
-                    if (errorMsg.includes('insufficient funds')) {
+                    if (errorMsg.includes('ALV手续费不足')) {
+                        errorMsg = errorMsg;
+                    } else if (errorMsg.includes('insufficient funds')) {
                         errorMsg = '余额不足，请充值足够的代币和ALV';
                     } else if (errorMsg.includes('user rejected')) {
                         errorMsg = '用户取消了交易';
@@ -857,6 +907,7 @@
                     3,
                     "授权查询"
                 );
+                await this.ensureGasBalance(selectedToken, allowance.lt(amount));
                 
                 if (allowance.lt(amount)) {
                     this.setStatus('授权智能合约访问代币...', 'loading');
@@ -1023,6 +1074,7 @@
                         this.gameMode = 'commit';
                         this.setStatus('安全模式：Commit-Reveal 已启用', 'info');
                     }
+                    this.updateModeHint();
                 });
 
                 if (window.ethereum) {
@@ -1065,6 +1117,16 @@
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
                 });
+            }
+
+            updateModeHint() {
+                const hint = document.getElementById('modeHint');
+                if (!hint) return;
+                if (this.gameMode === 'commit') {
+                    hint.textContent = '安全模式：需要两笔交易（Commit + Reveal）';
+                } else {
+                    hint.textContent = '快速模式：单笔交易';
+                }
             }
         }
 
