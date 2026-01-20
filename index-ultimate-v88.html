@@ -117,6 +117,44 @@
             font-size: 12px;
             color: #3b3b3b;
         }
+        .progress-track {
+            position: relative;
+            height: 14px;
+            border-radius: 999px;
+            background: rgba(27, 26, 23, 0.08);
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #f6c453, #e86f3e);
+            transition: width 0.3s ease;
+        }
+        .milestones {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .milestone {
+            padding: 8px;
+            border-radius: 12px;
+            background: rgba(27, 26, 23, 0.08);
+            text-align: center;
+            font-size: 12px;
+            color: #3b3b3b;
+        }
+        .milestone.active {
+            background: rgba(255, 209, 102, 0.45);
+            font-weight: 700;
+        }
+        .double-modal {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 22px;
+            padding: 24px;
+            max-width: 360px;
+            text-align: center;
+        }
         .casino-frame {
             position: relative;
             padding: 22px;
@@ -260,6 +298,23 @@
                     <span class="chip">60% 中奖率</span>
                     <span class="chip">单笔交易</span>
                 </div>
+
+                <div class="glass rounded-xl p-4 mb-6">
+                    <div class="flex items-center justify-between text-sm text-slate-600 mb-2">
+                        <span>连胜进度</span>
+                        <span>当前连胜 <strong id="streakCount">0</strong> | 最高 <strong id="maxStreak">0</strong></span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="streakProgress" style="width: 0%;"></div>
+                    </div>
+                    <div class="milestones">
+                        <div class="milestone" data-step="2">连胜2</div>
+                        <div class="milestone" data-step="4">连胜4</div>
+                        <div class="milestone" data-step="6">连胜6</div>
+                        <div class="milestone" data-step="8">连胜8</div>
+                        <div class="milestone" data-step="10">连胜10</div>
+                    </div>
+                </div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="glass rounded-xl p-4 text-center">
                         <div class="text-2xl mb-2">🐱</div>
@@ -306,6 +361,9 @@
                     <button id="spinBtn" class="game-btn">🎲 一键开转</button>
                     <div id="gameStatus" class="mt-4 text-sm text-slate-600">✅ 系统已就绪</div>
                     <div id="modeHint" class="mt-2 text-xs text-slate-500">快速模式 · 单笔交易</div>
+                    <div class="mt-3 text-sm text-slate-600">
+                        🎖️ 幸运筹码：<strong id="chipCount">0</strong>
+                    </div>
                 </div>
             </div>
         </div>
@@ -385,6 +443,19 @@
         </div>
     </div>
 
+    <div id="doubleModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+        <div class="double-modal">
+            <div class="text-3xl mb-2">🎲 双倍博弈</div>
+            <p class="text-sm text-slate-600 mb-4">仅影响幸运筹码，不影响链上奖励。</p>
+            <div class="text-xl font-bold mb-4">本次筹码：<span id="doubleAmount">0</span></div>
+            <div class="flex items-center justify-center gap-2">
+                <button id="takeChips" class="game-btn">保留筹码</button>
+                <button id="doubleChips" class="game-btn">双倍挑战</button>
+            </div>
+            <div id="doubleResult" class="text-sm text-slate-600 mt-3"></div>
+        </div>
+    </div>
+
     <script>
         // 🎯 终极修复版本 v8.8 - 游戏合约地址已统一修正
         class UltimateFixedBlockchainGame {
@@ -407,6 +478,12 @@
                     approve: 150000,
                     play: { MAO: 1500000, PI: 1800000 }
                 };
+                this.localGame = {
+                    streak: 0,
+                    maxStreak: 0,
+                    chips: 0
+                };
+                this.pendingChips = 0;
                 
                 // 🔧 完全统一的合约地址配置 - 与.env文件现在完全一致
                 this.addresses = {
@@ -577,6 +654,8 @@
                     this.updateBalances();
                     this.updateBurnedTotal();
                 }, 2000);
+
+                this.applyLocalGameResult(result);
             }
 
             async testRpcNode(rpcUrl, timeout = 15000) {
@@ -724,6 +803,8 @@
 
                     this.updateWallet();
                     this.toggleAdminPanel();
+                    this.loadLocalGame();
+                    this.updateLocalGameUI();
                     await this.updateBalances();
                     await this.loadStats();
                     await this.updateBurnedTotal();
@@ -1205,6 +1286,8 @@
 
                 document.getElementById('spinBtn')?.addEventListener('click', () => this.startRealBlockchainGame());
                 document.getElementById('authorizePrizePool')?.addEventListener('click', () => this.authorizePrizePool());
+                document.getElementById('takeChips')?.addEventListener('click', () => this.closeDoubleModal());
+                document.getElementById('doubleChips')?.addEventListener('click', () => this.handleDoubleChips());
 
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
@@ -1215,6 +1298,97 @@
                 const hint = document.getElementById('modeHint');
                 if (!hint) return;
                 hint.textContent = '快速模式：单笔交易';
+            }
+
+            loadLocalGame() {
+                if (!this.state.wallet?.address) return;
+                const raw = localStorage.getItem(`mao_local_${this.state.wallet.address}`);
+                if (raw) {
+                    try {
+                        const data = JSON.parse(raw);
+                        this.localGame = {
+                            streak: data.streak || 0,
+                            maxStreak: data.maxStreak || 0,
+                            chips: data.chips || 0
+                        };
+                    } catch (e) {
+                        this.localGame = { streak: 0, maxStreak: 0, chips: 0 };
+                    }
+                }
+            }
+
+            saveLocalGame() {
+                if (!this.state.wallet?.address) return;
+                localStorage.setItem(`mao_local_${this.state.wallet.address}`, JSON.stringify(this.localGame));
+            }
+
+            updateLocalGameUI() {
+                const streakCount = document.getElementById('streakCount');
+                const maxStreak = document.getElementById('maxStreak');
+                const chipCount = document.getElementById('chipCount');
+                const progress = document.getElementById('streakProgress');
+                if (streakCount) streakCount.textContent = this.localGame.streak;
+                if (maxStreak) maxStreak.textContent = this.localGame.maxStreak;
+                if (chipCount) chipCount.textContent = this.localGame.chips;
+                if (progress) {
+                    const pct = Math.min(this.localGame.streak / 10, 1) * 100;
+                    progress.style.width = `${pct}%`;
+                }
+                document.querySelectorAll('.milestone').forEach((node) => {
+                    const step = Number(node.dataset.step || 0);
+                    node.classList.toggle('active', this.localGame.streak >= step);
+                });
+            }
+
+            applyLocalGameResult(result) {
+                if (result.isWin) {
+                    this.localGame.streak += 1;
+                    if (this.localGame.streak > this.localGame.maxStreak) {
+                        this.localGame.maxStreak = this.localGame.streak;
+                    }
+                    const rewardAmount = parseFloat(result.amount || '0');
+                    const divisor = this.state.selectedToken === 'MAO' ? 5 : 50;
+                    const gained = Math.max(10, Math.round(rewardAmount / divisor));
+                    this.localGame.chips += gained;
+                    this.pendingChips = gained;
+                    this.openDoubleModal();
+                } else {
+                    this.localGame.streak = 0;
+                }
+                this.saveLocalGame();
+                this.updateLocalGameUI();
+            }
+
+            openDoubleModal() {
+                const modal = document.getElementById('doubleModal');
+                const amount = document.getElementById('doubleAmount');
+                const result = document.getElementById('doubleResult');
+                if (!modal || !amount) return;
+                amount.textContent = this.pendingChips;
+                if (result) result.textContent = '';
+                modal.classList.remove('hidden');
+            }
+
+            closeDoubleModal() {
+                const modal = document.getElementById('doubleModal');
+                if (modal) modal.classList.add('hidden');
+                this.pendingChips = 0;
+            }
+
+            handleDoubleChips() {
+                const result = document.getElementById('doubleResult');
+                const win = Math.random() < 0.5;
+                if (win) {
+                    this.localGame.chips += this.pendingChips;
+                    if (result) result.textContent = '🎉 成功！筹码翻倍到账';
+                } else {
+                    this.localGame.chips -= this.pendingChips;
+                    if (this.localGame.chips < 0) this.localGame.chips = 0;
+                    if (result) result.textContent = '😵 失败！本次筹码归零';
+                }
+                this.saveLocalGame();
+                this.updateLocalGameUI();
+                setTimeout(() => this.closeDoubleModal(), 1200);
             }
 
             triggerSpark() {
