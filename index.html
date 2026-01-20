@@ -133,6 +133,13 @@
                     <button id="spinBtn" class="game-btn">🎲 真实区块链转盘</button>
                     <div id="gameStatus" class="mt-4 text-sm">✅ 智能连接系统已就绪</div>
                     <div id="modeHint" class="mt-2 text-xs text-blue-200">安全模式：需要两笔交易</div>
+                    <div id="commitActions" class="mt-4 hidden">
+                        <div class="text-xs text-yellow-200 mb-2">安全模式需两步：先提交，再揭示</div>
+                        <div class="flex items-center justify-center gap-2">
+                            <button id="commitBtn" class="game-btn">第1步：提交</button>
+                            <button id="revealBtn" class="game-btn">第2步：揭示</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1043,6 +1050,31 @@
                 this.loadStats();
             }
 
+            async commitStep() {
+                if (!this.state.wallet.connected || !this.state.networkReady) {
+                    this.setStatus('请先连接钱包和网络进行游戏', 'warning');
+                    return;
+                }
+                if (this.state.pendingCommit) {
+                    this.setStatus('已有未完成提交，请先揭示', 'warning');
+                    return;
+                }
+                this.setStatus('准备提交...', 'loading');
+                await this.startCommitRevealGame();
+            }
+
+            async revealStep() {
+                if (!this.state.wallet.connected || !this.state.networkReady) {
+                    this.setStatus('请先连接钱包和网络进行游戏', 'warning');
+                    return;
+                }
+                if (!this.state.pendingCommit) {
+                    this.setStatus('没有待揭示的提交，请先提交', 'warning');
+                    return;
+                }
+                await this.revealPendingCommit(this.state.pendingCommit.tokenType, this.state.pendingCommit.secret);
+            }
+
             generateCommitSecret() {
                 const bytes = new Uint8Array(32);
                 crypto.getRandomValues(bytes);
@@ -1154,6 +1186,8 @@
                 });
 
                 document.getElementById('spinBtn')?.addEventListener('click', () => this.startRealBlockchainGame());
+                document.getElementById('commitBtn')?.addEventListener('click', () => this.commitStep());
+                document.getElementById('revealBtn')?.addEventListener('click', () => this.revealStep());
 
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
@@ -1162,11 +1196,18 @@
 
             updateModeHint() {
                 const hint = document.getElementById('modeHint');
+                const actions = document.getElementById('commitActions');
                 if (!hint) return;
                 if (this.gameMode === 'commit') {
                     hint.textContent = '安全模式：需要两笔交易（Commit + Reveal）';
+                    if (actions) {
+                        actions.classList.remove('hidden');
+                    }
                 } else {
                     hint.textContent = '快速模式：单笔交易';
+                    if (actions) {
+                        actions.classList.add('hidden');
+                    }
                 }
             }
 
