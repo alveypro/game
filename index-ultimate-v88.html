@@ -190,22 +190,26 @@
                     },
                     contracts: { mao: null, pi: null, wheelGame: null },
                     currentRpcIndex: 0,
-                    networkReady: false
+                    networkReady: false,
+                    pendingCommit: null
                 };
+                
+                this.gameMode = 'commit';
+                this.commitConfig = { minBlocks: 1, maxBlocks: 200 };
                 
                 // 🔧 完全统一的合约地址配置 - 与.env文件现在完全一致
                 this.addresses = {
                     MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
                     PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444",
-                    WHEEL_GAME: "0x621DF9e0DE6b4e7EDC5Dc22Cd7c0F883c3F56966",
+                    WHEEL_GAME: "0xeF631FeEA82E528836398D64b24Bfa3670447D6e",
                     MARKETING_WALLET: "0x861A48051eFaA1876D4B38904516C9F7bbCca36d",
                     PRIZE_POOL: "0xE15881Fc413c6cd47a512C24608F94Fa2896b374"
                 };
 
                 this.rpcNodes = [
-                    'https://elves-core1.alvey.io/',
                     'https://elves-core2.alvey.io/',
-                    'https://elves-core3.alvey.io/'
+                    'https://elves-core3.alvey.io/',
+                    'https://elves-core1.alvey.io/'
                 ];
 
                 this.networkConfig = {
@@ -226,7 +230,11 @@
                 this.gameABI = [
                     "function playMAOGame() external",
                     "function playPIGame() external",
+                    "function commitPlay(uint8 tokenType, bytes32 commitHash) external",
+                    "function revealPlay(uint8 tokenType, bytes32 secret) external",
+                    "function getPendingCommit(address player) external view returns (tuple(uint256 blockNumber, uint8 tokenType, bytes32 commitHash, uint256 betAmount, bool settled))",
                     "function getPlayerHistory(address player) external view returns (tuple(address player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 timestamp, uint256 randomSeed, bool wasProtected)[])",
+                    "event PlayCommitted(address indexed player, uint8 tokenType, bytes32 commitHash, uint256 blockNumber)",
                     "event GamePlayed(address indexed player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 randomSeed, bool wasProtected)"
                 ];
             }
@@ -509,6 +517,7 @@
                     await this.updateBalances();
                     await this.loadStats();
                     await this.updateBurnedTotal();
+                    this.loadPendingCommit();
                     this.setStatus('🚀 智能区块链系统已完全连接', 'success');
 
                 } catch (error) {
@@ -624,6 +633,11 @@
                 try {
                     this.state.isPlaying = true;
                     this.updateUI(true);
+
+                    if (this.gameMode === 'commit') {
+                        await this.startCommitRevealGame();
+                        return;
+                    }
 
                     const { selectedToken } = this.state;
                     const tokenContract = selectedToken === 'MAO' ? this.state.contracts.mao : this.state.contracts.pi;
@@ -787,12 +801,201 @@
                 }
             }
 
+            async startCommitRevealGame() {
+                const { selectedToken } = this.state;
+                const tokenContract = selectedToken === 'MAO' ? this.state.contracts.mao : this.state.contracts.pi;
+                const amount = ethers.utils.parseEther(selectedToken === 'MAO' ? '100' : '1000');
+                const tokenType = selectedToken === 'MAO' ? 0 : 1;
+
+                if (this.state.pendingCommit) {
+                    this.setStatus('检测到未完成Commit，准备继续Reveal...', 'warning');
+                    await this.revealPendingCommit(this.state.pendingCommit.tokenType, this.state.pendingCommit.secret);
+                    return;
+                }
+
+                this.setStatus('检查代币余额...', 'loading');
+                const balance = await this.executeContractCall(
+                    () => tokenContract.balanceOf(this.state.wallet.address),
+                    3,
+                    "余额查询"
+                );
+                
+                if (balance.lt(amount)) {
+                    throw new Error(`余额不足！需要 ${selectedToken === 'MAO' ? '100' : '1000'} ${selectedToken} 代币`);
+                }
+
+                this.setStatus('检查智能合约授权...', 'loading');
+                const allowance = await this.executeContractCall(
+                    () => tokenContract.allowance(this.state.wallet.address, this.addresses.WHEEL_GAME),
+                    3,
+                    "授权查询"
+                );
+                
+                if (allowance.lt(amount)) {
+                    this.setStatus('授权智能合约访问代币...', 'loading');
+                    
+                    const approveTx = await this.executeContractCall(async () => {
+                        return await tokenContract.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256, {
+                            gasLimit: 150000,
+                            gasPrice: ethers.utils.parseUnits('30', 'gwei')
+                        });
+                    }, 3, "代币授权");
+                    
+                    this.setStatus('等待授权交易确认...', 'loading');
+                    await approveTx.wait(5);
+                    this.setStatus('授权成功，准备游戏', 'success');
+                }
+
+                const secret = this.generateCommitSecret();
+                const commitHash = this.buildCommitHash(tokenType, secret);
+                this.savePendingCommit({ tokenType, secret, commitHash });
+
+                this.setStatus('提交游戏请求（Commit）...', 'loading');
+                const commitTx = await this.executeContractCall(async () => {
+                    return await this.state.contracts.wheelGame.commitPlay(tokenType, commitHash, {
+                        gasLimit: 300000,
+                        gasPrice: ethers.utils.parseUnits('35', 'gwei')
+                    });
+                }, 3, "提交Commit");
+
+                this.setStatus('等待Commit确认...', 'loading');
+                const commitReceipt = await commitTx.wait(1);
+                const commitBlock = commitReceipt.blockNumber;
+
+                this.setStatus('等待区块确认后揭示（Reveal）...', 'loading');
+                await this.waitForBlocks(commitBlock + this.commitConfig.minBlocks + 1);
+
+                await this.revealPendingCommit(tokenType, secret);
+            }
+
+            async revealPendingCommit(tokenType, secret) {
+                const selectedToken = tokenType === 0 ? 'MAO' : 'PI';
+                this.startSpin();
+                const revealTx = await this.executeContractCall(async () => {
+                    return await this.state.contracts.wheelGame.revealPlay(tokenType, secret, {
+                        gasLimit: selectedToken === 'MAO' ? 1500000 : 1800000,
+                        gasPrice: ethers.utils.parseUnits('35', 'gwei')
+                    });
+                }, 3, "Reveal");
+
+                this.setStatus('Reveal确认中...', 'loading');
+                const receipt = await revealTx.wait(5);
+                this.clearPendingCommit();
+
+                let result = null;
+                
+                try {
+                    if (receipt.events && receipt.events.length > 0) {
+                        const gameEvent = receipt.events.find(e => e.event === 'GamePlayed');
+                        if (gameEvent && gameEvent.args) {
+                            const { rewardAmount, rewardLevel } = gameEvent.args;
+                            result = {
+                                isWin: rewardAmount.gt(0),
+                                amount: ethers.utils.formatEther(rewardAmount),
+                                level: rewardLevel.toString()
+                            };
+                        }
+                    }
+                } catch (eventError) {
+                    console.log('事件解析失败，尝试历史查询');
+                }
+                
+                if (!result) {
+                    this.setStatus('查询游戏记录...', 'loading');
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                    
+                    const newHistory = await this.executeContractCall(
+                        () => this.state.contracts.wheelGame.getPlayerHistory(this.state.wallet.address),
+                        3,
+                        "历史查询"
+                    );
+                    
+                    if (newHistory.length > 0) {
+                        const lastGame = newHistory[newHistory.length - 1];
+                        result = {
+                            isWin: lastGame.rewardAmount.gt(0),
+                            amount: ethers.utils.formatEther(lastGame.rewardAmount),
+                            level: lastGame.rewardLevel.toString()
+                        };
+                    }
+                }
+
+                this.showResult(result || { isWin: false, amount: '0', level: '0' }, revealTx.hash);
+                this.loadStats();
+            }
+
+            generateCommitSecret() {
+                const bytes = new Uint8Array(32);
+                crypto.getRandomValues(bytes);
+                return ethers.utils.hexlify(bytes);
+            }
+
+            buildCommitHash(tokenType, secret) {
+                return ethers.utils.keccak256(
+                    ethers.utils.defaultAbiCoder.encode(
+                        ["address", "uint8", "bytes32"],
+                        [this.state.wallet.address, tokenType, secret]
+                    )
+                );
+            }
+
+            savePendingCommit(payload) {
+                const key = `maoPendingCommit_${this.state.wallet.address}`;
+                localStorage.setItem(key, JSON.stringify({
+                    ...payload,
+                    address: this.state.wallet.address,
+                    timestamp: Date.now()
+                }));
+                this.state.pendingCommit = payload;
+            }
+
+            loadPendingCommit() {
+                const key = `maoPendingCommit_${this.state.wallet.address}`;
+                const raw = localStorage.getItem(key);
+                if (!raw) return;
+                try {
+                    const payload = JSON.parse(raw);
+                    if (payload.address === this.state.wallet.address) {
+                        this.state.pendingCommit = payload;
+                        this.setStatus('检测到未完成的Commit，可继续Reveal', 'warning');
+                    }
+                } catch (e) {
+                    localStorage.removeItem(key);
+                }
+            }
+
+            clearPendingCommit() {
+                const key = `maoPendingCommit_${this.state.wallet.address}`;
+                localStorage.removeItem(key);
+                this.state.pendingCommit = null;
+            }
+
+            async waitForBlocks(targetBlock) {
+                while (true) {
+                    const current = await this.state.wallet.provider.getBlockNumber();
+                    if (current >= targetBlock) {
+                        return;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 4000));
+                }
+            }
+
             init() {
                 document.addEventListener('DOMContentLoaded', () => {
                     this.setupEvents();
                     this.updateTokens();
                     this.updateStats();
                     this.setupNetwork();
+                    
+                    const params = new URLSearchParams(window.location.search);
+                    const mode = params.get('mode');
+                    if (mode === 'direct') {
+                        this.gameMode = 'direct';
+                        this.setStatus('快速模式：直接链上游戏', 'info');
+                    } else {
+                        this.gameMode = 'commit';
+                        this.setStatus('安全模式：Commit-Reveal 已启用', 'info');
+                    }
                 });
 
                 if (window.ethereum) {
