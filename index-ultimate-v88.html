@@ -211,7 +211,7 @@
                     pendingCommit: null
                 };
                 
-                this.gameMode = 'commit';
+                this.gameMode = 'direct';
                 this.commitConfig = { minBlocks: 1, maxBlocks: 200 };
                 this.gasLimits = {
                     approve: 150000,
@@ -1067,12 +1067,12 @@
                     
                     const params = new URLSearchParams(window.location.search);
                     const mode = params.get('mode');
-                    if (mode === 'direct') {
-                        this.gameMode = 'direct';
-                        this.setStatus('快速模式：直接链上游戏', 'info');
-                    } else {
+                    if (mode === 'commit') {
                         this.gameMode = 'commit';
                         this.setStatus('安全模式：Commit-Reveal 已启用', 'info');
+                    } else {
+                        this.gameMode = 'direct';
+                        this.setStatus('快速模式：直接链上游戏', 'info');
                     }
                     this.updateModeHint();
                 });
