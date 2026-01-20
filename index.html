@@ -312,6 +312,56 @@
             opacity: 0.9;
             animation: rain 1.2s linear forwards;
         }
+        .game-modal {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 22px;
+            padding: 24px;
+            width: 92%;
+            max-width: 460px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
+        }
+        .modal-close {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(27, 26, 23, 0.1);
+        }
+        .choice-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .choice-btn {
+            padding: 10px;
+            border-radius: 14px;
+            background: rgba(27, 26, 23, 0.08);
+            font-weight: 600;
+        }
+        .flip-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .flip-card {
+            padding: 12px;
+            border-radius: 14px;
+            background: rgba(27, 26, 23, 0.08);
+            font-size: 20px;
+            text-align: center;
+            height: 60px;
+        }
+        .slot-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .slot-reel {
+            background: rgba(27, 26, 23, 0.08);
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 28px;
+            text-align: center;
+        }
         @keyframes rain {
             to { transform: translateY(110vh) rotate(140deg); opacity: 0; }
         }
@@ -622,6 +672,49 @@
             </div>
         </div>
 
+        <!-- Game Hall -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🎮 游戏大厅</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">宝箱挖掘</div>
+                    <p class="text-xs text-slate-500 mt-2">三选一，避开陷阱，连胜加成。</p>
+                    <div class="text-xs text-slate-500 mt-2">入场 80 筹码</div>
+                    <button class="game-btn mt-3" data-open="mineModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">骰子冲刺</div>
+                    <p class="text-xs text-slate-500 mt-2">押高/低/中，翻倍冲刺。</p>
+                    <div class="text-xs text-slate-500 mt-2">入场 60 筹码</div>
+                    <button class="game-btn mt-3" data-open="diceModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">幸运翻牌</div>
+                    <p class="text-xs text-slate-500 mt-2">翻两张，连中爆奖。</p>
+                    <div class="text-xs text-slate-500 mt-2">入场 70 筹码</div>
+                    <button class="game-btn mt-3" data-open="flipModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">连胜闯关</div>
+                    <p class="text-xs text-slate-500 mt-2">连赢晋级，通关大奖。</p>
+                    <div class="text-xs text-slate-500 mt-2">入场 70 筹码</div>
+                    <button class="game-btn mt-3" data-open="dungeonModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">拉霸机</div>
+                    <p class="text-xs text-slate-500 mt-2">经典三转轴，大奖刺激。</p>
+                    <div class="text-xs text-slate-500 mt-2">入场 80 筹码</div>
+                    <button class="game-btn mt-3" data-open="slotModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">竞速冲榜</div>
+                    <p class="text-xs text-slate-500 mt-2">限时冲分，赛季排行。</p>
+                    <div class="text-xs text-slate-500 mt-2">每次 30 筹码</div>
+                    <button class="game-btn mt-3" data-open="sprintModal">进入</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Progress Map -->
         <div class="glass rounded-2xl p-6 mb-6">
             <h3 class="text-xl font-semibold mb-4">🗺️ 地图进度</h3>
@@ -670,6 +763,100 @@
         <div class="glass rounded-2xl p-6 mb-6">
             <h3 class="text-xl font-semibold mb-4">🏆 本地排行榜</h3>
             <div id="leaderboardList" class="text-sm text-slate-600"></div>
+        </div>
+
+        <!-- Game Modals -->
+        <div id="mineModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+            <div class="game-modal">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">宝箱挖掘</h3>
+                    <button class="modal-close" data-close="mineModal">关闭</button>
+                </div>
+                <p class="text-sm text-slate-500 mb-4">三选一，可能踩雷或挖到宝藏。</p>
+                <div class="choice-grid">
+                    <button class="choice-btn" data-mine="0">挖这里</button>
+                    <button class="choice-btn" data-mine="1">挖这里</button>
+                    <button class="choice-btn" data-mine="2">挖这里</button>
+                </div>
+                <div id="mineHint" class="text-xs text-slate-500 mt-3"></div>
+            </div>
+        </div>
+
+        <div id="diceModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+            <div class="game-modal">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">骰子冲刺</h3>
+                    <button class="modal-close" data-close="diceModal">关闭</button>
+                </div>
+                <div class="choice-grid mb-3">
+                    <button class="choice-btn" data-dice="low">低 (1-3)</button>
+                    <button class="choice-btn" data-dice="mid">中 (3-4)</button>
+                    <button class="choice-btn" data-dice="high">高 (4-6)</button>
+                </div>
+                <div id="diceResult" class="text-sm text-slate-600"></div>
+                <div id="diceHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
+        <div id="flipModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+            <div class="game-modal">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">幸运翻牌</h3>
+                    <button class="modal-close" data-close="flipModal">关闭</button>
+                </div>
+                <div class="flip-grid mb-3">
+                    <button class="flip-card" data-flip="0">?</button>
+                    <button class="flip-card" data-flip="1">?</button>
+                    <button class="flip-card" data-flip="2">?</button>
+                    <button class="flip-card" data-flip="3">?</button>
+                </div>
+                <button class="choice-btn w-full" data-flip-reset="1">重置牌面</button>
+                <div id="flipHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
+        <div id="dungeonModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+            <div class="game-modal">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">连胜闯关</h3>
+                    <button class="modal-close" data-close="dungeonModal">关闭</button>
+                </div>
+                <div class="text-sm text-slate-600">当前关卡: <span id="dungeonStage">1</span>/5</div>
+                <button class="game-btn mt-3 w-full" id="dungeonPlay">闯关一次</button>
+                <div id="dungeonHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
+        <div id="slotModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+            <div class="game-modal">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">拉霸机</h3>
+                    <button class="modal-close" data-close="slotModal">关闭</button>
+                </div>
+                <div class="slot-row mb-3">
+                    <div class="slot-reel" id="slot1">🍒</div>
+                    <div class="slot-reel" id="slot2">🍋</div>
+                    <div class="slot-reel" id="slot3">⭐</div>
+                </div>
+                <button class="game-btn w-full" id="slotSpin">拉霸</button>
+                <div id="slotHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
+        <div id="sprintModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+            <div class="game-modal">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">竞速冲榜</h3>
+                    <button class="modal-close" data-close="sprintModal">关闭</button>
+                </div>
+                <div class="text-sm text-slate-600">剩余时间: <span id="sprintTime">60</span>s</div>
+                <div class="text-sm text-slate-600">当前分数: <span id="sprintScore">0</span> | 历史最高: <span id="sprintBest">0</span></div>
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                    <button class="choice-btn" id="sprintStart">开始冲榜</button>
+                    <button class="choice-btn" id="sprintRun">冲刺一次</button>
+                </div>
+                <div id="sprintHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
         </div>
 
         <div id="particleRain" class="particle-rain"></div>
@@ -791,6 +978,11 @@
                         wins: 0,
                         rewardsClaimed: []
                     },
+                    mini: {
+                        flip: { cards: [], picks: [], costPaid: false },
+                        dungeonStage: 1,
+                        sprint: { active: false, endsAt: 0, score: 0, best: 0 }
+                    },
                     daily: {
                         date: null,
                         playCount: 0,
@@ -802,6 +994,7 @@
                 this.pendingChips = 0;
                 this.prevLocalSnapshot = null;
                 this.toastTimer = null;
+                this.sprintTimer = null;
                 this.mapLevels = [
                     { level: 1, name: '金沙大厅', need: 5 },
                     { level: 2, name: '霓虹隧道', need: 6 },
@@ -1636,6 +1829,31 @@
                     if (!requireWallet()) return;
                     this.openChest();
                 });
+                document.querySelectorAll('[data-open]')?.forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        if (!requireWallet()) return;
+                        this.openGameModal(btn.dataset.open);
+                    });
+                });
+                document.querySelectorAll('[data-close]')?.forEach((btn) => {
+                    btn.addEventListener('click', () => this.closeGameModal(btn.dataset.close));
+                });
+                document.querySelectorAll('[data-mine]')?.forEach((btn) => {
+                    btn.addEventListener('click', () => this.playMine(Number(btn.dataset.mine)));
+                });
+                document.querySelectorAll('[data-dice]')?.forEach((btn) => {
+                    btn.addEventListener('click', () => this.playDice(btn.dataset.dice));
+                });
+                document.querySelectorAll('[data-flip]')?.forEach((btn) => {
+                    btn.addEventListener('click', () => this.flipCard(Number(btn.dataset.flip)));
+                });
+                document.querySelectorAll('[data-flip-reset]')?.forEach((btn) => {
+                    btn.addEventListener('click', () => this.resetFlip());
+                });
+                document.getElementById('dungeonPlay')?.addEventListener('click', () => this.playDungeon());
+                document.getElementById('slotSpin')?.addEventListener('click', () => this.spinSlot());
+                document.getElementById('sprintStart')?.addEventListener('click', () => this.startSprint());
+                document.getElementById('sprintRun')?.addEventListener('click', () => this.sprintOnce());
 
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
@@ -1720,6 +1938,40 @@
                 }, 1400);
             }
 
+            openGameModal(id) {
+                if (!id) return;
+                const modal = document.getElementById(id);
+                if (modal) modal.classList.remove('hidden');
+                if (id === 'flipModal') this.prepareFlip();
+                if (id === 'sprintModal') this.updateSprintUI(true);
+                if (id === 'dungeonModal') this.updateDungeonUI();
+            }
+
+            closeGameModal(id) {
+                if (!id) return;
+                const modal = document.getElementById(id);
+                if (modal) modal.classList.add('hidden');
+            }
+
+            spendChips(cost, hintId) {
+                if (this.localGame.chips < cost) {
+                    if (hintId) {
+                        const hint = document.getElementById(hintId);
+                        if (hint) hint.textContent = '筹码不足';
+                    }
+                    this.notify('筹码不足，请先赢取筹码', 'warn');
+                    return false;
+                }
+                this.localGame.chips -= cost;
+                return true;
+            }
+
+            updateMiniGameUI() {
+                this.updateDungeonUI();
+                this.updateSprintUI(false);
+                this.updateFlipUI();
+            }
+
             loadLocalGame() {
                 if (!this.state.wallet?.address) return;
                 const raw = localStorage.getItem(`mao_local_${this.state.wallet.address}`);
@@ -1741,6 +1993,20 @@
                             lastDoubleWin: data.lastDoubleWin || false,
                             lastBossWin: data.lastBossWin || false,
                             season: data.season || { month: null, points: 0, plays: 0, wins: 0, rewardsClaimed: [] },
+                            mini: {
+                                flip: {
+                                    cards: data.mini?.flip?.cards || [],
+                                    picks: data.mini?.flip?.picks || [],
+                                    costPaid: data.mini?.flip?.costPaid || false
+                                },
+                                dungeonStage: data.mini?.dungeonStage || 1,
+                                sprint: {
+                                    active: data.mini?.sprint?.active || false,
+                                    endsAt: data.mini?.sprint?.endsAt || 0,
+                                    score: data.mini?.sprint?.score || 0,
+                                    best: data.mini?.sprint?.best || 0
+                                }
+                            },
                             daily: data.daily || {
                                 date: null,
                                 playCount: 0,
@@ -1750,7 +2016,7 @@
                             }
                         };
                     } catch (e) {
-                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, totalPlays: 0, totalWins: 0, mapLevel: 1, mapProgress: 0, achievements: {}, lastDoubleWin: false, lastBossWin: false, season: { month: null, points: 0, plays: 0, wins: 0, rewardsClaimed: [] }, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
+                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, totalPlays: 0, totalWins: 0, mapLevel: 1, mapProgress: 0, achievements: {}, lastDoubleWin: false, lastBossWin: false, season: { month: null, points: 0, plays: 0, wins: 0, rewardsClaimed: [] }, mini: { flip: { cards: [], picks: [], costPaid: false }, dungeonStage: 1, sprint: { active: false, endsAt: 0, score: 0, best: 0 } }, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
                     }
                 }
                 this.syncDaily();
@@ -1806,6 +2072,7 @@
                 this.updateMapUI();
                 this.updateAchievementsUI();
                 this.updateSeasonUI();
+                this.updateMiniGameUI();
                 if (this.prevLocalSnapshot) {
                     if (!this.prevLocalSnapshot.bossReady && this.localGame.bossReady) {
                         this.notify('Boss 房已解锁！', 'success');
@@ -2091,6 +2358,233 @@
                 }
                 this.localGame.lastDoubleWin = false;
                 this.localGame.lastBossWin = false;
+            }
+
+            playMine() {
+                if (!this.spendChips(80, 'mineHint')) return;
+                const win = Math.random() < 0.66;
+                let reward = 0;
+                if (win) {
+                    reward = 100 + Math.floor(Math.random() * 120);
+                    this.localGame.chips += reward;
+                    this.spawnParticles('gold', 20);
+                    this.notify(`挖到宝藏 +${reward}`, 'success');
+                } else {
+                    this.spawnParticles('ember', 16);
+                    this.notify('踩到陷阱，空手而归', 'warn');
+                }
+                const hint = document.getElementById('mineHint');
+                if (hint) hint.textContent = win ? `🎉 挖到宝藏 +${reward} 筹码` : '😵 踩到陷阱，损失 80 筹码';
+                this.saveLocalGame();
+                this.updateLocalGameUI();
+            }
+
+            playDice(choice) {
+                if (!this.spendChips(60, 'diceHint')) return;
+                const roll = 1 + Math.floor(Math.random() * 6);
+                const win = (choice === 'low' && roll <= 3) || (choice === 'high' && roll >= 4) || (choice === 'mid' && (roll === 3 || roll === 4));
+                const reward = win ? Math.round(60 * (choice === 'mid' ? 2.4 : 1.6)) : 0;
+                if (win) {
+                    this.localGame.chips += reward;
+                    this.spawnParticles('gold', 18);
+                    this.notify(`命中！+${reward}`, 'success');
+                } else {
+                    this.notify('未命中，下次加油', 'warn');
+                }
+                const result = document.getElementById('diceResult');
+                if (result) result.textContent = `🎲 点数：${roll}`;
+                const hint = document.getElementById('diceHint');
+                if (hint) hint.textContent = win ? `奖励 +${reward} 筹码` : '未中奖';
+                this.saveLocalGame();
+                this.updateLocalGameUI();
+            }
+
+            prepareFlip() {
+                if (!this.localGame.mini.flip.cards.length) {
+                    this.resetFlip();
+                }
+                this.updateFlipUI();
+            }
+
+            resetFlip() {
+                const deck = ['💎', '💎', '🍀', '💣'];
+                for (let i = deck.length - 1; i > 0; i -= 1) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+                this.localGame.mini.flip.cards = deck;
+                this.localGame.mini.flip.picks = [];
+                this.localGame.mini.flip.costPaid = false;
+                const hint = document.getElementById('flipHint');
+                if (hint) hint.textContent = '请选择两张牌';
+                this.saveLocalGame();
+                this.updateFlipUI();
+            }
+
+            flipCard(index) {
+                const flip = this.localGame.mini.flip;
+                if (!flip.cards.length) this.resetFlip();
+                if (flip.picks.includes(index) || flip.picks.length >= 2) return;
+                if (!flip.costPaid) {
+                    if (!this.spendChips(70, 'flipHint')) return;
+                    flip.costPaid = true;
+                }
+                flip.picks.push(index);
+                this.updateFlipUI();
+                if (flip.picks.length === 2) {
+                    const [a, b] = flip.picks.map((i) => flip.cards[i]);
+                    let reward = 0;
+                    let message = '未中奖';
+                    if (a === '💣' || b === '💣') {
+                        message = '💥 炸弹，损失入场费';
+                        this.spawnParticles('ember', 18);
+                    } else if (a === b) {
+                        reward = 220;
+                        message = `✨ 配对成功 +${reward} 筹码`;
+                        this.spawnParticles('gold', 22);
+                    } else {
+                        reward = 120;
+                        message = `🙂 小奖 +${reward} 筹码`;
+                        this.spawnParticles('gold', 14);
+                    }
+                    if (reward) this.localGame.chips += reward;
+                    const hint = document.getElementById('flipHint');
+                    if (hint) hint.textContent = message;
+                    flip.costPaid = false;
+                    this.saveLocalGame();
+                    this.updateLocalGameUI();
+                }
+            }
+
+            updateFlipUI() {
+                const flip = this.localGame.mini.flip;
+                document.querySelectorAll('[data-flip]')?.forEach((node) => {
+                    const idx = Number(node.dataset.flip);
+                    const revealed = flip.picks.includes(idx);
+                    node.textContent = revealed ? (flip.cards[idx] || '?') : '?';
+                });
+            }
+
+            playDungeon() {
+                if (!this.spendChips(70, 'dungeonHint')) return;
+                const win = Math.random() < 0.6;
+                const rewards = [80, 120, 180, 260, 500];
+                if (win) {
+                    const stageIndex = Math.min(this.localGame.mini.dungeonStage - 1, rewards.length - 1);
+                    const reward = rewards[stageIndex];
+                    this.localGame.chips += reward;
+                    this.localGame.mini.dungeonStage += 1;
+                    if (this.localGame.mini.dungeonStage > 5) {
+                        this.localGame.mini.dungeonStage = 1;
+                        this.showOverlay('bossOverlay', 'STAGE CLEAR', '闯关完成大奖');
+                        this.spawnParticles('gold', 28);
+                    }
+                    const hint = document.getElementById('dungeonHint');
+                    if (hint) hint.textContent = `闯关成功 +${reward} 筹码`;
+                } else {
+                    this.localGame.mini.dungeonStage = 1;
+                    const hint = document.getElementById('dungeonHint');
+                    if (hint) hint.textContent = '闯关失败，回到第 1 关';
+                }
+                this.saveLocalGame();
+                this.updateLocalGameUI();
+            }
+
+            updateDungeonUI() {
+                const stage = document.getElementById('dungeonStage');
+                if (stage) stage.textContent = this.localGame.mini.dungeonStage;
+            }
+
+            spinSlot() {
+                if (!this.spendChips(80, 'slotHint')) return;
+                const icons = ['🍒', '🍋', '⭐', '💎', '7'];
+                const reel = () => icons[Math.floor(Math.random() * icons.length)];
+                const a = reel();
+                const b = reel();
+                const c = reel();
+                document.getElementById('slot1').textContent = a;
+                document.getElementById('slot2').textContent = b;
+                document.getElementById('slot3').textContent = c;
+                let reward = 0;
+                if (a === b && b === c) {
+                    reward = 500;
+                } else if (a === b || b === c || a === c) {
+                    reward = 140;
+                }
+                if (reward) {
+                    this.localGame.chips += reward;
+                    this.spawnParticles('gold', 24);
+                    this.notify(`拉霸中奖 +${reward}`, 'success');
+                }
+                const hint = document.getElementById('slotHint');
+                if (hint) hint.textContent = reward ? `🎉 中奖 +${reward} 筹码` : '未中奖';
+                this.saveLocalGame();
+                this.updateLocalGameUI();
+            }
+
+            startSprint() {
+                const sprint = this.localGame.mini.sprint;
+                sprint.active = true;
+                sprint.endsAt = Date.now() + 60000;
+                sprint.score = 0;
+                const hint = document.getElementById('sprintHint');
+                if (hint) hint.textContent = '冲榜开始，60 秒冲刺！';
+                this.startSprintTimer();
+                this.updateSprintUI(true);
+                this.saveLocalGame();
+            }
+
+            sprintOnce() {
+                const sprint = this.localGame.mini.sprint;
+                if (!sprint.active) {
+                    const hint = document.getElementById('sprintHint');
+                    if (hint) hint.textContent = '请先开始冲榜';
+                    return;
+                }
+                if (!this.spendChips(30, 'sprintHint')) return;
+                const win = Math.random() < 0.6;
+                const add = win ? 12 + Math.floor(Math.random() * 10) : 3;
+                sprint.score += add;
+                const hint = document.getElementById('sprintHint');
+                if (hint) hint.textContent = win ? `加分 +${add}` : `小幅加分 +${add}`;
+                this.updateSprintUI(true);
+                this.saveLocalGame();
+            }
+
+            updateSprintUI(tickOnly) {
+                const sprint = this.localGame.mini.sprint;
+                const timeNode = document.getElementById('sprintTime');
+                const scoreNode = document.getElementById('sprintScore');
+                const bestNode = document.getElementById('sprintBest');
+                if (timeNode) {
+                    const left = Math.max(0, Math.ceil((sprint.endsAt - Date.now()) / 1000));
+                    timeNode.textContent = sprint.active ? left : 60;
+                }
+                if (scoreNode) scoreNode.textContent = sprint.score;
+                if (bestNode) bestNode.textContent = sprint.best;
+                if (!tickOnly) return;
+                if (sprint.active && Date.now() >= sprint.endsAt) {
+                    sprint.active = false;
+                    if (sprint.score > sprint.best) {
+                        sprint.best = sprint.score;
+                        this.notify('冲榜新纪录！', 'success');
+                    } else {
+                        this.notify('冲榜结束', 'info');
+                    }
+                    const hint = document.getElementById('sprintHint');
+                    if (hint) hint.textContent = `本次得分 ${sprint.score}`;
+                    if (this.sprintTimer) {
+                        clearInterval(this.sprintTimer);
+                        this.sprintTimer = null;
+                    }
+                    this.saveLocalGame();
+                    this.updateLocalGameUI();
+                }
+            }
+
+            startSprintTimer() {
+                if (this.sprintTimer) clearInterval(this.sprintTimer);
+                this.sprintTimer = setInterval(() => this.updateSprintUI(true), 500);
             }
 
             updateTaskUI() {
