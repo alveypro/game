@@ -8,10 +8,10 @@ async function main() {
 
     // 合约配置
     const CONFIG = {
-        MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
-        PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444",
-        NEW_WHEEL_GAME: "0x621DF9e0DE6b4e7EDC5Dc22Cd7c0F883c3F56966", // 新的修正版合约
-        PRIZE_POOL: "0xE15881Fc413c6cd47a512C24608F94Fa2896b374"
+        MAO_TOKEN: process.env.MAO_TOKEN || "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
+        PI_TOKEN: process.env.PI_TOKEN || "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444",
+        NEW_WHEEL_GAME: process.env.WHEEL_GAME || "0x562A68418995A6632260F842Bc5267cE0Bd52117",
+        PRIZE_POOL: process.env.PRIZE_POOL || "0xE15881Fc413c6cd47a512C24608F94Fa2896b374"
     };
 
     console.log("📊 配置信息:");
