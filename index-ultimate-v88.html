@@ -76,6 +76,19 @@
             color: #1b1a17;
             box-shadow: 0 12px 24px rgba(255, 209, 102, 0.35);
         }
+        .lang-btn {
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(27, 26, 23, 0.12);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .lang-btn.active {
+            background: linear-gradient(135deg, #ffe5a5, #ffd166);
+            box-shadow: 0 12px 20px rgba(255, 209, 102, 0.3);
+        }
         .game-btn {
             background: linear-gradient(135deg, var(--ember), var(--ocean));
             color: white;
@@ -519,24 +532,28 @@
 </head>
 <body class="text-slate-900">
     <div class="container mx-auto p-8">
-        <h1 class="text-4xl font-bold text-center mb-4 hero-title">MAO High Roller</h1>
-        <p class="text-center text-sm text-slate-600 mb-6">一局一瞬 · 单笔交易 · 中奖率 60%</p>
+        <h1 class="text-4xl font-bold text-center mb-4 hero-title" data-i18n="title">MAO High Roller</h1>
+        <p class="text-center text-sm text-slate-600 mb-6" data-i18n="subtitle">一局一瞬 · 单笔交易 · 中奖率 60%</p>
         <div class="flex justify-center mb-8">
-            <span class="jackpot-banner">💎 金色灯牌 · 热场开转</span>
+            <span class="jackpot-banner" data-i18n="banner">💎 金色灯牌 · 热场开转</span>
+        </div>
+        <div class="flex justify-center mb-6 gap-2">
+            <button id="langZh" class="lang-btn active">中文</button>
+            <button id="langEn" class="lang-btn">English</button>
         </div>
         <div id="miniToast" class="mini-toast info"></div>
         
         <!-- Status Bar -->
         <div class="glass rounded-2xl p-4 mb-6">
             <div class="flex items-center justify-center">
-                <span id="networkStatus" class="text-sm text-slate-600">🔗 初始化智能区块链连接...</span>
+                <span id="networkStatus" class="text-sm text-slate-600" data-i18n="network_init">🔗 初始化智能区块链连接...</span>
             </div>
         </div>
 
         <!-- Admin Panel (Prize Pool Only) -->
         <div id="adminPanel" class="hidden">
             <details class="glass rounded-2xl p-6 mb-6">
-                <summary class="detail-summary text-lg">🔒 管理员面板（仅奖池钱包可见）</summary>
+                <summary class="detail-summary text-lg" data-i18n="admin_panel">🔒 管理员面板（仅奖池钱包可见）</summary>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
@@ -588,22 +605,22 @@
         <!-- Wallet Section -->
         <div class="glass rounded-2xl p-6 mb-8 stage">
             <div id="walletDisconnected">
-                <button id="connectBtn" class="game-btn mx-auto block">连接钱包开始游戏</button>
+                <button id="connectBtn" class="game-btn mx-auto block" data-i18n="btn_connect">连接钱包开始游戏</button>
             </div>
             <div id="walletConnected" class="hidden">
                 <div class="glass rounded-xl p-4 mb-6">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div>
-                            <div class="text-xs text-slate-500">玩家地址</div>
+                            <div class="text-xs text-slate-500" data-i18n="player_address">玩家地址</div>
                             <div id="walletAddress" class="font-mono text-slate-900"></div>
                         </div>
                         <div class="text-xs text-slate-500">
-                            ⛽ ALV 手续费：
+                            ⛽ <span data-i18n="alv_fee_label">ALV 手续费：</span>
                             <span id="alvBalance" class="text-slate-900 font-bold">--</span>
                         </div>
                         <div class="flex gap-2">
-                            <span class="chip">所有游戏链上同权重</span>
-                            <span class="chip">60% 中奖率</span>
+                            <span class="chip" data-i18n="chip_equal_weight">所有游戏链上同权重</span>
+                            <span class="chip" data-i18n="chip_win_rate">60% 中奖率</span>
                         </div>
                     </div>
                 </div>
@@ -621,7 +638,7 @@
                     <div class="glass rounded-xl p-4 text-center">
                         <div class="text-2xl mb-2">🎖️</div>
                         <div class="text-slate-900 text-2xl font-bold" id="chipCount">0</div>
-                        <div class="text-sm">幸运筹码</div>
+                        <div class="text-sm" data-i18n="lucky_chips">幸运筹码</div>
                     </div>
                 </div>
                 <div class="flex justify-center mb-6">
@@ -632,18 +649,18 @@
                 </div>
                 <div class="glass rounded-xl p-4 mb-6" id="streakCard">
                     <div class="flex items-center justify-between text-sm text-slate-600 mb-2">
-                        <span>连胜进度</span>
-                        <span class="flex items-center gap-2">当前连胜 <strong id="streakCount">0</strong> | 最高 <strong id="maxStreak">0</strong><span id="streakFlame" class="streak-flame hidden">🔥</span></span>
+                        <span data-i18n="streak_progress">连胜进度</span>
+                        <span class="flex items-center gap-2"><span data-i18n="streak_current">当前连胜</span> <strong id="streakCount">0</strong> | <span data-i18n="streak_best">最高</span> <strong id="maxStreak">0</strong><span id="streakFlame" class="streak-flame hidden">🔥</span></span>
                     </div>
                     <div class="progress-track">
                         <div class="progress-fill" id="streakProgress" style="width: 0%;"></div>
                     </div>
                     <div class="milestones">
-                        <div class="milestone" data-step="2">连胜2</div>
-                        <div class="milestone" data-step="4">连胜4</div>
-                        <div class="milestone" data-step="6">连胜6</div>
-                        <div class="milestone" data-step="8">连胜8</div>
-                        <div class="milestone" data-step="10">连胜10</div>
+                        <div class="milestone" data-step="2" data-i18n="streak_2">连胜2</div>
+                        <div class="milestone" data-step="4" data-i18n="streak_4">连胜4</div>
+                        <div class="milestone" data-step="6" data-i18n="streak_6">连胜6</div>
+                        <div class="milestone" data-step="8" data-i18n="streak_8">连胜8</div>
+                        <div class="milestone" data-step="10" data-i18n="streak_10">连胜10</div>
                     </div>
                 </div>
             </div>
@@ -651,37 +668,37 @@
 
         <!-- Game Hall -->
         <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">🎮 大型游戏厅</h3>
+            <h3 class="text-xl font-semibold mb-4" data-i18n="hall_title">🎮 大型游戏厅</h3>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                 <div class="glass rounded-xl p-4 highlight-card">
                     <div class="flex items-center justify-between">
                         <div>
-                            <div class="text-xs text-slate-500">今日推荐玩法</div>
+                            <div class="text-xs text-slate-500" data-i18n="featured_label">今日推荐玩法</div>
                             <div class="text-lg font-bold" id="featuredGameName">宝箱挖掘</div>
                         </div>
-                        <span class="badge">推荐</span>
+                        <span class="badge" data-i18n="badge_featured">推荐</span>
                     </div>
                     <p class="text-xs text-slate-500 mt-2" id="featuredGameDesc">三选一，连胜加成，适合热身。</p>
-                    <button class="game-btn mt-3" id="featuredGameBtn">立即开玩</button>
+                    <button class="game-btn mt-3" id="featuredGameBtn" data-i18n="btn_play_now">立即开玩</button>
                 </div>
                 <div class="glass rounded-xl p-4">
-                    <div class="text-sm text-slate-500">大厅每日任务</div>
+                    <div class="text-sm text-slate-500" data-i18n="hall_daily_tasks">大厅每日任务</div>
                     <div class="text-sm mt-2" id="miniTaskList"></div>
-                    <button class="game-btn mt-3" id="claimMiniTasks">领取大厅奖励</button>
-                    <button class="choice-btn w-full mt-3" id="claimMiniSupply">领取今日补给</button>
+                    <button class="game-btn mt-3" id="claimMiniTasks" data-i18n="btn_claim_hall">领取大厅奖励</button>
+                    <button class="choice-btn w-full mt-3" id="claimMiniSupply" data-i18n="btn_claim_supply">领取今日补给</button>
                     <div id="miniTaskHint" class="text-xs text-slate-500 mt-2"></div>
                     <div id="miniSupplyHint" class="text-xs text-slate-500 mt-2"></div>
                 </div>
             </div>
-            <p class="text-xs text-slate-500 mb-4">小游戏与转盘相同，使用 MAO/PI 进行链上交易，奖励直接发放到钱包。</p>
+            <p class="text-xs text-slate-500 mb-4" data-i18n="hall_note">小游戏与转盘相同，使用 MAO/PI 进行链上交易，奖励直接发放到钱包。</p>
             <div class="game-hall-grid">
                 <div class="game-card large">
                     <div class="game-card-header">
                         <div>
-                            <div class="game-card-title">大转盘</div>
-                            <div class="game-card-desc">多档奖励，主舞台即刻开奖。</div>
+                            <div class="game-card-title" data-i18n="game_wheel_title">大转盘</div>
+                            <div class="game-card-desc" data-i18n="game_wheel_desc">多档奖励，主舞台即刻开奖。</div>
                         </div>
-                        <span class="badge">链上</span>
+                        <span class="badge" data-i18n="badge_onchain">链上</span>
                     </div>
                     <div class="flex justify-center">
                         <div class="relative casino-frame">
@@ -699,142 +716,142 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-between">
-                        <div class="text-xs text-slate-500">消耗 100 MAO / 1000 PI</div>
-                        <button id="spinBtn" class="game-btn">🎲 开始转盘</button>
+                        <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                        <button id="spinBtn" class="game-btn" data-i18n="spin_button">🎲 开始转盘</button>
                     </div>
-                    <div id="gameStatus" class="text-sm text-slate-600">✅ 系统已就绪</div>
-                    <div id="modeHint" class="text-xs text-slate-500">快速模式 · 单笔交易</div>
+                    <div id="gameStatus" class="text-sm text-slate-600" data-i18n="status_ready">✅ 系统已就绪</div>
+                    <div id="modeHint" class="text-xs text-slate-500" data-i18n="mode_fast">快速模式 · 单笔交易</div>
                 </div>
                 <div class="game-card">
                     <div class="game-card-header">
                         <div>
-                            <div class="game-card-title">宝箱挖掘</div>
-                            <div class="game-card-desc">三选一，避开陷阱，连胜加成。</div>
+                            <div class="game-card-title" data-i18n="game_mine_title">宝箱挖掘</div>
+                            <div class="game-card-desc" data-i18n="game_mine_desc">三选一，避开陷阱，连胜加成。</div>
                         </div>
-                        <span class="badge">链上</span>
+                        <span class="badge" data-i18n="badge_onchain">链上</span>
                     </div>
-                    <div class="text-xs text-slate-500">消耗 100 MAO / 1000 PI</div>
-                    <button class="game-btn" data-open="mineModal">进入</button>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="mineModal" data-i18n="btn_enter">进入</button>
                 </div>
                 <div class="game-card">
                     <div class="game-card-header">
                         <div>
-                            <div class="game-card-title">骰子冲刺</div>
-                            <div class="game-card-desc">押高/低/中，翻倍冲刺。</div>
+                            <div class="game-card-title" data-i18n="game_dice_title">骰子冲刺</div>
+                            <div class="game-card-desc" data-i18n="game_dice_desc">押高/低/中，翻倍冲刺。</div>
                         </div>
-                        <span class="badge">链上</span>
+                        <span class="badge" data-i18n="badge_onchain">链上</span>
                     </div>
-                    <div class="text-xs text-slate-500">消耗 100 MAO / 1000 PI</div>
-                    <button class="game-btn" data-open="diceModal">进入</button>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="diceModal" data-i18n="btn_enter">进入</button>
                 </div>
                 <div class="game-card">
                     <div class="game-card-header">
                         <div>
-                            <div class="game-card-title">幸运翻牌</div>
-                            <div class="game-card-desc">翻两张，连中爆奖。</div>
+                            <div class="game-card-title" data-i18n="game_flip_title">幸运翻牌</div>
+                            <div class="game-card-desc" data-i18n="game_flip_desc">翻两张，连中爆奖。</div>
                         </div>
-                        <span class="badge">链上</span>
+                        <span class="badge" data-i18n="badge_onchain">链上</span>
                     </div>
-                    <div class="text-xs text-slate-500">消耗 100 MAO / 1000 PI</div>
-                    <button class="game-btn" data-open="flipModal">进入</button>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="flipModal" data-i18n="btn_enter">进入</button>
                 </div>
                 <div class="game-card">
                     <div class="game-card-header">
                         <div>
-                            <div class="game-card-title">连胜闯关</div>
-                            <div class="game-card-desc">连赢晋级，通关大奖。</div>
+                            <div class="game-card-title" data-i18n="game_dungeon_title">连胜闯关</div>
+                            <div class="game-card-desc" data-i18n="game_dungeon_desc">连赢晋级，通关大奖。</div>
                         </div>
-                        <span class="badge">链上</span>
+                        <span class="badge" data-i18n="badge_onchain">链上</span>
                     </div>
-                    <div class="text-xs text-slate-500">消耗 100 MAO / 1000 PI</div>
-                    <button class="game-btn" data-open="dungeonModal">进入</button>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="dungeonModal" data-i18n="btn_enter">进入</button>
                 </div>
                 <div class="game-card">
                     <div class="game-card-header">
                         <div>
-                            <div class="game-card-title">拉霸机</div>
-                            <div class="game-card-desc">经典三转轴，大奖刺激。</div>
+                            <div class="game-card-title" data-i18n="game_slot_title">拉霸机</div>
+                            <div class="game-card-desc" data-i18n="game_slot_desc">经典三转轴，大奖刺激。</div>
                         </div>
-                        <span class="badge">链上</span>
+                        <span class="badge" data-i18n="badge_onchain">链上</span>
                     </div>
-                    <div class="text-xs text-slate-500">消耗 100 MAO / 1000 PI</div>
-                    <button class="game-btn" data-open="slotModal">进入</button>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="slotModal" data-i18n="btn_enter">进入</button>
                 </div>
                 <div class="game-card">
                     <div class="game-card-header">
                         <div>
-                            <div class="game-card-title">竞速冲榜</div>
-                            <div class="game-card-desc">限时冲分，赛季排行。</div>
+                            <div class="game-card-title" data-i18n="game_sprint_title">竞速冲榜</div>
+                            <div class="game-card-desc" data-i18n="game_sprint_desc">限时冲分，赛季排行。</div>
                         </div>
-                        <span class="badge">链上</span>
+                        <span class="badge" data-i18n="badge_onchain">链上</span>
                     </div>
-                    <div class="text-xs text-slate-500">消耗 100 MAO / 1000 PI</div>
-                    <button class="game-btn" data-open="sprintModal">进入</button>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="sprintModal" data-i18n="btn_enter">进入</button>
                 </div>
             </div>
         </div>
         
         <!-- Prize Odds -->
         <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">🎯 中奖概率一览（MAO）</h3>
+            <h3 class="text-xl font-semibold mb-4" data-i18n="odds_title">🎯 中奖概率一览（MAO）</h3>
             <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 <div class="glass rounded-xl p-4">
-                    <div class="text-sm text-slate-500">未中奖</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_lose">未中奖</div>
                     <div class="text-2xl font-bold text-slate-700">40%</div>
-                    <div class="text-sm text-slate-500">0 MAO</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_lose_reward">0 MAO</div>
                 </div>
                 <div class="glass rounded-xl p-4">
-                    <div class="text-sm text-slate-500">小奖</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_small">小奖</div>
                     <div class="text-2xl font-bold text-emerald-600">25%</div>
-                    <div class="text-sm text-slate-500">105 MAO</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_small_reward">105 MAO</div>
                 </div>
                 <div class="glass rounded-xl p-4">
-                    <div class="text-sm text-slate-500">中奖</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_mid">中奖</div>
                     <div class="text-2xl font-bold text-emerald-600">20%</div>
-                    <div class="text-sm text-slate-500">125 MAO</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_mid_reward">125 MAO</div>
                 </div>
                 <div class="glass rounded-xl p-4">
-                    <div class="text-sm text-slate-500">大奖</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_big">大奖</div>
                     <div class="text-2xl font-bold text-amber-600">10%</div>
-                    <div class="text-sm text-slate-500">200 MAO</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_big_reward">200 MAO</div>
                 </div>
                 <div class="glass rounded-xl p-4">
-                    <div class="text-sm text-slate-500">超级大奖</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_super">超级大奖</div>
                     <div class="text-2xl font-bold text-amber-600">4%</div>
-                    <div class="text-sm text-slate-500">600 MAO</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_super_reward">600 MAO</div>
                 </div>
                 <div class="glass rounded-xl p-4">
-                    <div class="text-sm text-slate-500">终极大奖</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_ultra">终极大奖</div>
                     <div class="text-2xl font-bold text-rose-600">1%</div>
-                    <div class="text-sm text-slate-500">1000 MAO</div>
+                    <div class="text-sm text-slate-500" data-i18n="odds_ultra_reward">1000 MAO</div>
                 </div>
             </div>
-            <p class="text-xs text-slate-500 mt-4">PI 模式按相同比例放大为 1000/1050/1250/2000/6000/10000 PI。</p>
+            <p class="text-xs text-slate-500 mt-4" data-i18n="odds_note">PI 模式按相同比例放大为 1000/1050/1250/2000/6000/10000 PI。</p>
         </div>
 
         <!-- Gameplay Console -->
         <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">🎲 玩法控制台</h3>
+            <h3 class="text-xl font-semibold mb-4" data-i18n="console_title">🎲 玩法控制台</h3>
             <div class="panel-grid">
                 <div class="glass rounded-xl p-4" id="bossCard">
-                    <div class="text-sm text-slate-500">Boss 房</div>
+                    <div class="text-sm text-slate-500" data-i18n="boss_room">Boss 房</div>
                     <div class="text-lg font-bold mt-1" id="bossStatus">未解锁</div>
-                    <p class="text-xs text-slate-500 mt-2">连胜 5 解锁，赢得额外筹码。</p>
-                    <button id="enterBoss" class="game-btn mt-3">进入 Boss 房</button>
+                    <p class="text-xs text-slate-500 mt-2" data-i18n="boss_hint">连胜 5 解锁，赢得额外筹码。</p>
+                    <button id="enterBoss" class="game-btn mt-3" data-i18n="btn_enter_boss">进入 Boss 房</button>
                     <div id="bossHint" class="text-xs text-slate-500 mt-2"></div>
                 </div>
                 <div class="glass rounded-xl p-4" id="taskCard">
-                    <div class="text-sm text-slate-500">每日任务</div>
-                    <div class="text-xs text-slate-600 mt-2">今日进度</div>
+                    <div class="text-sm text-slate-500" data-i18n="daily_tasks">每日任务</div>
+                    <div class="text-xs text-slate-600 mt-2" data-i18n="daily_progress">今日进度</div>
                     <div class="text-sm mt-2" id="taskList"></div>
-                    <button id="claimTasks" class="game-btn mt-3">领取任务奖励</button>
+                    <button id="claimTasks" class="game-btn mt-3" data-i18n="btn_claim_tasks">领取任务奖励</button>
                     <div id="taskHint" class="text-xs text-slate-500 mt-2"></div>
                 </div>
                 <div class="glass rounded-xl p-4" id="charmCard">
-                    <div class="text-sm text-slate-500">幸运符</div>
+                    <div class="text-sm text-slate-500" data-i18n="charm_title">幸运符</div>
                     <div class="text-lg font-bold mt-1" id="charmStatus">未激活</div>
-                    <p class="text-xs text-slate-500 mt-2">消耗 200 筹码，提升筹码收益。</p>
-                    <button id="buyCharm" class="game-btn mt-3">购买幸运符</button>
+                    <p class="text-xs text-slate-500 mt-2" data-i18n="charm_desc">消耗 200 筹码，提升筹码收益。</p>
+                    <button id="buyCharm" class="game-btn mt-3" data-i18n="btn_buy_charm">购买幸运符</button>
                     <div id="charmHint" class="text-xs text-slate-500 mt-2"></div>
                 </div>
             </div>
@@ -842,31 +859,31 @@
 
         <!-- Progress Map -->
         <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">🗺️ 地图进度</h3>
+            <h3 class="text-xl font-semibold mb-4" data-i18n="map_title">🗺️ 地图进度</h3>
             <div class="map-track" id="mapTrack"></div>
             <div class="text-xs text-slate-500 mt-3" id="mapHint"></div>
         </div>
 
         <!-- Achievements -->
         <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">🏅 成就墙</h3>
+            <h3 class="text-xl font-semibold mb-4" data-i18n="achievement_title">🏅 成就墙</h3>
             <div id="achievementList"></div>
         </div>
 
         <!-- Season -->
         <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">🏁 赛季进度</h3>
+            <h3 class="text-xl font-semibold mb-4" data-i18n="season_title">🏁 赛季进度</h3>
             <div class="flex items-center justify-between">
                 <div>
-                    <div class="text-sm text-slate-500">赛季等级</div>
+                    <div class="text-sm text-slate-500" data-i18n="season_rank">赛季等级</div>
                     <div class="season-rank" id="seasonRank">Bronze</div>
                 </div>
                 <div>
-                    <div class="text-sm text-slate-500">赛季积分</div>
+                    <div class="text-sm text-slate-500" data-i18n="season_points">赛季积分</div>
                     <div class="text-lg font-bold" id="seasonPoints">0</div>
                 </div>
                 <div>
-                    <div class="text-sm text-slate-500">赛季胜率</div>
+                    <div class="text-sm text-slate-500" data-i18n="season_winrate">赛季胜率</div>
                     <div class="text-lg font-bold" id="seasonWinRate">0%</div>
                 </div>
             </div>
@@ -878,15 +895,15 @@
 
         <!-- Surprise Chest -->
         <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">🎁 彩蛋宝箱</h3>
-            <p class="text-sm text-slate-500">消耗 150 筹码开启，随机获得筹码或幸运符。</p>
-            <button id="openChest" class="game-btn mt-4">开启宝箱</button>
+            <h3 class="text-xl font-semibold mb-4" data-i18n="chest_title">🎁 彩蛋宝箱</h3>
+            <p class="text-sm text-slate-500" data-i18n="chest_desc">消耗 150 筹码开启，随机获得筹码或幸运符。</p>
+            <button id="openChest" class="game-btn mt-4" data-i18n="btn_open_chest">开启宝箱</button>
             <div id="chestHint" class="text-xs text-slate-500 mt-2"></div>
         </div>
 
         <!-- Leaderboard -->
         <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">🏆 本地排行榜</h3>
+            <h3 class="text-xl font-semibold mb-4" data-i18n="leaderboard_title">🏆 本地排行榜</h3>
             <div id="leaderboardList" class="text-sm text-slate-600"></div>
         </div>
 
@@ -894,14 +911,14 @@
         <div id="mineModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
             <div class="game-modal">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold">宝箱挖掘</h3>
-                    <button class="modal-close" data-close="mineModal">关闭</button>
+                    <h3 class="text-lg font-bold" data-i18n="game_mine_title">宝箱挖掘</h3>
+                    <button class="modal-close" data-close="mineModal" data-i18n="btn_close">关闭</button>
                 </div>
-                <p class="text-sm text-slate-500 mb-4">三选一，可能踩雷或挖到宝藏。</p>
+                <p class="text-sm text-slate-500 mb-4" data-i18n="mine_tip">三选一，可能踩雷或挖到宝藏。</p>
                 <div class="choice-grid">
-                    <button class="choice-btn" data-mine="0">挖这里</button>
-                    <button class="choice-btn" data-mine="1">挖这里</button>
-                    <button class="choice-btn" data-mine="2">挖这里</button>
+                    <button class="choice-btn" data-mine="0" data-i18n="mine_pick">挖这里</button>
+                    <button class="choice-btn" data-mine="1" data-i18n="mine_pick">挖这里</button>
+                    <button class="choice-btn" data-mine="2" data-i18n="mine_pick">挖这里</button>
                 </div>
                 <div id="mineAchievements" class="text-xs text-slate-500 mt-3"></div>
                 <div id="mineHint" class="text-xs text-slate-500 mt-3"></div>
@@ -911,13 +928,13 @@
         <div id="diceModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
             <div class="game-modal">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold">骰子冲刺</h3>
-                    <button class="modal-close" data-close="diceModal">关闭</button>
+                    <h3 class="text-lg font-bold" data-i18n="game_dice_title">骰子冲刺</h3>
+                    <button class="modal-close" data-close="diceModal" data-i18n="btn_close">关闭</button>
                 </div>
                 <div class="choice-grid mb-3">
-                    <button class="choice-btn" data-dice="low">低 (1-3)</button>
-                    <button class="choice-btn" data-dice="mid">中 (3-4)</button>
-                    <button class="choice-btn" data-dice="high">高 (4-6)</button>
+                    <button class="choice-btn" data-dice="low" data-i18n="dice_low">低 (1-3)</button>
+                    <button class="choice-btn" data-dice="mid" data-i18n="dice_mid">中 (3-4)</button>
+                    <button class="choice-btn" data-dice="high" data-i18n="dice_high">高 (4-6)</button>
                 </div>
                 <div id="diceResult" class="text-sm text-slate-600"></div>
                 <div id="diceAchievements" class="text-xs text-slate-500 mt-2"></div>
@@ -928,8 +945,8 @@
         <div id="flipModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
             <div class="game-modal">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold">幸运翻牌</h3>
-                    <button class="modal-close" data-close="flipModal">关闭</button>
+                    <h3 class="text-lg font-bold" data-i18n="game_flip_title">幸运翻牌</h3>
+                    <button class="modal-close" data-close="flipModal" data-i18n="btn_close">关闭</button>
                 </div>
                 <div class="flip-grid mb-3">
                     <button class="flip-card" data-flip="0">?</button>
@@ -937,7 +954,7 @@
                     <button class="flip-card" data-flip="2">?</button>
                     <button class="flip-card" data-flip="3">?</button>
                 </div>
-                <button class="choice-btn w-full" data-flip-reset="1">重置牌面</button>
+                <button class="choice-btn w-full" data-flip-reset="1" data-i18n="flip_reset">重置牌面</button>
                 <div id="flipAchievements" class="text-xs text-slate-500 mt-2"></div>
                 <div id="flipHint" class="text-xs text-slate-500 mt-2"></div>
             </div>
@@ -946,11 +963,11 @@
         <div id="dungeonModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
             <div class="game-modal">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold">连胜闯关</h3>
-                    <button class="modal-close" data-close="dungeonModal">关闭</button>
+                    <h3 class="text-lg font-bold" data-i18n="game_dungeon_title">连胜闯关</h3>
+                    <button class="modal-close" data-close="dungeonModal" data-i18n="btn_close">关闭</button>
                 </div>
-                <div class="text-sm text-slate-600">当前关卡: <span id="dungeonStage">1</span>/5</div>
-                <button class="game-btn mt-3 w-full" id="dungeonPlay">闯关一次</button>
+                <div class="text-sm text-slate-600"><span data-i18n="dungeon_stage">当前关卡</span>: <span id="dungeonStage">1</span>/5</div>
+                <button class="game-btn mt-3 w-full" id="dungeonPlay" data-i18n="dungeon_play">闯关一次</button>
                 <div id="dungeonAchievements" class="text-xs text-slate-500 mt-2"></div>
                 <div id="dungeonHint" class="text-xs text-slate-500 mt-2"></div>
             </div>
@@ -959,15 +976,15 @@
         <div id="slotModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
             <div class="game-modal">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold">拉霸机</h3>
-                    <button class="modal-close" data-close="slotModal">关闭</button>
+                    <h3 class="text-lg font-bold" data-i18n="game_slot_title">拉霸机</h3>
+                    <button class="modal-close" data-close="slotModal" data-i18n="btn_close">关闭</button>
                 </div>
                 <div class="slot-row mb-3">
                     <div class="slot-reel" id="slot1">🍒</div>
                     <div class="slot-reel" id="slot2">🍋</div>
                     <div class="slot-reel" id="slot3">⭐</div>
                 </div>
-                <button class="game-btn w-full" id="slotSpin">拉霸</button>
+                <button class="game-btn w-full" id="slotSpin" data-i18n="slot_spin">拉霸</button>
                 <div id="slotAchievements" class="text-xs text-slate-500 mt-2"></div>
                 <div id="slotHint" class="text-xs text-slate-500 mt-2"></div>
             </div>
@@ -976,14 +993,14 @@
         <div id="sprintModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
             <div class="game-modal">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold">竞速冲榜</h3>
-                    <button class="modal-close" data-close="sprintModal">关闭</button>
+                    <h3 class="text-lg font-bold" data-i18n="game_sprint_title">竞速冲榜</h3>
+                    <button class="modal-close" data-close="sprintModal" data-i18n="btn_close">关闭</button>
                 </div>
-                <div class="text-sm text-slate-600">剩余时间: <span id="sprintTime">60</span>s</div>
-                <div class="text-sm text-slate-600">当前分数: <span id="sprintScore">0</span> | 历史最高: <span id="sprintBest">0</span></div>
+                <div class="text-sm text-slate-600"><span data-i18n="sprint_time">剩余时间</span>: <span id="sprintTime">60</span>s</div>
+                <div class="text-sm text-slate-600"><span data-i18n="sprint_score">当前分数</span>: <span id="sprintScore">0</span> | <span data-i18n="sprint_best">历史最高</span>: <span id="sprintBest">0</span></div>
                 <div class="grid grid-cols-2 gap-3 mt-3">
-                    <button class="choice-btn" id="sprintStart">开始冲榜</button>
-                    <button class="choice-btn" id="sprintRun">冲刺一次</button>
+                    <button class="choice-btn" id="sprintStart" data-i18n="sprint_start">开始冲榜</button>
+                    <button class="choice-btn" id="sprintRun" data-i18n="sprint_run">冲刺一次</button>
                 </div>
                 <div id="sprintBoard" class="text-xs text-slate-500 mt-3"></div>
                 <div id="sprintAchievements" class="text-xs text-slate-500 mt-2"></div>
@@ -1130,6 +1147,221 @@
                 this.toastTimer = null;
                 this.sprintTimer = null;
                 this.activeMiniGame = null;
+                this.lang = localStorage.getItem('mao_lang') || 'zh';
+                this.i18n = {
+                    zh: {
+                        title: 'MAO High Roller',
+                        subtitle: '一局一瞬 · 单笔交易 · 中奖率 60%',
+                        banner: '💎 金色灯牌 · 热场开转',
+                        network_init: '🔗 初始化智能区块链连接...',
+                        admin_panel: '🔒 管理员面板（仅奖池钱包可见）',
+                        btn_connect: '连接钱包开始游戏',
+                        player_address: '玩家地址',
+                        alv_fee_label: 'ALV 手续费：',
+                        chip_equal_weight: '所有游戏链上同权重',
+                        chip_win_rate: '60% 中奖率',
+                        lucky_chips: '幸运筹码',
+                        streak_progress: '连胜进度',
+                        streak_current: '当前连胜',
+                        streak_best: '最高',
+                        streak_2: '连胜2',
+                        streak_4: '连胜4',
+                        streak_6: '连胜6',
+                        streak_8: '连胜8',
+                        streak_10: '连胜10',
+                        hall_title: '🎮 大型游戏厅',
+                        featured_label: '今日推荐玩法',
+                        badge_featured: '推荐',
+                        btn_play_now: '立即开玩',
+                        hall_daily_tasks: '大厅每日任务',
+                        btn_claim_hall: '领取大厅奖励',
+                        btn_claim_supply: '领取今日补给',
+                        hall_note: '小游戏与转盘相同，使用 MAO/PI 进行链上交易，奖励直接发放到钱包。',
+                        game_wheel_title: '大转盘',
+                        game_wheel_desc: '多档奖励，主舞台即刻开奖。',
+                        badge_onchain: '链上',
+                        game_cost: '消耗 100 MAO / 1000 PI',
+                        spin_button: '🎲 开始转盘',
+                        spin_loading: '交易处理中...',
+                        status_ready: '✅ 系统已就绪',
+                        mode_fast: '快速模式 · 单笔交易',
+                        game_mine_title: '宝箱挖掘',
+                        game_mine_desc: '三选一，避开陷阱，连胜加成。',
+                        game_dice_title: '骰子冲刺',
+                        game_dice_desc: '押高/低/中，翻倍冲刺。',
+                        game_flip_title: '幸运翻牌',
+                        game_flip_desc: '翻两张，连中爆奖。',
+                        game_dungeon_title: '连胜闯关',
+                        game_dungeon_desc: '连赢晋级，通关大奖。',
+                        game_slot_title: '拉霸机',
+                        game_slot_desc: '经典三转轴，大奖刺激。',
+                        game_sprint_title: '竞速冲榜',
+                        game_sprint_desc: '限时冲分，赛季排行。',
+                        btn_enter: '进入',
+                        odds_title: '🎯 中奖概率一览（MAO）',
+                        odds_lose: '未中奖',
+                        odds_lose_reward: '0 MAO',
+                        odds_small: '小奖',
+                        odds_small_reward: '105 MAO',
+                        odds_mid: '中奖',
+                        odds_mid_reward: '125 MAO',
+                        odds_big: '大奖',
+                        odds_big_reward: '200 MAO',
+                        odds_super: '超级大奖',
+                        odds_super_reward: '600 MAO',
+                        odds_ultra: '终极大奖',
+                        odds_ultra_reward: '1000 MAO',
+                        odds_note: 'PI 模式按相同比例放大为 1000/1050/1250/2000/6000/10000 PI。',
+                        console_title: '🎲 玩法控制台',
+                        boss_room: 'Boss 房',
+                        boss_hint: '连胜 5 解锁，赢得额外筹码。',
+                        btn_enter_boss: '进入 Boss 房',
+                        daily_tasks: '每日任务',
+                        daily_progress: '今日进度',
+                        btn_claim_tasks: '领取任务奖励',
+                        charm_title: '幸运符',
+                        charm_desc: '消耗 200 筹码，提升筹码收益。',
+                        btn_buy_charm: '购买幸运符',
+                        map_title: '🗺️ 地图进度',
+                        achievement_title: '🏅 成就墙',
+                        season_title: '🏁 赛季进度',
+                        season_rank: '赛季等级',
+                        season_points: '赛季积分',
+                        season_winrate: '赛季胜率',
+                        chest_title: '🎁 彩蛋宝箱',
+                        chest_desc: '消耗 150 筹码开启，随机获得筹码或幸运符。',
+                        btn_open_chest: '开启宝箱',
+                        leaderboard_title: '🏆 本地排行榜',
+                        btn_close: '关闭',
+                        mine_tip: '三选一，可能踩雷或挖到宝藏。',
+                        mine_pick: '挖这里',
+                        dice_low: '低 (1-3)',
+                        dice_mid: '中 (3-4)',
+                        dice_high: '高 (4-6)',
+                        flip_reset: '重置牌面',
+                        dungeon_stage: '当前关卡',
+                        dungeon_play: '闯关一次',
+                        slot_spin: '拉霸',
+                        sprint_time: '剩余时间',
+                        sprint_score: '当前分数',
+                        sprint_best: '历史最高',
+                        sprint_start: '开始冲榜',
+                        sprint_run: '冲刺一次',
+                        mini_chain: '链上开奖中...',
+                        mini_supply_hint: '今日补给：+100 筹码',
+                        mini_supply_claimed: '今日补给已领取',
+                        mini_task_claimed: '今日大厅奖励已领取',
+                        mini_task_unfinished: '大厅任务未完成',
+                        mini_task_done: '大厅任务奖励已到账',
+                        mini_supply_done: '已领取今日补给 +100 筹码'
+                    },
+                    en: {
+                        title: 'MAO Grand Arcade',
+                        subtitle: 'One spin · Single tx · 60% win rate',
+                        banner: '💎 Golden marquee · Ready to spin',
+                        network_init: '🔗 Initializing blockchain connection...',
+                        admin_panel: '🔒 Admin Panel (Prize Pool Only)',
+                        btn_connect: 'Connect Wallet to Play',
+                        player_address: 'Player Address',
+                        alv_fee_label: 'ALV Gas:',
+                        chip_equal_weight: 'All games share on-chain odds',
+                        chip_win_rate: '60% win rate',
+                        lucky_chips: 'Lucky Chips',
+                        streak_progress: 'Streak Progress',
+                        streak_current: 'Current',
+                        streak_best: 'Best',
+                        streak_2: 'Streak 2',
+                        streak_4: 'Streak 4',
+                        streak_6: 'Streak 6',
+                        streak_8: 'Streak 8',
+                        streak_10: 'Streak 10',
+                        hall_title: '🎮 Grand Game Hall',
+                        featured_label: 'Featured Today',
+                        badge_featured: 'Featured',
+                        btn_play_now: 'Play Now',
+                        hall_daily_tasks: 'Hall Daily Tasks',
+                        btn_claim_hall: 'Claim Hall Reward',
+                        btn_claim_supply: 'Claim Daily Supply',
+                        hall_note: 'All mini games are on-chain with MAO/PI. Rewards go to your wallet.',
+                        game_wheel_title: 'Wheel Spin',
+                        game_wheel_desc: 'Multi-tier rewards, instant on-chain draw.',
+                        badge_onchain: 'On-chain',
+                        game_cost: 'Cost 100 MAO / 1000 PI',
+                        spin_button: '🎲 Start Spin',
+                        spin_loading: 'Processing...',
+                        status_ready: '✅ System ready',
+                        mode_fast: 'Fast mode · Single tx',
+                        game_mine_title: 'Treasure Dig',
+                        game_mine_desc: 'Pick one, avoid traps, streak bonus.',
+                        game_dice_title: 'Dice Rush',
+                        game_dice_desc: 'Bet high/low/mid for quick wins.',
+                        game_flip_title: 'Lucky Flip',
+                        game_flip_desc: 'Flip two, match to win big.',
+                        game_dungeon_title: 'Streak Dungeon',
+                        game_dungeon_desc: 'Win to advance, clear for jackpot.',
+                        game_slot_title: 'Slots',
+                        game_slot_desc: 'Classic 3-reel slot thrills.',
+                        game_sprint_title: 'Sprint Ranking',
+                        game_sprint_desc: 'Score within time to climb ranks.',
+                        btn_enter: 'Enter',
+                        odds_title: '🎯 Win Odds (MAO)',
+                        odds_lose: 'No Win',
+                        odds_lose_reward: '0 MAO',
+                        odds_small: 'Small',
+                        odds_small_reward: '105 MAO',
+                        odds_mid: 'Win',
+                        odds_mid_reward: '125 MAO',
+                        odds_big: 'Big',
+                        odds_big_reward: '200 MAO',
+                        odds_super: 'Super',
+                        odds_super_reward: '600 MAO',
+                        odds_ultra: 'Ultra',
+                        odds_ultra_reward: '1000 MAO',
+                        odds_note: 'PI mode scales to 1000/1050/1250/2000/6000/10000 PI.',
+                        console_title: '🎲 Gameplay Console',
+                        boss_room: 'Boss Room',
+                        boss_hint: 'Unlock at 5-win streak for bonus.',
+                        btn_enter_boss: 'Enter Boss Room',
+                        daily_tasks: 'Daily Tasks',
+                        daily_progress: 'Today Progress',
+                        btn_claim_tasks: 'Claim Task Reward',
+                        charm_title: 'Lucky Charm',
+                        charm_desc: 'Spend 200 chips to boost gains.',
+                        btn_buy_charm: 'Buy Charm',
+                        map_title: '🗺️ Map Progress',
+                        achievement_title: '🏅 Achievements',
+                        season_title: '🏁 Season Progress',
+                        season_rank: 'Season Rank',
+                        season_points: 'Season Points',
+                        season_winrate: 'Season Win Rate',
+                        chest_title: '🎁 Surprise Chest',
+                        chest_desc: 'Spend 150 chips for random rewards.',
+                        btn_open_chest: 'Open Chest',
+                        leaderboard_title: '🏆 Local Leaderboard',
+                        btn_close: 'Close',
+                        mine_tip: 'Pick one. It can be treasure or a trap.',
+                        mine_pick: 'Dig here',
+                        dice_low: 'Low (1-3)',
+                        dice_mid: 'Mid (3-4)',
+                        dice_high: 'High (4-6)',
+                        flip_reset: 'Reset Cards',
+                        dungeon_stage: 'Stage',
+                        dungeon_play: 'Run a Stage',
+                        slot_spin: 'Spin',
+                        sprint_time: 'Time Left',
+                        sprint_score: 'Score',
+                        sprint_best: 'Best',
+                        sprint_start: 'Start Sprint',
+                        sprint_run: 'Run Once',
+                        mini_chain: 'On-chain draw...',
+                        mini_supply_hint: 'Daily Supply: +100 chips',
+                        mini_supply_claimed: 'Daily supply claimed',
+                        mini_task_claimed: 'Hall reward claimed',
+                        mini_task_unfinished: 'Hall tasks not finished',
+                        mini_task_done: 'Hall reward delivered',
+                        mini_supply_done: 'Daily supply claimed +100 chips'
+                    }
+                };
                 this.mapLevels = [
                     { level: 1, name: '金沙大厅', need: 5 },
                     { level: 2, name: '霓虹隧道', need: 6 },
@@ -1187,16 +1419,18 @@
             setStatus(message, type = 'info') {
                 const el = document.getElementById('gameStatus');
                 if (el) {
+                    const text = this.translateDynamic(message);
                     const icons = { info: '🔗', success: '✅', warning: '⚠️', error: '❌', loading: '⏳' };
-                    el.innerHTML = `${icons[type]} ${message}`;
+                    el.innerHTML = `${icons[type]} ${text}`;
                 }
             }
 
             setNetwork(message, type = 'info') {
                 const el = document.getElementById('networkStatus');
                 if (el) {
+                    const text = this.translateDynamic(message);
                     const icons = { info: '🔗', success: '🟢', warning: '🟡', error: '🔴' };
-                    el.innerHTML = `${icons[type]} ${message}`;
+                    el.innerHTML = `${icons[type]} ${text}`;
                 }
             }
 
@@ -1221,15 +1455,23 @@
             updateUI(playing) {
                 const btn = document.getElementById('spinBtn');
                 const tokens = document.querySelectorAll('.token-btn');
+                const actionButtons = document.querySelectorAll('button:not([data-close])');
                 
                 if (playing) {
                     btn.disabled = true;
-                    btn.innerHTML = '<div class="loading mx-auto"></div>';
+                    btn.innerHTML = `<div class="loading mx-auto"></div><div class="text-xs mt-2">${this.t('spin_loading')}</div>`;
                     tokens.forEach(t => t.disabled = true);
+                    actionButtons.forEach((node) => {
+                        if (node === btn) return;
+                        node.disabled = true;
+                    });
                 } else {
                     btn.disabled = false;
-                    btn.innerHTML = '🎲 真实区块链转盘';
+                    btn.innerHTML = this.t('spin_button');
                     tokens.forEach(t => t.disabled = false);
+                    actionButtons.forEach((node) => {
+                        node.disabled = false;
+                    });
                 }
             }
 
@@ -1285,15 +1527,19 @@
                 if (result.isWin) {
                     this.playWinSound();
                     icon.textContent = '🎉';
-                    title.textContent = '🎊 真实区块链中奖！';
-                    msg.textContent = `等级 ${result.level} - 真实奖励已发放到钱包`;
+                    title.textContent = this.lang === 'en' ? '🎊 On-chain Win!' : '🎊 真实区块链中奖！';
+                    msg.textContent = this.lang === 'en'
+                        ? `Level ${result.level} - Reward sent to wallet`
+                        : `等级 ${result.level} - 真实奖励已发放到钱包`;
                     reward.textContent = `+${this.formatNumber(result.amount)} ${this.state.selectedToken}`;
                 } else {
                     this.playLoseSound();
                     icon.textContent = '🎯';
-                    title.textContent = '真实区块链游戏';
-                    msg.textContent = '这次没中奖，但是真实的区块链交易！';
-                    reward.textContent = '继续真实游戏';
+                    title.textContent = this.lang === 'en' ? 'On-chain Game' : '真实区块链游戏';
+                    msg.textContent = this.lang === 'en'
+                        ? 'No win this time, but it is a real on-chain tx!'
+                        : '这次没中奖，但是真实的区块链交易！';
+                    reward.textContent = this.lang === 'en' ? 'Try again' : '继续真实游戏';
                 }
                 if (this.activeMiniGame) {
                     const nameMap = {
@@ -1305,11 +1551,13 @@
                         sprint: '竞速冲榜'
                     };
                     const name = nameMap[this.activeMiniGame.id] || '小游戏';
-                    title.textContent = `🎮 ${name} 结果`;
-                    msg.textContent = result.isWin ? '链上中奖，奖励已发放' : '链上未中奖，继续挑战';
+                    title.textContent = this.lang === 'en' ? `🎮 ${name} Result` : `🎮 ${name} 结果`;
+                    msg.textContent = result.isWin
+                        ? (this.lang === 'en' ? 'On-chain win, reward sent' : '链上中奖，奖励已发放')
+                        : (this.lang === 'en' ? 'No win, keep trying' : '链上未中奖，继续挑战');
                     reward.textContent = result.isWin
                         ? `+${this.formatNumber(result.amount)} ${this.state.selectedToken}`
-                        : '未中奖';
+                        : (this.lang === 'en' ? 'No win' : '未中奖');
                 }
 
                 if (hash) {
@@ -1919,7 +2167,7 @@
                     this.updateStats();
                     this.setupNetwork();
                     this.setStatus('快速模式：直接链上游戏', 'info');
-                    this.updateModeHint();
+                    this.applyLanguage(this.lang);
                 });
 
                 if (window.ethereum) {
@@ -1944,6 +2192,8 @@
 
             setupEvents() {
                 document.getElementById('connectBtn')?.addEventListener('click', () => this.connectWallet());
+                document.getElementById('langZh')?.addEventListener('click', () => this.applyLanguage('zh'));
+                document.getElementById('langEn')?.addEventListener('click', () => this.applyLanguage('en'));
 
                 document.getElementById('selectMao')?.addEventListener('click', () => {
                     this.state.selectedToken = 'MAO';
@@ -2005,6 +2255,18 @@
                 document.querySelectorAll('[data-close]')?.forEach((btn) => {
                     btn.addEventListener('click', () => this.closeGameModal(btn.dataset.close));
                 });
+                document.querySelectorAll('.game-overlay')?.forEach((modal) => {
+                    modal.addEventListener('click', (event) => {
+                        if (event.target === modal) {
+                            modal.classList.add('hidden');
+                        }
+                    });
+                });
+                document.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Escape') return;
+                    const openModal = document.querySelector('.game-overlay:not(.hidden)');
+                    if (openModal) openModal.classList.add('hidden');
+                });
                 document.querySelectorAll('[data-mine]')?.forEach((btn) => {
                     btn.addEventListener('click', () => this.playMine(Number(btn.dataset.mine)));
                 });
@@ -2030,7 +2292,62 @@
             updateModeHint() {
                 const hint = document.getElementById('modeHint');
                 if (!hint) return;
-                hint.textContent = '快速模式：单笔交易';
+                hint.textContent = this.t('mode_fast');
+            }
+
+            t(key) {
+                return (this.i18n[this.lang] && this.i18n[this.lang][key]) || key;
+            }
+
+            translateDynamic(message) {
+                if (this.lang !== 'en') return message;
+                const map = {
+                    '请先正确连接AlveyChain网络': 'Please connect to AlveyChain network',
+                    '连接区块链钱包...': 'Connecting wallet...',
+                    '请授权钱包连接': 'Please authorize wallet connection',
+                    '初始化智能合约...': 'Initializing smart contracts...',
+                    '🚀 智能区块链系统已完全连接': '🚀 Blockchain system fully connected',
+                    '钱包已断开': 'Wallet disconnected',
+                    '网络已切换，重新初始化...': 'Network changed, reloading...',
+                    '检查代币余额...': 'Checking token balance...',
+                    '奖池未授权，暂不可游戏，请联系管理员授权奖池': 'Prize pool not authorized. Please contact admin.',
+                    '检查智能合约授权...': 'Checking token allowance...',
+                    '授权智能合约访问代币...': 'Approving token allowance...',
+                    '等待授权交易确认...': 'Waiting for approval confirmation...',
+                    '授权成功，准备游戏': 'Approval succeeded, ready to play',
+                    '启动真实区块链转盘...': 'Launching on-chain game...',
+                    '真实区块链确认中...请耐心等待': 'Confirming on-chain transaction...',
+                    '查询游戏记录...': 'Fetching game history...',
+                    '快速模式：直接链上游戏': 'Fast mode: on-chain play',
+                    'MAO 代币游戏模式': 'MAO token mode',
+                    'PI 代币游戏模式': 'PI token mode',
+                    '请先连接钱包以开启玩法功能': 'Connect wallet to access gameplay',
+                    '奖池授权中...': 'Authorizing prize pool...',
+                    '奖池授权成功': 'Prize pool authorized',
+                    '奖池授权失败，请检查gas或重试': 'Authorization failed, check gas or retry'
+                };
+                return map[message] || message;
+            }
+
+            applyLanguage(lang) {
+                this.lang = lang;
+                localStorage.setItem('mao_lang', lang);
+                document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+                document.getElementById('langZh')?.classList.toggle('active', lang === 'zh');
+                document.getElementById('langEn')?.classList.toggle('active', lang === 'en');
+                this.translatePage();
+                this.updateModeHint();
+                this.updateUI(this.state.isPlaying);
+                this.updateMiniTasksUI();
+                this.updateFeaturedGame();
+                this.updateMiniAchievementsUI();
+            }
+
+            translatePage() {
+                document.querySelectorAll('[data-i18n]').forEach((node) => {
+                    const key = node.dataset.i18n;
+                    if (key) node.textContent = this.t(key);
+                });
             }
 
             notify(message, type = 'info') {
@@ -2564,8 +2881,15 @@
                     <div>赢 1 局小游戏: ${daily.wins}/1</div>
                     <div>冲榜≥50 分: ${daily.sprint50 ? '已完成' : '未完成'}</div>
                 `;
-                if (hint) hint.textContent = daily.claimed ? '今日大厅奖励已领取' : '';
-                if (supplyHint) supplyHint.textContent = daily.supplyClaimed ? '今日补给已领取' : '今日补给：+100 筹码';
+                if (this.lang === 'en') {
+                    list.innerHTML = `
+                        <div>Play 2 mini games: ${daily.plays}/2</div>
+                        <div>Win 1 mini game: ${daily.wins}/1</div>
+                        <div>Sprint ≥50: ${daily.sprint50 ? 'Done' : 'Not yet'}</div>
+                    `;
+                }
+                if (hint) hint.textContent = daily.claimed ? this.t('mini_task_claimed') : '';
+                if (supplyHint) supplyHint.textContent = daily.supplyClaimed ? this.t('mini_supply_claimed') : this.t('mini_supply_hint');
             }
 
             claimMiniTasks() {
@@ -2577,9 +2901,9 @@
                     daily.claimed = true;
                     this.saveLocalGame();
                     this.updateLocalGameUI();
-                    this.notify('大厅任务奖励已到账', 'success');
+                    this.notify(this.t('mini_task_done'), 'success');
                 } else {
-                    this.notify('大厅任务未完成', 'warn');
+                    this.notify(this.t('mini_task_unfinished'), 'warn');
                 }
             }
 
@@ -2590,17 +2914,17 @@
                 this.localGame.chips += 100;
                 this.saveLocalGame();
                 this.updateLocalGameUI();
-                this.notify('已领取今日补给 +100 筹码', 'success');
+                this.notify(this.t('mini_supply_done'), 'success');
             }
 
             updateFeaturedGame() {
                 const games = [
-                    { id: 'mineModal', name: '宝箱挖掘', desc: '三选一，避开陷阱，适合热身。' },
-                    { id: 'diceModal', name: '骰子冲刺', desc: '短节奏押注，快速回筹码。' },
-                    { id: 'flipModal', name: '幸运翻牌', desc: '翻两张拼组合，爆奖几率高。' },
-                    { id: 'dungeonModal', name: '连胜闯关', desc: '连胜越高奖励越大。' },
-                    { id: 'slotModal', name: '拉霸机', desc: '经典三转轴，大爆奖刺激。' },
-                    { id: 'sprintModal', name: '竞速冲榜', desc: '60 秒冲分，挑战极限。' }
+                    { id: 'mineModal', name: { zh: '宝箱挖掘', en: 'Treasure Dig' }, desc: { zh: '三选一，避开陷阱，适合热身。', en: 'Pick one, avoid traps, warm-up friendly.' } },
+                    { id: 'diceModal', name: { zh: '骰子冲刺', en: 'Dice Rush' }, desc: { zh: '短节奏押注，快速回筹码。', en: 'Quick bets with fast returns.' } },
+                    { id: 'flipModal', name: { zh: '幸运翻牌', en: 'Lucky Flip' }, desc: { zh: '翻两张拼组合，爆奖几率高。', en: 'Flip two to match for big wins.' } },
+                    { id: 'dungeonModal', name: { zh: '连胜闯关', en: 'Streak Dungeon' }, desc: { zh: '连胜越高奖励越大。', en: 'Higher streaks unlock bigger rewards.' } },
+                    { id: 'slotModal', name: { zh: '拉霸机', en: 'Slots' }, desc: { zh: '经典三转轴，大爆奖刺激。', en: 'Classic reels with jackpots.' } },
+                    { id: 'sprintModal', name: { zh: '竞速冲榜', en: 'Sprint Ranking' }, desc: { zh: '60 秒冲分，挑战极限。', en: 'Score in 60s, push your limits.' } }
                 ];
                 if (!this.featuredGameId) {
                     const pick = games[Math.floor(Math.random() * games.length)];
@@ -2609,8 +2933,9 @@
                 const game = games.find((item) => item.id === this.featuredGameId) || games[0];
                 const name = document.getElementById('featuredGameName');
                 const desc = document.getElementById('featuredGameDesc');
-                if (name) name.textContent = game.name;
-                if (desc) desc.textContent = game.desc;
+                const langKey = this.lang === 'en' ? 'en' : 'zh';
+                if (name) name.textContent = game.name[langKey];
+                if (desc) desc.textContent = game.desc[langKey];
             }
 
             updateMiniAchievementsUI() {
@@ -2626,15 +2951,21 @@
                     const node = document.getElementById(configs[key].id);
                     if (!node) return;
                     const wins = this.localGame.mini.stats.wins[key] || 0;
-                    let badge = '🔒 首胜';
-                    if (wins >= 1) badge = '✅ 首胜';
-                    let badge2 = '🔒 五胜';
-                    if (wins >= 5) badge2 = '✅ 五胜';
+                    let badge = this.lang === 'en' ? '🔒 First Win' : '🔒 首胜';
+                    if (wins >= 1) badge = this.lang === 'en' ? '✅ First Win' : '✅ 首胜';
+                    let badge2 = this.lang === 'en' ? '🔒 Five Wins' : '🔒 五胜';
+                    if (wins >= 5) badge2 = this.lang === 'en' ? '✅ Five Wins' : '✅ 五胜';
                     let badge3 = '';
                     if (key === 'sprint') {
-                        badge3 = this.localGame.dailyMini.sprint50 ? '✅ 50分' : '🔒 50分';
+                        badge3 = this.localGame.dailyMini.sprint50
+                            ? (this.lang === 'en' ? '✅ 50 pts' : '✅ 50分')
+                            : (this.lang === 'en' ? '🔒 50 pts' : '🔒 50分');
                     }
-                    node.textContent = `${configs[key].label}成就: ${badge} · ${badge2}${badge3 ? ` · ${badge3}` : ''}`;
+                    if (this.lang === 'en') {
+                        node.textContent = `${configs[key].label} Achv: ${badge} · ${badge2}${badge3 ? ` · ${badge3}` : ''}`;
+                    } else {
+                        node.textContent = `${configs[key].label}成就: ${badge} · ${badge2}${badge3 ? ` · ${badge3}` : ''}`;
+                    }
                 });
             }
 
@@ -2644,7 +2975,9 @@
                 const win = result.isWin;
                 if (context.id === 'mine') {
                     const hint = document.getElementById('mineHint');
-                    if (hint) hint.textContent = win ? '🎉 挖到宝藏，奖励已发放' : '😵 踩到陷阱，未中奖';
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '🎉 Treasure found, reward sent' : '🎉 挖到宝藏，奖励已发放')
+                        : (this.lang === 'en' ? '😵 Trap triggered, no reward' : '😵 踩到陷阱，未中奖');
                     this.spawnParticles(win ? 'gold' : 'ember', 18);
                     this.recordMiniResult('mine', win);
                 }
@@ -2661,9 +2994,11 @@
                         if (choice === 'high') roll = 1;
                     }
                     const resultNode = document.getElementById('diceResult');
-                    if (resultNode) resultNode.textContent = `🎲 点数：${roll}`;
+                    if (resultNode) resultNode.textContent = this.lang === 'en' ? `🎲 Roll: ${roll}` : `🎲 点数：${roll}`;
                     const hint = document.getElementById('diceHint');
-                    if (hint) hint.textContent = win ? '✅ 命中，链上奖励已发放' : '未命中';
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '✅ Hit! Reward sent' : '✅ 命中，链上奖励已发放')
+                        : (this.lang === 'en' ? 'Missed' : '未命中');
                     this.recordMiniResult('dice', win);
                 }
                 if (context.id === 'flip') {
@@ -2678,7 +3013,9 @@
                     flip.picks = picks;
                     this.updateFlipUI();
                     const hint = document.getElementById('flipHint');
-                    if (hint) hint.textContent = win ? '✨ 配对成功，奖励已发放' : '💥 炸弹，未中奖';
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '✨ Match! Reward sent' : '✨ 配对成功，奖励已发放')
+                        : (this.lang === 'en' ? '💥 Bomb, no reward' : '💥 炸弹，未中奖');
                     this.recordMiniResult('flip', win);
                 }
                 if (context.id === 'dungeon') {
@@ -2694,7 +3031,9 @@
                     }
                     this.updateDungeonUI();
                     const hint = document.getElementById('dungeonHint');
-                    if (hint) hint.textContent = win ? '✅ 闯关成功，奖励已发放' : '闯关失败，回到第 1 关';
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '✅ Stage cleared, reward sent' : '✅ 闯关成功，奖励已发放')
+                        : (this.lang === 'en' ? 'Failed, back to stage 1' : '闯关失败，回到第 1 关');
                     this.recordMiniResult('dungeon', win);
                 }
                 if (context.id === 'slot') {
@@ -2709,7 +3048,9 @@
                     document.getElementById('slot2').textContent = b;
                     document.getElementById('slot3').textContent = c;
                     const hint = document.getElementById('slotHint');
-                    if (hint) hint.textContent = win ? '🎉 三连中奖，奖励已发放' : '未中奖';
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '🎉 Triple hit, reward sent' : '🎉 三连中奖，奖励已发放')
+                        : (this.lang === 'en' ? 'No win' : '未中奖');
                     this.recordMiniResult('slot', win);
                 }
                 if (context.id === 'sprint') {
@@ -2717,7 +3058,9 @@
                     const add = win ? 18 : 6;
                     sprint.score += add;
                     const hint = document.getElementById('sprintHint');
-                    if (hint) hint.textContent = win ? `加分 +${add}` : `小幅加分 +${add}`;
+                    if (hint) hint.textContent = this.lang === 'en'
+                        ? `${win ? 'Score' : 'Small score'} +${add}`
+                        : `${win ? '加分' : '小幅加分'} +${add}`;
                     this.recordMiniResult('sprint', win);
                     this.updateSprintUI(true);
                 }
@@ -2726,7 +3069,7 @@
             playMine(choiceIndex) {
                 if (this.state.isPlaying) return;
                 const hint = document.getElementById('mineHint');
-                if (hint) hint.textContent = '链上开奖中...';
+                if (hint) hint.textContent = this.t('mini_chain');
                 this.activeMiniGame = { id: 'mine', choice: choiceIndex };
                 this.startRealBlockchainGame();
             }
@@ -2734,7 +3077,7 @@
             playDice(choice) {
                 if (this.state.isPlaying) return;
                 const hint = document.getElementById('diceHint');
-                if (hint) hint.textContent = '链上开奖中...';
+                if (hint) hint.textContent = this.t('mini_chain');
                 this.activeMiniGame = { id: 'dice', choice };
                 this.startRealBlockchainGame();
             }
@@ -2769,7 +3112,7 @@
                 this.updateFlipUI();
                 if (flip.picks.length === 2) {
                     const hint = document.getElementById('flipHint');
-                    if (hint) hint.textContent = '链上开奖中...';
+                    if (hint) hint.textContent = this.t('mini_chain');
                     this.activeMiniGame = { id: 'flip', picks: [...flip.picks] };
                     this.startRealBlockchainGame();
                 }
@@ -2787,7 +3130,7 @@
             playDungeon() {
                 if (this.state.isPlaying) return;
                 const hint = document.getElementById('dungeonHint');
-                if (hint) hint.textContent = '链上开奖中...';
+                if (hint) hint.textContent = this.t('mini_chain');
                 this.activeMiniGame = { id: 'dungeon' };
                 this.startRealBlockchainGame();
             }
@@ -2800,7 +3143,7 @@
             spinSlot() {
                 if (this.state.isPlaying) return;
                 const hint = document.getElementById('slotHint');
-                if (hint) hint.textContent = '链上开奖中...';
+                if (hint) hint.textContent = this.t('mini_chain');
                 this.activeMiniGame = { id: 'slot' };
                 this.startRealBlockchainGame();
             }
@@ -2811,7 +3154,7 @@
                 sprint.endsAt = Date.now() + 60000;
                 sprint.score = 0;
                 const hint = document.getElementById('sprintHint');
-                if (hint) hint.textContent = '冲榜开始，60 秒冲刺！';
+                if (hint) hint.textContent = this.lang === 'en' ? 'Sprint started! 60s to score.' : '冲榜开始，60 秒冲刺！';
                 this.startSprintTimer();
                 this.updateSprintUI(true);
                 this.saveLocalGame();
@@ -2821,12 +3164,12 @@
                 const sprint = this.localGame.mini.sprint;
                 if (!sprint.active) {
                     const hint = document.getElementById('sprintHint');
-                    if (hint) hint.textContent = '请先开始冲榜';
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Start sprint first' : '请先开始冲榜';
                     return;
                 }
                 if (this.state.isPlaying) return;
                 const hint = document.getElementById('sprintHint');
-                if (hint) hint.textContent = '链上开奖中...';
+                if (hint) hint.textContent = this.t('mini_chain');
                 this.activeMiniGame = { id: 'sprint' };
                 this.startRealBlockchainGame();
             }
@@ -2847,9 +3190,9 @@
                     sprint.active = false;
                     if (sprint.score > sprint.best) {
                         sprint.best = sprint.score;
-                        this.notify('冲榜新纪录！', 'success');
+                        this.notify(this.lang === 'en' ? 'New sprint record!' : '冲榜新纪录！', 'success');
                     } else {
-                        this.notify('冲榜结束', 'info');
+                        this.notify(this.lang === 'en' ? 'Sprint ended' : '冲榜结束', 'info');
                     }
                     if (sprint.score >= 50) {
                         this.localGame.dailyMini.sprint50 = true;
@@ -2883,9 +3226,11 @@
                     board = board.slice(0, 5);
                     localStorage.setItem(key, JSON.stringify(board));
                 }
+                const title = this.lang === 'en' ? 'Sprint Board' : '冲榜榜单';
+                const empty = this.lang === 'en' ? 'No records yet' : '暂无记录';
                 list.innerHTML = board.length
-                    ? `冲榜榜单：${board.map((item, idx) => `#${idx + 1} ${item.address} · ${item.score}`).join('<br>')}`
-                    : '冲榜榜单：暂无记录';
+                    ? `${title}：${board.map((item, idx) => `#${idx + 1} ${item.address} · ${item.score}`).join('<br>')}`
+                    : `${title}：${empty}`;
             }
 
             startSprintTimer() {
