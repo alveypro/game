@@ -248,6 +248,44 @@
             35% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
+        .map-track {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .map-node {
+            padding: 10px;
+            border-radius: 14px;
+            background: rgba(27, 26, 23, 0.08);
+            text-align: center;
+            font-size: 12px;
+            color: #4a4a4a;
+        }
+        .map-node.active {
+            background: linear-gradient(135deg, #ffe5a5, #ffd166);
+            font-weight: 700;
+            color: #4a3515;
+        }
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(27, 26, 23, 0.08);
+            font-size: 12px;
+            margin: 4px 6px 0 0;
+        }
+        .achievement-badge.unlocked {
+            background: rgba(34, 197, 94, 0.2);
+            color: #166534;
+            font-weight: 700;
+        }
+        .season-rank {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
         @keyframes spark {
             0% { opacity: 0; transform: scale(0.9); }
             30% { opacity: 1; }
@@ -477,6 +515,46 @@
             </div>
         </div>
 
+        <!-- Progress Map -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🗺️ 地图进度</h3>
+            <div class="map-track" id="mapTrack"></div>
+            <div class="text-xs text-slate-500 mt-3" id="mapHint"></div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🏅 成就墙</h3>
+            <div id="achievementList"></div>
+        </div>
+
+        <!-- Season -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🏁 赛季进度</h3>
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-sm text-slate-500">赛季等级</div>
+                    <div class="season-rank" id="seasonRank">Bronze</div>
+                </div>
+                <div>
+                    <div class="text-sm text-slate-500">赛季积分</div>
+                    <div class="text-lg font-bold" id="seasonPoints">0</div>
+                </div>
+                <div>
+                    <div class="text-sm text-slate-500">赛季胜率</div>
+                    <div class="text-lg font-bold" id="seasonWinRate">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Surprise Chest -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🎁 彩蛋宝箱</h3>
+            <p class="text-sm text-slate-500">消耗 150 筹码开启，随机获得筹码或幸运符。</p>
+            <button id="openChest" class="game-btn mt-4">开启宝箱</button>
+            <div id="chestHint" class="text-xs text-slate-500 mt-2"></div>
+        </div>
+
         <!-- Leaderboard -->
         <div class="glass rounded-2xl p-6 mb-6">
             <h3 class="text-xl font-semibold mb-4">🏆 本地排行榜</h3>
@@ -562,6 +640,19 @@
                     charmCharges: 0,
                     bossReady: false,
                     bossActive: false,
+                    totalPlays: 0,
+                    totalWins: 0,
+                    mapLevel: 1,
+                    mapProgress: 0,
+                    achievements: {},
+                    lastDoubleWin: false,
+                    lastBossWin: false,
+                    season: {
+                        month: null,
+                        points: 0,
+                        plays: 0,
+                        wins: 0
+                    },
                     daily: {
                         date: null,
                         playCount: 0,
@@ -573,6 +664,13 @@
                 this.pendingChips = 0;
                 this.prevLocalSnapshot = null;
                 this.toastTimer = null;
+                this.mapLevels = [
+                    { level: 1, name: '金沙大厅', need: 5 },
+                    { level: 2, name: '霓虹隧道', need: 6 },
+                    { level: 3, name: '星耀平台', need: 7 },
+                    { level: 4, name: '高额桌区', need: 8 },
+                    { level: 5, name: '终极皇冠', need: 9 }
+                ];
                 
                 // 🔧 完全统一的合约地址配置 - 与.env文件现在完全一致
                 this.addresses = {
@@ -1396,6 +1494,10 @@
                     if (!requireWallet()) return;
                     this.buyCharm();
                 });
+                document.getElementById('openChest')?.addEventListener('click', () => {
+                    if (!requireWallet()) return;
+                    this.openChest();
+                });
 
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
@@ -1446,6 +1548,14 @@
                             charmCharges: data.charmCharges || 0,
                             bossReady: data.bossReady || false,
                             bossActive: data.bossActive || false,
+                            totalPlays: data.totalPlays || 0,
+                            totalWins: data.totalWins || 0,
+                            mapLevel: data.mapLevel || 1,
+                            mapProgress: data.mapProgress || 0,
+                            achievements: data.achievements || {},
+                            lastDoubleWin: data.lastDoubleWin || false,
+                            lastBossWin: data.lastBossWin || false,
+                            season: data.season || { month: null, points: 0, plays: 0, wins: 0 },
                             daily: data.daily || {
                                 date: null,
                                 playCount: 0,
@@ -1455,10 +1565,11 @@
                             }
                         };
                     } catch (e) {
-                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
+                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, totalPlays: 0, totalWins: 0, mapLevel: 1, mapProgress: 0, achievements: {}, lastDoubleWin: false, lastBossWin: false, season: { month: null, points: 0, plays: 0, wins: 0 }, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
                     }
                 }
                 this.syncDaily();
+                this.syncSeason();
             }
 
             saveLocalGame() {
@@ -1500,6 +1611,9 @@
                 });
                 this.updateTaskUI();
                 this.updateLeaderboard();
+                this.updateMapUI();
+                this.updateAchievementsUI();
+                this.updateSeasonUI();
                 if (this.prevLocalSnapshot) {
                     if (!this.prevLocalSnapshot.bossReady && this.localGame.bossReady) {
                         this.notify('Boss 房已解锁！', 'success');
@@ -1531,7 +1645,12 @@
 
             applyLocalGameResult(result) {
                 this.updateDailyProgress(result);
+                this.syncSeason();
+                this.localGame.totalPlays += 1;
+                this.localGame.season.plays += 1;
                 if (result.isWin) {
+                    this.localGame.totalWins += 1;
+                    this.localGame.season.wins += 1;
                     this.localGame.streak += 1;
                     if (this.localGame.streak > this.localGame.maxStreak) {
                         this.localGame.maxStreak = this.localGame.streak;
@@ -1547,19 +1666,24 @@
                         gained += 200;
                         this.localGame.bossActive = false;
                         this.localGame.bossReady = false;
+                        this.localGame.lastBossWin = true;
                     }
                     this.localGame.chips += gained;
                     this.pendingChips = gained;
                     this.openDoubleModal();
+                    this.localGame.season.points += 3;
+                    this.advanceMap();
                 } else {
                     this.localGame.streak = 0;
                     if (this.localGame.bossActive) {
                         this.localGame.bossActive = false;
                     }
+                    this.localGame.season.points += 1;
                 }
                 if (!this.localGame.bossReady && this.localGame.streak >= 5) {
                     this.localGame.bossReady = true;
                 }
+                this.checkAchievements();
                 this.saveLocalGame();
                 this.updateLocalGameUI();
             }
@@ -1587,6 +1711,7 @@
                     this.localGame.chips += this.pendingChips;
                     if (result) result.textContent = '🎉 成功！筹码翻倍到账';
                     this.notify('双倍成功！筹码已翻倍', 'success');
+                    this.localGame.lastDoubleWin = true;
                 } else {
                     this.localGame.chips -= this.pendingChips;
                     if (this.localGame.chips < 0) this.localGame.chips = 0;
@@ -1594,6 +1719,7 @@
                     this.notify('双倍失败，筹码清零', 'warn');
                 }
                 this.localGame.daily.doubleCount += 1;
+                this.checkAchievements();
                 this.saveLocalGame();
                 this.updateLocalGameUI();
                 setTimeout(() => this.closeDoubleModal(), 1200);
@@ -1612,12 +1738,113 @@
                 }
             }
 
+            syncSeason() {
+                const month = new Date().toISOString().slice(0, 7);
+                if (this.localGame.season.month !== month) {
+                    this.localGame.season = {
+                        month,
+                        points: 0,
+                        plays: 0,
+                        wins: 0
+                    };
+                }
+            }
+
             updateDailyProgress(result) {
                 this.syncDaily();
                 this.localGame.daily.playCount += 1;
                 if (result.isWin) {
                     this.localGame.daily.winCount += 1;
                 }
+            }
+
+            advanceMap() {
+                this.localGame.mapProgress += 1;
+                const current = this.mapLevels.find((item) => item.level === this.localGame.mapLevel);
+                if (current && this.localGame.mapProgress >= current.need) {
+                    this.localGame.mapProgress = 0;
+                    this.localGame.mapLevel += 1;
+                    if (this.localGame.mapLevel > this.mapLevels.length) {
+                        this.localGame.mapLevel = this.mapLevels.length;
+                    }
+                    this.notify(`解锁地图：${this.mapLevels[this.localGame.mapLevel - 1].name}`, 'success');
+                }
+            }
+
+            updateMapUI() {
+                const track = document.getElementById('mapTrack');
+                const hint = document.getElementById('mapHint');
+                if (!track) return;
+                track.innerHTML = this.mapLevels.map((level) => {
+                    const active = this.localGame.mapLevel >= level.level;
+                    return `<div class="map-node ${active ? 'active' : ''}">Lv.${level.level}<br>${level.name}</div>`;
+                }).join('');
+                if (hint) {
+                    const current = this.mapLevels.find((item) => item.level === this.localGame.mapLevel);
+                    if (current) {
+                        hint.textContent = `当前：${current.name}，再赢 ${Math.max(current.need - this.localGame.mapProgress, 0)} 局升级。`;
+                    }
+                }
+            }
+
+            updateAchievementsUI() {
+                const list = document.getElementById('achievementList');
+                if (!list) return;
+                const achievements = this.getAchievementList();
+                list.innerHTML = achievements.map((item) => {
+                    const unlocked = this.localGame.achievements[item.id];
+                    return `<span class="achievement-badge ${unlocked ? 'unlocked' : ''}">${unlocked ? '✅' : '🔒'} ${item.title}</span>`;
+                }).join('');
+            }
+
+            updateSeasonUI() {
+                const points = document.getElementById('seasonPoints');
+                const rank = document.getElementById('seasonRank');
+                const rate = document.getElementById('seasonWinRate');
+                if (!points || !rank || !rate) return;
+                points.textContent = this.localGame.season.points;
+                const ranks = [
+                    { name: 'Bronze', min: 0 },
+                    { name: 'Silver', min: 30 },
+                    { name: 'Gold', min: 80 },
+                    { name: 'Platinum', min: 150 },
+                    { name: 'Legend', min: 260 }
+                ];
+                const current = ranks.slice().reverse().find((item) => this.localGame.season.points >= item.min) || ranks[0];
+                rank.textContent = current.name;
+                const winRate = this.localGame.season.plays ? Math.round((this.localGame.season.wins / this.localGame.season.plays) * 100) : 0;
+                rate.textContent = `${winRate}%`;
+            }
+
+            getAchievementList() {
+                return [
+                    { id: 'firstWin', title: '首胜' },
+                    { id: 'streak3', title: '连胜3局' },
+                    { id: 'streak5', title: '连胜5局' },
+                    { id: 'streak10', title: '连胜10局' },
+                    { id: 'wins10', title: '累计胜利10局' },
+                    { id: 'wins50', title: '累计胜利50局' },
+                    { id: 'bossClear', title: 'Boss 首胜' },
+                    { id: 'doubleWin', title: '双倍成功' }
+                ];
+            }
+
+            checkAchievements() {
+                const prev = Object.assign({}, this.localGame.achievements);
+                if (this.localGame.totalWins >= 1) this.localGame.achievements.firstWin = true;
+                if (this.localGame.streak >= 3) this.localGame.achievements.streak3 = true;
+                if (this.localGame.streak >= 5) this.localGame.achievements.streak5 = true;
+                if (this.localGame.streak >= 10) this.localGame.achievements.streak10 = true;
+                if (this.localGame.totalWins >= 10) this.localGame.achievements.wins10 = true;
+                if (this.localGame.totalWins >= 50) this.localGame.achievements.wins50 = true;
+                if (this.localGame.bossActive === false && this.localGame.lastBossWin) this.localGame.achievements.bossClear = true;
+                if (this.localGame.lastDoubleWin) this.localGame.achievements.doubleWin = true;
+                const unlocked = Object.keys(this.localGame.achievements).filter((key) => this.localGame.achievements[key] && !prev[key]);
+                if (unlocked.length) {
+                    this.notify(`解锁成就：${unlocked.length} 个`, 'success');
+                }
+                this.localGame.lastDoubleWin = false;
+                this.localGame.lastBossWin = false;
             }
 
             updateTaskUI() {
@@ -1690,6 +1917,29 @@
                 if (hint) hint.textContent = '幸运符已就位，筹码收益提升';
                 this.flashCard('charmCard', 'success');
                 this.notify('幸运符购买成功', 'success');
+            }
+
+            openChest() {
+                const hint = document.getElementById('chestHint');
+                const cost = 150;
+                if (this.localGame.chips < cost) {
+                    if (hint) hint.textContent = '筹码不足';
+                    this.notify('筹码不足，无法开启宝箱', 'warn');
+                    return;
+                }
+                this.localGame.chips -= cost;
+                const roll = Math.random();
+                if (roll < 0.6) {
+                    const reward = 100 + Math.floor(Math.random() * 120);
+                    this.localGame.chips += reward;
+                    if (hint) hint.textContent = `🎉 获得 ${reward} 筹码`;
+                } else {
+                    this.localGame.charmCharges += 3;
+                    if (hint) hint.textContent = '✨ 获得 3 局幸运符';
+                }
+                this.saveLocalGame();
+                this.updateLocalGameUI();
+                this.notify('宝箱已开启', 'success');
             }
 
             updateLeaderboard() {
