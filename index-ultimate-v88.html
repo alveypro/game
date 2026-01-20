@@ -598,7 +598,11 @@
 
             async buildGasOptions(estimateFn, fallbackLimit) {
                 let gasPrice = await this.state.wallet.provider.getGasPrice();
+                const minGasPrice = ethers.utils.parseUnits('10', 'gwei');
                 const maxGasPrice = ethers.utils.parseUnits('100', 'gwei');
+                if (gasPrice.lt(minGasPrice)) {
+                    gasPrice = minGasPrice;
+                }
                 if (gasPrice.gt(maxGasPrice)) {
                     gasPrice = ethers.utils.parseUnits('30', 'gwei');
                 }
