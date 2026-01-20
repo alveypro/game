@@ -388,6 +388,72 @@
             border: 1px solid rgba(27, 26, 23, 0.08);
             box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
         }
+        .vegas-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(241, 196, 15, 0.35);
+            background: radial-gradient(circle at 20% 20%, rgba(255, 226, 167, 0.35), transparent 55%),
+                linear-gradient(140deg, rgba(68, 32, 11, 0.75), rgba(13, 7, 2, 0.9));
+            color: #fff8e6;
+        }
+        .vegas-card::after {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border-radius: 14px;
+            border: 1px dashed rgba(241, 196, 15, 0.35);
+            pointer-events: none;
+        }
+        .vegas-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            font-size: 20px;
+        }
+        .vegas-marquee {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(241, 196, 15, 0.5);
+            background: rgba(255, 226, 167, 0.12);
+            color: #ffeaac;
+            font-size: 11px;
+            animation: bulbGlow 1.4s ease-in-out infinite;
+        }
+        @keyframes bulbGlow {
+            0%, 100% { box-shadow: 0 0 6px rgba(241, 196, 15, 0.4); }
+            50% { box-shadow: 0 0 14px rgba(241, 196, 15, 0.9); }
+        }
+        .game-card[data-game="wheel"] .vegas-hero {
+            background: radial-gradient(circle at 30% 30%, rgba(255, 196, 82, 0.35), transparent 60%);
+        }
+        .game-card[data-game="mine"] .vegas-hero { background: linear-gradient(120deg, rgba(130, 59, 16, 0.45), rgba(33, 15, 5, 0.7)); }
+        .game-card[data-game="dice"] .vegas-hero { background: linear-gradient(120deg, rgba(84, 35, 101, 0.5), rgba(24, 10, 32, 0.7)); }
+        .game-card[data-game="flip"] .vegas-hero { background: linear-gradient(120deg, rgba(7, 74, 79, 0.5), rgba(6, 22, 28, 0.7)); }
+        .game-card[data-game="dungeon"] .vegas-hero { background: linear-gradient(120deg, rgba(83, 15, 27, 0.55), rgba(22, 6, 8, 0.7)); }
+        .game-card[data-game="slot"] .vegas-hero { background: linear-gradient(120deg, rgba(96, 51, 5, 0.55), rgba(28, 14, 4, 0.7)); }
+        .game-card[data-game="sprint"] .vegas-hero { background: linear-gradient(120deg, rgba(18, 69, 112, 0.6), rgba(8, 18, 30, 0.75)); }
+        .vegas-modal {
+            background: radial-gradient(circle at top, rgba(255, 226, 167, 0.35), transparent 55%),
+                linear-gradient(160deg, rgba(65, 28, 10, 0.95), rgba(12, 6, 2, 0.98));
+            color: #fff6df;
+            border: 1px solid rgba(241, 196, 15, 0.4);
+        }
+        .vegas-modal .modal-close {
+            color: #ffefc6;
+            border-color: rgba(241, 196, 15, 0.5);
+            background: rgba(255, 226, 167, 0.12);
+        }
+        .vegas-modal .choice-btn,
+        .vegas-modal .game-btn {
+            color: #fff7e0;
+            border-color: rgba(241, 196, 15, 0.4);
+        }
         .game-card.large {
             grid-column: span 1;
         }
@@ -692,13 +758,18 @@
             </div>
             <p class="text-xs text-slate-500 mb-4" data-i18n="hall_note">小游戏与转盘相同，使用 MAO/PI 进行链上交易，奖励直接发放到钱包。</p>
             <div class="game-hall-grid">
-                <div class="game-card large">
+                <div class="game-card vegas-card large" data-game="wheel">
                     <div class="game-card-header">
                         <div>
                             <div class="game-card-title" data-i18n="game_wheel_title">大转盘</div>
                             <div class="game-card-desc" data-i18n="game_wheel_desc">多档奖励，主舞台即刻开奖。</div>
                         </div>
-                        <span class="badge" data-i18n="badge_onchain">链上</span>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🎰</span>
+                        <span>⭐</span>
+                        <span>🎯</span>
                     </div>
                     <div class="flex justify-center">
                         <div class="relative casino-frame">
@@ -722,68 +793,98 @@
                     <div id="gameStatus" class="text-sm text-slate-600" data-i18n="status_ready">✅ 系统已就绪</div>
                     <div id="modeHint" class="text-xs text-slate-500" data-i18n="mode_fast">快速模式 · 单笔交易</div>
                 </div>
-                <div class="game-card">
+                <div class="game-card vegas-card" data-game="mine">
                     <div class="game-card-header">
                         <div>
                             <div class="game-card-title" data-i18n="game_mine_title">宝箱挖掘</div>
                             <div class="game-card-desc" data-i18n="game_mine_desc">三选一，避开陷阱，连胜加成。</div>
                         </div>
-                        <span class="badge" data-i18n="badge_onchain">链上</span>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🧭</span>
+                        <span>💎</span>
+                        <span>🧨</span>
                     </div>
                     <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
                     <button class="game-btn" data-open="mineModal" data-i18n="btn_enter">进入</button>
                 </div>
-                <div class="game-card">
+                <div class="game-card vegas-card" data-game="dice">
                     <div class="game-card-header">
                         <div>
                             <div class="game-card-title" data-i18n="game_dice_title">骰子冲刺</div>
                             <div class="game-card-desc" data-i18n="game_dice_desc">押高/低/中，翻倍冲刺。</div>
                         </div>
-                        <span class="badge" data-i18n="badge_onchain">链上</span>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🎲</span>
+                        <span>🎲</span>
+                        <span>🔥</span>
                     </div>
                     <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
                     <button class="game-btn" data-open="diceModal" data-i18n="btn_enter">进入</button>
                 </div>
-                <div class="game-card">
+                <div class="game-card vegas-card" data-game="flip">
                     <div class="game-card-header">
                         <div>
                             <div class="game-card-title" data-i18n="game_flip_title">幸运翻牌</div>
                             <div class="game-card-desc" data-i18n="game_flip_desc">翻两张，连中爆奖。</div>
                         </div>
-                        <span class="badge" data-i18n="badge_onchain">链上</span>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🃏</span>
+                        <span>🍀</span>
+                        <span>💥</span>
                     </div>
                     <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
                     <button class="game-btn" data-open="flipModal" data-i18n="btn_enter">进入</button>
                 </div>
-                <div class="game-card">
+                <div class="game-card vegas-card" data-game="dungeon">
                     <div class="game-card-header">
                         <div>
                             <div class="game-card-title" data-i18n="game_dungeon_title">连胜闯关</div>
                             <div class="game-card-desc" data-i18n="game_dungeon_desc">连赢晋级，通关大奖。</div>
                         </div>
-                        <span class="badge" data-i18n="badge_onchain">链上</span>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>⚔️</span>
+                        <span>🏆</span>
+                        <span>🛡️</span>
                     </div>
                     <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
                     <button class="game-btn" data-open="dungeonModal" data-i18n="btn_enter">进入</button>
                 </div>
-                <div class="game-card">
+                <div class="game-card vegas-card" data-game="slot">
                     <div class="game-card-header">
                         <div>
                             <div class="game-card-title" data-i18n="game_slot_title">拉霸机</div>
                             <div class="game-card-desc" data-i18n="game_slot_desc">经典三转轴，大奖刺激。</div>
                         </div>
-                        <span class="badge" data-i18n="badge_onchain">链上</span>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🍒</span>
+                        <span>💎</span>
+                        <span>7</span>
                     </div>
                     <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
                     <button class="game-btn" data-open="slotModal" data-i18n="btn_enter">进入</button>
                 </div>
-                <div class="game-card">
+                <div class="game-card vegas-card" data-game="sprint">
                     <div class="game-card-header">
                         <div>
                             <div class="game-card-title" data-i18n="game_sprint_title">竞速冲榜</div>
                             <div class="game-card-desc" data-i18n="game_sprint_desc">限时冲分，赛季排行。</div>
                         </div>
-                        <span class="badge" data-i18n="badge_onchain">链上</span>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🏁</span>
+                        <span>🚀</span>
+                        <span>⚡</span>
                     </div>
                     <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
                     <button class="game-btn" data-open="sprintModal" data-i18n="btn_enter">进入</button>
@@ -909,7 +1010,7 @@
 
         <!-- Game Modals -->
         <div id="mineModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
-            <div class="game-modal">
+            <div class="game-modal vegas-modal" data-game="mine">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold" data-i18n="game_mine_title">宝箱挖掘</h3>
                     <button class="modal-close" data-close="mineModal" data-i18n="btn_close">关闭</button>
@@ -926,7 +1027,7 @@
         </div>
 
         <div id="diceModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
-            <div class="game-modal">
+            <div class="game-modal vegas-modal" data-game="dice">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold" data-i18n="game_dice_title">骰子冲刺</h3>
                     <button class="modal-close" data-close="diceModal" data-i18n="btn_close">关闭</button>
@@ -943,7 +1044,7 @@
         </div>
 
         <div id="flipModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
-            <div class="game-modal">
+            <div class="game-modal vegas-modal" data-game="flip">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold" data-i18n="game_flip_title">幸运翻牌</h3>
                     <button class="modal-close" data-close="flipModal" data-i18n="btn_close">关闭</button>
@@ -961,7 +1062,7 @@
         </div>
 
         <div id="dungeonModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
-            <div class="game-modal">
+            <div class="game-modal vegas-modal" data-game="dungeon">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold" data-i18n="game_dungeon_title">连胜闯关</h3>
                     <button class="modal-close" data-close="dungeonModal" data-i18n="btn_close">关闭</button>
@@ -974,7 +1075,7 @@
         </div>
 
         <div id="slotModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
-            <div class="game-modal">
+            <div class="game-modal vegas-modal" data-game="slot">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold" data-i18n="game_slot_title">拉霸机</h3>
                     <button class="modal-close" data-close="slotModal" data-i18n="btn_close">关闭</button>
@@ -991,7 +1092,7 @@
         </div>
 
         <div id="sprintModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
-            <div class="game-modal">
+            <div class="game-modal vegas-modal" data-game="sprint">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold" data-i18n="game_sprint_title">竞速冲榜</h3>
                     <button class="modal-close" data-close="sprintModal" data-i18n="btn_close">关闭</button>
