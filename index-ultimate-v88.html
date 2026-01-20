@@ -281,6 +281,48 @@
             color: #166534;
             font-weight: 700;
         }
+        .streak-hot {
+            box-shadow: 0 0 0 2px rgba(255, 169, 64, 0.35), 0 18px 38px rgba(255, 130, 90, 0.2);
+            animation: flamePulse 1.2s ease-in-out infinite;
+        }
+        .streak-flame {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 169, 64, 0.2);
+            font-size: 14px;
+            animation: flameFlicker 0.8s infinite;
+        }
+        .particle-rain {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 55;
+        }
+        .particle {
+            position: absolute;
+            top: -12px;
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            opacity: 0.9;
+            animation: rain 1.2s linear forwards;
+        }
+        @keyframes rain {
+            to { transform: translateY(110vh) rotate(140deg); opacity: 0; }
+        }
+        @keyframes flamePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        @keyframes flameFlicker {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.15); opacity: 1; }
+        }
         .season-rank {
             font-size: 20px;
             font-weight: 700;
@@ -445,10 +487,10 @@
                     <span class="chip">单笔交易</span>
                 </div>
 
-                <div class="glass rounded-xl p-4 mb-6">
+                <div class="glass rounded-xl p-4 mb-6" id="streakCard">
                     <div class="flex items-center justify-between text-sm text-slate-600 mb-2">
                         <span>连胜进度</span>
-                        <span>当前连胜 <strong id="streakCount">0</strong> | 最高 <strong id="maxStreak">0</strong></span>
+                        <span class="flex items-center gap-2">当前连胜 <strong id="streakCount">0</strong> | 最高 <strong id="maxStreak">0</strong><span id="streakFlame" class="streak-flame hidden">🔥</span></span>
                     </div>
                     <div class="progress-track">
                         <div class="progress-fill" id="streakProgress" style="width: 0%;"></div>
@@ -613,6 +655,7 @@
             <div class="season-track mt-4">
                 <div class="season-fill" id="seasonFill"></div>
             </div>
+            <div class="text-xs text-slate-500 mt-3" id="seasonRewardHint"></div>
         </div>
 
         <!-- Surprise Chest -->
@@ -628,6 +671,8 @@
             <h3 class="text-xl font-semibold mb-4">🏆 本地排行榜</h3>
             <div id="leaderboardList" class="text-sm text-slate-600"></div>
         </div>
+
+        <div id="particleRain" class="particle-rain"></div>
 
         <div id="bossOverlay" class="fx-overlay fx-hidden">
             <div class="fx-burst"></div>
@@ -743,7 +788,8 @@
                         month: null,
                         points: 0,
                         plays: 0,
-                        wins: 0
+                        wins: 0,
+                        rewardsClaimed: []
                     },
                     daily: {
                         date: null,
@@ -1648,6 +1694,32 @@
                 }, 1600);
             }
 
+            spawnParticles(type = 'gold', count = 24) {
+                const container = document.getElementById('particleRain');
+                if (!container) return;
+                container.innerHTML = '';
+                const palettes = {
+                    gold: ['#ffd166', '#ffe7a3', '#ffb703'],
+                    ember: ['#f97316', '#fb7185', '#ef4444'],
+                    blue: ['#60a5fa', '#38bdf8', '#a5b4fc']
+                };
+                const colors = palettes[type] || palettes.gold;
+                for (let i = 0; i < count; i += 1) {
+                    const dot = document.createElement('span');
+                    dot.className = 'particle';
+                    dot.style.left = `${Math.random() * 100}%`;
+                    dot.style.animationDelay = `${Math.random() * 0.3}s`;
+                    dot.style.animationDuration = `${0.9 + Math.random() * 0.6}s`;
+                    dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    dot.style.width = `${6 + Math.random() * 6}px`;
+                    dot.style.height = dot.style.width;
+                    container.appendChild(dot);
+                }
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 1400);
+            }
+
             loadLocalGame() {
                 if (!this.state.wallet?.address) return;
                 const raw = localStorage.getItem(`mao_local_${this.state.wallet.address}`);
@@ -1668,7 +1740,7 @@
                             achievements: data.achievements || {},
                             lastDoubleWin: data.lastDoubleWin || false,
                             lastBossWin: data.lastBossWin || false,
-                            season: data.season || { month: null, points: 0, plays: 0, wins: 0 },
+                            season: data.season || { month: null, points: 0, plays: 0, wins: 0, rewardsClaimed: [] },
                             daily: data.daily || {
                                 date: null,
                                 playCount: 0,
@@ -1678,7 +1750,7 @@
                             }
                         };
                     } catch (e) {
-                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, totalPlays: 0, totalWins: 0, mapLevel: 1, mapProgress: 0, achievements: {}, lastDoubleWin: false, lastBossWin: false, season: { month: null, points: 0, plays: 0, wins: 0 }, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
+                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, totalPlays: 0, totalWins: 0, mapLevel: 1, mapProgress: 0, achievements: {}, lastDoubleWin: false, lastBossWin: false, season: { month: null, points: 0, plays: 0, wins: 0, rewardsClaimed: [] }, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
                     }
                 }
                 this.syncDaily();
@@ -1699,9 +1771,16 @@
                 const bossHint = document.getElementById('bossHint');
                 const charmStatus = document.getElementById('charmStatus');
                 const charmHint = document.getElementById('charmHint');
+                const streakCard = document.getElementById('streakCard');
+                const streakFlame = document.getElementById('streakFlame');
                 if (streakCount) streakCount.textContent = this.localGame.streak;
                 if (maxStreak) maxStreak.textContent = this.localGame.maxStreak;
                 if (chipCount) chipCount.textContent = this.localGame.chips;
+                if (streakCard && streakFlame) {
+                    const hot = this.localGame.streak >= 3;
+                    streakCard.classList.toggle('streak-hot', hot);
+                    streakFlame.classList.toggle('hidden', !hot);
+                }
                 if (progress) {
                     const pct = Math.min(this.localGame.streak / 10, 1) * 100;
                     progress.style.width = `${pct}%`;
@@ -1749,6 +1828,7 @@
                     }
                     if (this.prevLocalSnapshot.seasonRank && this.currentSeasonRank && this.prevLocalSnapshot.seasonRank !== this.currentSeasonRank) {
                         this.showOverlay('seasonOverlay', `SEASON ${this.currentSeasonRank.toUpperCase()}`, '赛季等级提升');
+                        this.spawnParticles('blue', 26);
                         this.notify(`赛季升级：${this.currentSeasonRank}`, 'success');
                     }
                 }
@@ -1786,6 +1866,7 @@
                         this.localGame.bossReady = false;
                         this.localGame.lastBossWin = true;
                         this.showOverlay('bossOverlay', 'BOSS DEFEATED', '奖励加成已到账');
+                        this.spawnParticles('ember', 28);
                     }
                     this.localGame.chips += gained;
                     this.pendingChips = gained;
@@ -1864,7 +1945,8 @@
                         month,
                         points: 0,
                         plays: 0,
-                        wins: 0
+                        wins: 0,
+                        rewardsClaimed: []
                     };
                 }
             }
@@ -1921,6 +2003,7 @@
                 const rank = document.getElementById('seasonRank');
                 const rate = document.getElementById('seasonWinRate');
                 const fill = document.getElementById('seasonFill');
+                const hint = document.getElementById('seasonRewardHint');
                 if (!points || !rank || !rate) return;
                 points.textContent = this.localGame.season.points;
                 const ranks = [
@@ -1941,6 +2024,41 @@
                     const span = next.min - current.min || 1;
                     const progress = Math.min((this.localGame.season.points - current.min) / span, 1);
                     fill.style.width = `${Math.round(progress * 100)}%`;
+                }
+                this.checkSeasonMilestones(hint);
+            }
+
+            checkSeasonMilestones(hintNode) {
+                const milestones = [
+                    { points: 40, reward: { chips: 200 }, label: '赛季 40 积分奖励：+200 筹码' },
+                    { points: 100, reward: { chips: 400, charm: 2 }, label: '赛季 100 积分奖励：+400 筹码 +2 幸运符' },
+                    { points: 180, reward: { chips: 800, charm: 3 }, label: '赛季 180 积分奖励：+800 筹码 +3 幸运符' },
+                    { points: 260, reward: { chips: 1200, charm: 5 }, label: '赛季 260 积分奖励：+1200 筹码 +5 幸运符' }
+                ];
+                const claimed = this.localGame.season.rewardsClaimed || [];
+                let unlocked = null;
+                milestones.forEach((item) => {
+                    if (this.localGame.season.points >= item.points && !claimed.includes(item.points)) {
+                        claimed.push(item.points);
+                        this.localGame.chips += item.reward.chips || 0;
+                        this.localGame.charmCharges += item.reward.charm || 0;
+                        unlocked = item;
+                    }
+                });
+                if (unlocked) {
+                    this.localGame.season.rewardsClaimed = claimed;
+                    this.saveLocalGame();
+                    this.updateLocalGameUI();
+                    this.showOverlay('seasonOverlay', 'SEASON REWARD', unlocked.label);
+                    this.spawnParticles('blue', 30);
+                    this.notify('赛季里程碑奖励已到账', 'success');
+                } else if (hintNode) {
+                    const next = milestones.find((item) => !claimed.includes(item.points));
+                    if (next) {
+                        hintNode.textContent = `下一里程碑：${next.points} 积分`;
+                    } else {
+                        hintNode.textContent = '赛季奖励已全部领取';
+                    }
                 }
             }
 
@@ -2027,6 +2145,7 @@
                 this.flashCard('bossCard', 'success');
                 this.notify('Boss 房开启，下一局赢取额外筹码', 'success');
                 this.showOverlay('bossOverlay', 'BOSS READY', '挑战开启');
+                this.spawnParticles('ember', 22);
             }
 
             buyCharm() {
@@ -2063,10 +2182,12 @@
                     this.localGame.chips += reward;
                     if (hint) hint.textContent = `🎉 获得 ${reward} 筹码`;
                     this.showOverlay('chestOverlay', 'CHEST OPEN', `获得 ${reward} 筹码`);
+                    this.spawnParticles('gold', 30);
                 } else {
                     this.localGame.charmCharges += 3;
                     if (hint) hint.textContent = '✨ 获得 3 局幸运符';
                     this.showOverlay('chestOverlay', 'CHEST OPEN', '获得 3 局幸运符');
+                    this.spawnParticles('gold', 30);
                 }
                 this.saveLocalGame();
                 this.updateLocalGameUI();
