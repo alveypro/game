@@ -567,6 +567,58 @@
             0%, 100% { transform: translateX(0); }
             50% { transform: translateX(200px); }
         }
+        .tower-stage {
+            height: 90px;
+            border-radius: 14px;
+            padding: 10px;
+            background: linear-gradient(120deg, rgba(255, 210, 120, 0.2), transparent 60%);
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 6px;
+        }
+        .tower-step {
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .tower-step.active {
+            background: rgba(255, 210, 120, 0.25);
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.7);
+        }
+        .chain-stage {
+            height: 80px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(120deg, rgba(255, 210, 120, 0.2), transparent 60%);
+        }
+        .chain-node {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(241, 196, 15, 0.5);
+        }
+        .chain-stage.running .chain-node {
+            animation: bulbGlow 1s ease-in-out infinite;
+        }
+        .arena-stage {
+            height: 80px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(120deg, rgba(255, 210, 120, 0.2), transparent 60%);
+        }
+        .arena-stage.running {
+            animation: stagePulse 1.2s ease-in-out infinite;
+        }
         .game-card.large {
             grid-column: span 1;
         }
@@ -1018,6 +1070,54 @@
                     <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
                     <button class="game-btn" data-open="sprintModal" data-i18n="btn_enter">进入</button>
                 </div>
+                <div class="game-card vegas-card" data-game="tower">
+                    <div class="game-card-header">
+                        <div>
+                            <div class="game-card-title" data-i18n="game_tower_title">无限爬塔</div>
+                            <div class="game-card-desc" data-i18n="game_tower_desc">越往上奖励越大，失败回落。</div>
+                        </div>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🗼</span>
+                        <span>⬆️</span>
+                        <span>💰</span>
+                    </div>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="towerModal" data-i18n="btn_enter">进入</button>
+                </div>
+                <div class="game-card vegas-card" data-game="chain">
+                    <div class="game-card-header">
+                        <div>
+                            <div class="game-card-title" data-i18n="game_chain_title">连锁爆奖</div>
+                            <div class="game-card-desc" data-i18n="game_chain_desc">中奖触发连锁，再开一局。</div>
+                        </div>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🔗</span>
+                        <span>🎯</span>
+                        <span>✨</span>
+                    </div>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="chainModal" data-i18n="btn_enter">进入</button>
+                </div>
+                <div class="game-card vegas-card" data-game="arena">
+                    <div class="game-card-header">
+                        <div>
+                            <div class="game-card-title" data-i18n="game_arena_title">王者赌桌</div>
+                            <div class="game-card-desc" data-i18n="game_arena_desc">胜利加分，升级段位。</div>
+                        </div>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>♠️</span>
+                        <span>👑</span>
+                        <span>♦️</span>
+                    </div>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="arenaModal" data-i18n="btn_enter">进入</button>
+                </div>
             </div>
         </div>
         
@@ -1258,6 +1358,62 @@
             </div>
         </div>
 
+        <div id="towerModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
+            <div class="game-modal vegas-modal" data-game="tower">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold" data-i18n="game_tower_title">无限爬塔</h3>
+                    <button class="modal-close" data-close="towerModal" data-i18n="btn_close">关闭</button>
+                </div>
+                <div class="vegas-stage mb-4 tower-stage" id="towerStage"></div>
+                <div class="text-sm text-slate-600"><span data-i18n="tower_level">当前层数</span>: <span id="towerLevel">1</span></div>
+                <button class="game-btn mt-3 w-full" id="towerClimb" data-i18n="tower_climb">向上挑战</button>
+                <div id="towerAchievements" class="text-xs text-slate-500 mt-2"></div>
+                <div id="towerHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
+        <div id="chainModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
+            <div class="game-modal vegas-modal" data-game="chain">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold" data-i18n="game_chain_title">连锁爆奖</h3>
+                    <button class="modal-close" data-close="chainModal" data-i18n="btn_close">关闭</button>
+                </div>
+                <div class="vegas-stage chain-stage mb-4" id="chainStage">
+                    <span class="chain-node"></span>
+                    <span class="chain-node"></span>
+                    <span class="chain-node"></span>
+                    <span class="chain-node"></span>
+                    <span class="chain-node"></span>
+                </div>
+                <div class="text-sm text-slate-600"><span data-i18n="chain_streak">连锁次数</span>: <span id="chainCount">0</span></div>
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                    <button class="game-btn" id="chainPlay" data-i18n="chain_play">开启连锁</button>
+                    <button class="game-btn" id="chainAgain" data-i18n="chain_again">连锁再开</button>
+                </div>
+                <div id="chainAchievements" class="text-xs text-slate-500 mt-2"></div>
+                <div id="chainHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
+        <div id="arenaModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
+            <div class="game-modal vegas-modal" data-game="arena">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold" data-i18n="game_arena_title">王者赌桌</h3>
+                    <button class="modal-close" data-close="arenaModal" data-i18n="btn_close">关闭</button>
+                </div>
+                <div class="vegas-stage arena-stage mb-4" id="arenaStage">
+                    <span>🂡</span>
+                    <span>🂱</span>
+                    <span>🂮</span>
+                </div>
+                <div class="text-sm text-slate-600"><span data-i18n="arena_points">赌桌积分</span>: <span id="arenaPoints">0</span></div>
+                <div class="text-sm text-slate-600"><span data-i18n="arena_rank">段位</span>: <span id="arenaRank">Rookie</span></div>
+                <button class="game-btn mt-3 w-full" id="arenaPlay" data-i18n="arena_play">挑战赌桌</button>
+                <div id="arenaAchievements" class="text-xs text-slate-500 mt-2"></div>
+                <div id="arenaHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
         <div id="particleRain" class="particle-rain"></div>
 
         <div id="bossOverlay" class="fx-overlay fx-hidden">
@@ -1381,6 +1537,9 @@
                         flip: { cards: [], picks: [], costPaid: false },
                         dungeonStage: 1,
                         sprint: { active: false, endsAt: 0, score: 0, best: 0 },
+                        tower: { level: 1, best: 1 },
+                        chain: { streak: 0, ready: false },
+                        arena: { points: 0, rank: 'Rookie', best: 0 },
                         stats: { plays: {}, wins: {} }
                     },
                     dailyMini: { date: null, plays: 0, wins: 0, sprint50: false, claimed: false, supplyClaimed: false },
@@ -1461,6 +1620,12 @@
                         game_slot_desc: '经典三转轴，大奖刺激。',
                         game_sprint_title: '竞速冲榜',
                         game_sprint_desc: '限时冲分，赛季排行。',
+                        game_tower_title: '无限爬塔',
+                        game_tower_desc: '越往上奖励越大，失败回落。',
+                        game_chain_title: '连锁爆奖',
+                        game_chain_desc: '中奖触发连锁，再开一局。',
+                        game_arena_title: '王者赌桌',
+                        game_arena_desc: '胜利加分，升级段位。',
                         btn_enter: '进入',
                         odds_title: '🎯 中奖概率一览（MAO）',
                         odds_lose: '未中奖',
@@ -1526,6 +1691,14 @@
                         sprint_best: '历史最高',
                         sprint_start: '开始冲榜',
                         sprint_run: '冲刺一次',
+                        tower_level: '当前层数',
+                        tower_climb: '向上挑战',
+                        chain_streak: '连锁次数',
+                        chain_play: '开启连锁',
+                        chain_again: '连锁再开',
+                        arena_points: '赌桌积分',
+                        arena_rank: '段位',
+                        arena_play: '挑战赌桌',
                         mini_chain: '链上开奖中...',
                         mini_supply_hint: '今日补给：+100 筹码',
                         mini_supply_claimed: '今日补给已领取',
@@ -1594,6 +1767,12 @@
                         game_slot_desc: 'Classic 3-reel slot thrills.',
                         game_sprint_title: 'Sprint Ranking',
                         game_sprint_desc: 'Score within time to climb ranks.',
+                        game_tower_title: 'Infinite Tower',
+                        game_tower_desc: 'Climb higher for bigger rewards.',
+                        game_chain_title: 'Chain Jackpot',
+                        game_chain_desc: 'Win triggers a chain streak.',
+                        game_arena_title: 'King Table',
+                        game_arena_desc: 'Win points to rank up.',
                         btn_enter: 'Enter',
                         odds_title: '🎯 Win Odds (MAO)',
                         odds_lose: 'No Win',
@@ -1659,6 +1838,14 @@
                         sprint_best: 'Best',
                         sprint_start: 'Start Sprint',
                         sprint_run: 'Run Once',
+                        tower_level: 'Current Floor',
+                        tower_climb: 'Climb Up',
+                        chain_streak: 'Chain Streak',
+                        chain_play: 'Start Chain',
+                        chain_again: 'Chain Again',
+                        arena_points: 'Table Points',
+                        arena_rank: 'Rank',
+                        arena_play: 'Challenge Table',
                         mini_chain: 'On-chain draw...',
                         mini_supply_hint: 'Daily Supply: +100 chips',
                         mini_supply_claimed: 'Daily supply claimed',
@@ -1849,14 +2036,18 @@
                 }
                 if (this.activeMiniGame) {
                     const nameMap = {
-                        mine: '宝箱挖掘',
-                        dice: '骰子冲刺',
-                        flip: '幸运翻牌',
-                        dungeon: '连胜闯关',
-                        slot: '拉霸机',
-                        sprint: '竞速冲榜'
+                        mine: { zh: '宝箱挖掘', en: 'Treasure Dig' },
+                        dice: { zh: '骰子冲刺', en: 'Dice Rush' },
+                        flip: { zh: '幸运翻牌', en: 'Lucky Flip' },
+                        dungeon: { zh: '连胜闯关', en: 'Streak Dungeon' },
+                        slot: { zh: '拉霸机', en: 'Slots' },
+                        sprint: { zh: '竞速冲榜', en: 'Sprint Ranking' },
+                        tower: { zh: '无限爬塔', en: 'Infinite Tower' },
+                        chain: { zh: '连锁爆奖', en: 'Chain Jackpot' },
+                        arena: { zh: '王者赌桌', en: 'King Table' }
                     };
-                    const name = nameMap[this.activeMiniGame.id] || '小游戏';
+                    const entry = nameMap[this.activeMiniGame.id] || { zh: '小游戏', en: 'Mini Game' };
+                    const name = this.lang === 'en' ? entry.en : entry.zh;
                     title.textContent = this.lang === 'en' ? `🎮 ${name} Result` : `🎮 ${name} 结果`;
                     msg.textContent = result.isWin
                         ? (this.lang === 'en' ? 'On-chain win, reward sent' : '链上中奖，奖励已发放')
@@ -2469,6 +2660,9 @@
                     this.stopSlotAnimation();
                     this.stopDungeonAnimation();
                     this.stopSprintAnimation();
+                    this.stopTowerAnimation();
+                    this.stopChainAnimation();
+                    this.stopArenaAnimation();
                     this.updateUI(false);
                 }
             }
@@ -2596,6 +2790,10 @@
                 document.getElementById('slotSpin')?.addEventListener('click', () => this.spinSlot());
                 document.getElementById('sprintStart')?.addEventListener('click', () => this.startSprint());
                 document.getElementById('sprintRun')?.addEventListener('click', () => this.sprintOnce());
+                document.getElementById('towerClimb')?.addEventListener('click', () => this.playTower());
+                document.getElementById('chainPlay')?.addEventListener('click', () => this.playChain('start'));
+                document.getElementById('chainAgain')?.addEventListener('click', () => this.playChain('again'));
+                document.getElementById('arenaPlay')?.addEventListener('click', () => this.playArena());
 
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
@@ -2704,9 +2902,7 @@
                 this.translatePage();
                 this.updateModeHint();
                 this.updateUI(this.state.isPlaying);
-                this.updateMiniTasksUI();
-                this.updateFeaturedGame();
-                this.updateMiniAchievementsUI();
+                this.updateMiniGameUI();
             }
 
             translatePage() {
@@ -2801,6 +2997,9 @@
                 if (id === 'flipModal') this.prepareFlip();
                 if (id === 'sprintModal') this.updateSprintUI(true);
                 if (id === 'dungeonModal') this.updateDungeonUI();
+                if (id === 'towerModal') this.updateTowerUI();
+                if (id === 'chainModal') this.updateChainUI();
+                if (id === 'arenaModal') this.updateArenaUI();
             }
 
             closeGameModal(id) {
@@ -2812,6 +3011,9 @@
                 this.stopMineAnimation();
                 this.stopDungeonAnimation();
                 this.stopSprintAnimation();
+                this.stopTowerAnimation();
+                this.stopChainAnimation();
+                this.stopArenaAnimation();
             }
 
             spendChips(cost, hintId) {
@@ -2831,6 +3033,9 @@
                 this.updateDungeonUI();
                 this.updateSprintUI(false);
                 this.updateFlipUI();
+                this.updateTowerUI();
+                this.updateChainUI();
+                this.updateArenaUI();
                 this.updateMiniTasksUI();
                 this.updateFeaturedGame();
                 this.updateMiniAchievementsUI();
@@ -2871,6 +3076,19 @@
                                     score: data.mini?.sprint?.score || 0,
                                     best: data.mini?.sprint?.best || 0
                                 },
+                                tower: {
+                                    level: data.mini?.tower?.level || 1,
+                                    best: data.mini?.tower?.best || 1
+                                },
+                                chain: {
+                                    streak: data.mini?.chain?.streak || 0,
+                                    ready: data.mini?.chain?.ready || false
+                                },
+                                arena: {
+                                    points: data.mini?.arena?.points || 0,
+                                    rank: data.mini?.arena?.rank || 'Rookie',
+                                    best: data.mini?.arena?.best || 0
+                                },
                                 stats: data.mini?.stats || { plays: {}, wins: {} }
                             },
                             dailyMini: data.dailyMini || { date: null, plays: 0, wins: 0, sprint50: false, claimed: false, supplyClaimed: false },
@@ -2883,7 +3101,7 @@
                             }
                         };
                     } catch (e) {
-                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, totalPlays: 0, totalWins: 0, mapLevel: 1, mapProgress: 0, achievements: {}, lastDoubleWin: false, lastBossWin: false, season: { month: null, points: 0, plays: 0, wins: 0, rewardsClaimed: [] }, mini: { flip: { cards: [], picks: [], costPaid: false }, dungeonStage: 1, sprint: { active: false, endsAt: 0, score: 0, best: 0 }, stats: { plays: {}, wins: {} } }, dailyMini: { date: null, plays: 0, wins: 0, sprint50: false, claimed: false, supplyClaimed: false }, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
+                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, totalPlays: 0, totalWins: 0, mapLevel: 1, mapProgress: 0, achievements: {}, lastDoubleWin: false, lastBossWin: false, season: { month: null, points: 0, plays: 0, wins: 0, rewardsClaimed: [] }, mini: { flip: { cards: [], picks: [], costPaid: false }, dungeonStage: 1, sprint: { active: false, endsAt: 0, score: 0, best: 0 }, tower: { level: 1, best: 1 }, chain: { streak: 0, ready: false }, arena: { points: 0, rank: 'Rookie', best: 0 }, stats: { plays: {}, wins: {} } }, dailyMini: { date: null, plays: 0, wins: 0, sprint50: false, claimed: false, supplyClaimed: false }, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
                     }
                 }
                 this.syncDaily();
@@ -3348,7 +3566,10 @@
                     { id: 'flipModal', name: { zh: '幸运翻牌', en: 'Lucky Flip' }, desc: { zh: '翻两张拼组合，爆奖几率高。', en: 'Flip two to match for big wins.' } },
                     { id: 'dungeonModal', name: { zh: '连胜闯关', en: 'Streak Dungeon' }, desc: { zh: '连胜越高奖励越大。', en: 'Higher streaks unlock bigger rewards.' } },
                     { id: 'slotModal', name: { zh: '拉霸机', en: 'Slots' }, desc: { zh: '经典三转轴，大爆奖刺激。', en: 'Classic reels with jackpots.' } },
-                    { id: 'sprintModal', name: { zh: '竞速冲榜', en: 'Sprint Ranking' }, desc: { zh: '60 秒冲分，挑战极限。', en: 'Score in 60s, push your limits.' } }
+                    { id: 'sprintModal', name: { zh: '竞速冲榜', en: 'Sprint Ranking' }, desc: { zh: '60 秒冲分，挑战极限。', en: 'Score in 60s, push your limits.' } },
+                    { id: 'towerModal', name: { zh: '无限爬塔', en: 'Infinite Tower' }, desc: { zh: '层数越高奖励越大。', en: 'Higher floors, bigger rewards.' } },
+                    { id: 'chainModal', name: { zh: '连锁爆奖', en: 'Chain Jackpot' }, desc: { zh: '连赢触发连锁奖励。', en: 'Win streaks trigger chain rewards.' } },
+                    { id: 'arenaModal', name: { zh: '王者赌桌', en: 'King Table' }, desc: { zh: '积分升段位，冲击传奇。', en: 'Climb ranks to reach legend.' } }
                 ];
                 if (!this.featuredGameId) {
                     const pick = games[Math.floor(Math.random() * games.length)];
@@ -3369,7 +3590,10 @@
                     flip: { id: 'flipAchievements', label: { zh: '幸运翻牌', en: 'Lucky Flip' } },
                     dungeon: { id: 'dungeonAchievements', label: { zh: '连胜闯关', en: 'Streak Dungeon' } },
                     slot: { id: 'slotAchievements', label: { zh: '拉霸机', en: 'Slots' } },
-                    sprint: { id: 'sprintAchievements', label: { zh: '竞速冲榜', en: 'Sprint Ranking' } }
+                    sprint: { id: 'sprintAchievements', label: { zh: '竞速冲榜', en: 'Sprint Ranking' } },
+                    tower: { id: 'towerAchievements', label: { zh: '无限爬塔', en: 'Infinite Tower' } },
+                    chain: { id: 'chainAchievements', label: { zh: '连锁爆奖', en: 'Chain Jackpot' } },
+                    arena: { id: 'arenaAchievements', label: { zh: '王者赌桌', en: 'King Table' } }
                 };
                 Object.keys(configs).forEach((key) => {
                     const node = document.getElementById(configs[key].id);
@@ -3461,6 +3685,34 @@
             stopSprintAnimation() {
                 document.getElementById('sprintStageBox')?.classList.remove('running');
                 document.getElementById('sprintStageBox')?.classList.remove('stage-running');
+            }
+
+            startTowerAnimation() {
+                document.getElementById('towerStage')?.classList.add('stage-running');
+            }
+
+            stopTowerAnimation() {
+                document.getElementById('towerStage')?.classList.remove('stage-running');
+            }
+
+            startChainAnimation() {
+                document.getElementById('chainStage')?.classList.add('running');
+                document.getElementById('chainStage')?.classList.add('stage-running');
+            }
+
+            stopChainAnimation() {
+                document.getElementById('chainStage')?.classList.remove('running');
+                document.getElementById('chainStage')?.classList.remove('stage-running');
+            }
+
+            startArenaAnimation() {
+                document.getElementById('arenaStage')?.classList.add('running');
+                document.getElementById('arenaStage')?.classList.add('stage-running');
+            }
+
+            stopArenaAnimation() {
+                document.getElementById('arenaStage')?.classList.remove('running');
+                document.getElementById('arenaStage')?.classList.remove('stage-running');
             }
 
             startDiceAnimation() {
@@ -3589,6 +3841,63 @@
                     this.recordMiniResult('sprint', win);
                     this.updateSprintUI(true);
                 }
+                if (context.id === 'tower') {
+                    this.stopTowerAnimation();
+                    const tower = this.localGame.mini.tower;
+                    if (win) {
+                        const nextLevel = tower.level + 1;
+                        if (nextLevel > tower.best) tower.best = nextLevel;
+                        if (nextLevel > 8) {
+                            tower.level = 1;
+                            this.showOverlay('bossOverlay', 'TOWER CLEAR', this.lang === 'en' ? 'Reached the peak!' : '登顶成功！');
+                            this.spawnParticles('gold', 24);
+                        } else {
+                            tower.level = nextLevel;
+                        }
+                    } else {
+                        tower.level = Math.max(1, tower.level - 1);
+                    }
+                    this.updateTowerUI();
+                    const hint = document.getElementById('towerHint');
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '✅ Climb success, reward sent' : '✅ 爬塔成功，奖励已发放')
+                        : (this.lang === 'en' ? 'Slip back one floor' : '滑落一层，继续挑战');
+                    this.recordMiniResult('tower', win);
+                }
+                if (context.id === 'chain') {
+                    this.stopChainAnimation();
+                    const chain = this.localGame.mini.chain;
+                    if (win) {
+                        chain.streak += 1;
+                        chain.ready = true;
+                        this.spawnParticles('gold', 14);
+                    } else {
+                        chain.streak = 0;
+                        chain.ready = false;
+                    }
+                    this.updateChainUI();
+                    const hint = document.getElementById('chainHint');
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '🔥 Chain triggered, reward sent' : '🔥 连锁触发，奖励已发放')
+                        : (this.lang === 'en' ? 'Chain broken, start again' : '连锁中断，重新开始');
+                    this.recordMiniResult('chain', win);
+                }
+                if (context.id === 'arena') {
+                    this.stopArenaAnimation();
+                    const arena = this.localGame.mini.arena;
+                    if (win) {
+                        arena.points += 12;
+                    } else {
+                        arena.points = Math.max(0, arena.points - 6);
+                    }
+                    if (arena.points > arena.best) arena.best = arena.points;
+                    this.updateArenaUI();
+                    const hint = document.getElementById('arenaHint');
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '🏅 Victory! Points up' : '🏅 胜利，加分成功')
+                        : (this.lang === 'en' ? 'Defeat, points dropped' : '失利，积分下降');
+                    this.recordMiniResult('arena', win);
+                }
             }
 
             playMine(choiceIndex) {
@@ -3705,6 +4014,47 @@
                 this.startRealBlockchainGame();
             }
 
+            playTower() {
+                if (this.state.isPlaying) return;
+                const hint = document.getElementById('towerHint');
+                if (hint) hint.textContent = this.t('mini_chain');
+                this.startTowerAnimation();
+                this.activeMiniGame = { id: 'tower' };
+                this.startRealBlockchainGame();
+            }
+
+            playChain(mode) {
+                if (this.state.isPlaying) return;
+                const chain = this.localGame.mini.chain;
+                const hint = document.getElementById('chainHint');
+                if (mode === 'again' && !chain.ready) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Win once to trigger chain' : '先赢一局才能连锁';
+                    return;
+                }
+                if (mode === 'start') {
+                    chain.streak = 0;
+                    chain.ready = false;
+                    this.updateChainUI();
+                }
+                if (mode === 'again') {
+                    chain.ready = false;
+                    this.updateChainUI();
+                }
+                if (hint) hint.textContent = this.t('mini_chain');
+                this.startChainAnimation();
+                this.activeMiniGame = { id: 'chain', mode };
+                this.startRealBlockchainGame();
+            }
+
+            playArena() {
+                if (this.state.isPlaying) return;
+                const hint = document.getElementById('arenaHint');
+                if (hint) hint.textContent = this.t('mini_chain');
+                this.startArenaAnimation();
+                this.activeMiniGame = { id: 'arena' };
+                this.startRealBlockchainGame();
+            }
+
             updateSprintUI(tickOnly) {
                 const sprint = this.localGame.mini.sprint;
                 const timeNode = document.getElementById('sprintTime');
@@ -3740,6 +4090,54 @@
                     this.saveLocalGame();
                     this.updateLocalGameUI();
                 }
+            }
+
+            updateTowerUI() {
+                const tower = this.localGame.mini.tower;
+                const stage = document.getElementById('towerStage');
+                const levelNode = document.getElementById('towerLevel');
+                if (levelNode) levelNode.textContent = tower.level;
+                if (stage) {
+                    const total = 8;
+                    const steps = [];
+                    for (let i = 1; i <= total; i += 1) {
+                        const active = i <= tower.level ? 'active' : '';
+                        steps.push(`<div class="tower-step ${active}">${i}</div>`);
+                    }
+                    stage.innerHTML = steps.join('');
+                }
+            }
+
+            updateChainUI() {
+                const chain = this.localGame.mini.chain;
+                const count = document.getElementById('chainCount');
+                if (count) count.textContent = chain.streak;
+                const nodes = document.querySelectorAll('#chainStage .chain-node');
+                const activeCount = Math.min(chain.streak, nodes.length);
+                nodes.forEach((node, idx) => node.classList.toggle('active', idx < activeCount));
+                const againBtn = document.getElementById('chainAgain');
+                if (againBtn) againBtn.disabled = !chain.ready;
+            }
+
+            getArenaRank(points) {
+                const ranks = [
+                    { key: 'rookie', min: 0, label: { zh: '新手', en: 'Rookie' } },
+                    { key: 'bronze', min: 30, label: { zh: '铜牌', en: 'Bronze' } },
+                    { key: 'silver', min: 60, label: { zh: '银牌', en: 'Silver' } },
+                    { key: 'gold', min: 100, label: { zh: '金牌', en: 'Gold' } },
+                    { key: 'legend', min: 160, label: { zh: '传奇', en: 'Legend' } }
+                ];
+                return ranks.slice().reverse().find((item) => points >= item.min) || ranks[0];
+            }
+
+            updateArenaUI() {
+                const arena = this.localGame.mini.arena;
+                const points = document.getElementById('arenaPoints');
+                const rankNode = document.getElementById('arenaRank');
+                const rank = this.getArenaRank(arena.points);
+                arena.rank = rank.key;
+                if (points) points.textContent = arena.points;
+                if (rankNode) rankNode.textContent = rank.label[this.lang === 'en' ? 'en' : 'zh'];
             }
 
             updateSprintBoard(latestScore) {
