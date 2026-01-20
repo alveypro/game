@@ -155,6 +155,15 @@
             max-width: 360px;
             text-align: center;
         }
+        .panel-grid {
+            display: grid;
+            gap: 16px;
+        }
+        @media (min-width: 768px) {
+            .panel-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
         .casino-frame {
             position: relative;
             padding: 22px;
@@ -406,6 +415,40 @@
             <p class="text-xs text-slate-500 mt-4">PI 模式按相同比例放大为 1000/1050/1250/2000/6000/10000 PI。</p>
         </div>
 
+        <!-- Gameplay Console -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🎲 玩法控制台</h3>
+            <div class="panel-grid">
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">Boss 房</div>
+                    <div class="text-lg font-bold mt-1" id="bossStatus">未解锁</div>
+                    <p class="text-xs text-slate-500 mt-2">连胜 5 解锁，赢得额外筹码。</p>
+                    <button id="enterBoss" class="game-btn mt-3">进入 Boss 房</button>
+                    <div id="bossHint" class="text-xs text-slate-500 mt-2"></div>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">每日任务</div>
+                    <div class="text-xs text-slate-600 mt-2">今日进度</div>
+                    <div class="text-sm mt-2" id="taskList"></div>
+                    <button id="claimTasks" class="game-btn mt-3">领取任务奖励</button>
+                    <div id="taskHint" class="text-xs text-slate-500 mt-2"></div>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">幸运符</div>
+                    <div class="text-lg font-bold mt-1" id="charmStatus">未激活</div>
+                    <p class="text-xs text-slate-500 mt-2">消耗 200 筹码，提升筹码收益。</p>
+                    <button id="buyCharm" class="game-btn mt-3">购买幸运符</button>
+                    <div id="charmHint" class="text-xs text-slate-500 mt-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🏆 本地排行榜</h3>
+            <div id="leaderboardList" class="text-sm text-slate-600"></div>
+        </div>
+
         <!-- Lightweight Stats -->
         <details class="glass rounded-2xl p-6 mb-6">
             <summary class="detail-summary text-lg">📊 我的统计（点击展开）</summary>
@@ -481,7 +524,17 @@
                 this.localGame = {
                     streak: 0,
                     maxStreak: 0,
-                    chips: 0
+                    chips: 0,
+                    charmCharges: 0,
+                    bossReady: false,
+                    bossActive: false,
+                    daily: {
+                        date: null,
+                        playCount: 0,
+                        winCount: 0,
+                        doubleCount: 0,
+                        claimed: false
+                    }
                 };
                 this.pendingChips = 0;
                 
@@ -1288,6 +1341,25 @@
                 document.getElementById('authorizePrizePool')?.addEventListener('click', () => this.authorizePrizePool());
                 document.getElementById('takeChips')?.addEventListener('click', () => this.closeDoubleModal());
                 document.getElementById('doubleChips')?.addEventListener('click', () => this.handleDoubleChips());
+                const requireWallet = () => {
+                    if (!this.state.wallet.connected) {
+                        this.setStatus('请先连接钱包以开启玩法功能', 'warning');
+                        return false;
+                    }
+                    return true;
+                };
+                document.getElementById('enterBoss')?.addEventListener('click', () => {
+                    if (!requireWallet()) return;
+                    this.enterBossRoom();
+                });
+                document.getElementById('claimTasks')?.addEventListener('click', () => {
+                    if (!requireWallet()) return;
+                    this.claimDailyRewards();
+                });
+                document.getElementById('buyCharm')?.addEventListener('click', () => {
+                    if (!requireWallet()) return;
+                    this.buyCharm();
+                });
 
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
@@ -1309,12 +1381,23 @@
                         this.localGame = {
                             streak: data.streak || 0,
                             maxStreak: data.maxStreak || 0,
-                            chips: data.chips || 0
+                            chips: data.chips || 0,
+                            charmCharges: data.charmCharges || 0,
+                            bossReady: data.bossReady || false,
+                            bossActive: data.bossActive || false,
+                            daily: data.daily || {
+                                date: null,
+                                playCount: 0,
+                                winCount: 0,
+                                doubleCount: 0,
+                                claimed: false
+                            }
                         };
                     } catch (e) {
-                        this.localGame = { streak: 0, maxStreak: 0, chips: 0 };
+                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
                     }
                 }
+                this.syncDaily();
             }
 
             saveLocalGame() {
@@ -1327,6 +1410,10 @@
                 const maxStreak = document.getElementById('maxStreak');
                 const chipCount = document.getElementById('chipCount');
                 const progress = document.getElementById('streakProgress');
+                const bossStatus = document.getElementById('bossStatus');
+                const bossHint = document.getElementById('bossHint');
+                const charmStatus = document.getElementById('charmStatus');
+                const charmHint = document.getElementById('charmHint');
                 if (streakCount) streakCount.textContent = this.localGame.streak;
                 if (maxStreak) maxStreak.textContent = this.localGame.maxStreak;
                 if (chipCount) chipCount.textContent = this.localGame.chips;
@@ -1334,13 +1421,28 @@
                     const pct = Math.min(this.localGame.streak / 10, 1) * 100;
                     progress.style.width = `${pct}%`;
                 }
+                if (bossStatus) {
+                    bossStatus.textContent = this.localGame.bossActive ? 'Boss进行中' : this.localGame.bossReady ? '可进入' : '未解锁';
+                }
+                if (bossHint) {
+                    bossHint.textContent = this.localGame.bossActive ? '下一局胜利将获得额外筹码' : '';
+                }
+                if (charmStatus) {
+                    charmStatus.textContent = this.localGame.charmCharges > 0 ? `激活中 (${this.localGame.charmCharges}局)` : '未激活';
+                }
+                if (charmHint) {
+                    charmHint.textContent = this.localGame.charmCharges > 0 ? '筹码收益 +20%' : '';
+                }
                 document.querySelectorAll('.milestone').forEach((node) => {
                     const step = Number(node.dataset.step || 0);
                     node.classList.toggle('active', this.localGame.streak >= step);
                 });
+                this.updateTaskUI();
+                this.updateLeaderboard();
             }
 
             applyLocalGameResult(result) {
+                this.updateDailyProgress(result);
                 if (result.isWin) {
                     this.localGame.streak += 1;
                     if (this.localGame.streak > this.localGame.maxStreak) {
@@ -1348,12 +1450,27 @@
                     }
                     const rewardAmount = parseFloat(result.amount || '0');
                     const divisor = this.state.selectedToken === 'MAO' ? 5 : 50;
-                    const gained = Math.max(10, Math.round(rewardAmount / divisor));
+                    let gained = Math.max(10, Math.round(rewardAmount / divisor));
+                    if (this.localGame.charmCharges > 0) {
+                        gained = Math.round(gained * 1.2);
+                        this.localGame.charmCharges -= 1;
+                    }
+                    if (this.localGame.bossActive) {
+                        gained += 200;
+                        this.localGame.bossActive = false;
+                        this.localGame.bossReady = false;
+                    }
                     this.localGame.chips += gained;
                     this.pendingChips = gained;
                     this.openDoubleModal();
                 } else {
                     this.localGame.streak = 0;
+                    if (this.localGame.bossActive) {
+                        this.localGame.bossActive = false;
+                    }
+                }
+                if (!this.localGame.bossReady && this.localGame.streak >= 5) {
+                    this.localGame.bossReady = true;
                 }
                 this.saveLocalGame();
                 this.updateLocalGameUI();
@@ -1386,9 +1503,107 @@
                     if (this.localGame.chips < 0) this.localGame.chips = 0;
                     if (result) result.textContent = '😵 失败！本次筹码归零';
                 }
+                this.localGame.daily.doubleCount += 1;
                 this.saveLocalGame();
                 this.updateLocalGameUI();
                 setTimeout(() => this.closeDoubleModal(), 1200);
+            }
+
+            syncDaily() {
+                const today = new Date().toISOString().slice(0, 10);
+                if (this.localGame.daily.date !== today) {
+                    this.localGame.daily = {
+                        date: today,
+                        playCount: 0,
+                        winCount: 0,
+                        doubleCount: 0,
+                        claimed: false
+                    };
+                }
+            }
+
+            updateDailyProgress(result) {
+                this.syncDaily();
+                this.localGame.daily.playCount += 1;
+                if (result.isWin) {
+                    this.localGame.daily.winCount += 1;
+                }
+            }
+
+            updateTaskUI() {
+                const list = document.getElementById('taskList');
+                const hint = document.getElementById('taskHint');
+                if (!list) return;
+                const daily = this.localGame.daily;
+                list.innerHTML = `
+                    <div>完成3局: ${daily.playCount}/3</div>
+                    <div>赢1局: ${daily.winCount}/1</div>
+                    <div>双倍1次: ${daily.doubleCount}/1</div>
+                `;
+                if (hint) {
+                    hint.textContent = daily.claimed ? '今日奖励已领取' : '';
+                }
+            }
+
+            claimDailyRewards() {
+                this.syncDaily();
+                const daily = this.localGame.daily;
+                if (daily.claimed) return;
+                if (daily.playCount >= 3 && daily.winCount >= 1 && daily.doubleCount >= 1) {
+                    this.localGame.chips += 300;
+                    daily.claimed = true;
+                    this.saveLocalGame();
+                    this.updateLocalGameUI();
+                    const hint = document.getElementById('taskHint');
+                    if (hint) hint.textContent = '✅ 已领取 300 筹码';
+                } else {
+                    const hint = document.getElementById('taskHint');
+                    if (hint) hint.textContent = '任务未完成';
+                }
+            }
+
+            enterBossRoom() {
+                if (!this.localGame.bossReady) {
+                    const hint = document.getElementById('bossHint');
+                    if (hint) hint.textContent = '连胜 5 次后解锁';
+                    return;
+                }
+                this.localGame.bossActive = true;
+                this.localGame.bossReady = false;
+                this.saveLocalGame();
+                this.updateLocalGameUI();
+            }
+
+            buyCharm() {
+                const cost = 200;
+                if (this.localGame.chips < cost) {
+                    const hint = document.getElementById('charmHint');
+                    if (hint) hint.textContent = '筹码不足';
+                    return;
+                }
+                this.localGame.chips -= cost;
+                this.localGame.charmCharges += 5;
+                this.saveLocalGame();
+                this.updateLocalGameUI();
+            }
+
+            updateLeaderboard() {
+                const list = document.getElementById('leaderboardList');
+                if (!list || !this.state.wallet?.address) return;
+                const key = 'mao_leaderboard_local';
+                const raw = localStorage.getItem(key);
+                let board = raw ? JSON.parse(raw) : [];
+                const entry = {
+                    address: this.formatAddress(this.state.wallet.address),
+                    chips: this.localGame.chips,
+                    maxStreak: this.localGame.maxStreak
+                };
+                board = board.filter((item) => item.address !== entry.address);
+                board.push(entry);
+                board.sort((a, b) => b.chips - a.chips);
+                board = board.slice(0, 5);
+                localStorage.setItem(key, JSON.stringify(board));
+                list.innerHTML = board.map((item, idx) => `#${idx + 1} ${item.address} · 筹码 ${item.chips} · 连胜 ${item.maxStreak}`).join('<br>');
             }
 
             triggerSpark() {
