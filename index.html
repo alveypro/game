@@ -59,6 +59,14 @@
                         <span class="contract-info text-green-300">0xE15881Fc413c6cd47a512C24608F94Fa2896b374</span>
                     </div>
                     <div class="flex items-center justify-between">
+                        <span class="text-cyan-300">🏦 合约MAO余额:</span>
+                        <span id="contractMaoBalance" class="text-cyan-200 font-bold">加载中...</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-cyan-300">🏦 合约PI余额:</span>
+                        <span id="contractPiBalance" class="text-cyan-200 font-bold">加载中...</span>
+                    </div>
+                    <div class="flex items-center justify-between">
                         <span class="text-red-400">🔥 已销毁总量:</span>
                         <span id="burnedTotal" class="text-red-300 font-bold">加载中...</span>
                     </div>
@@ -517,6 +525,7 @@
                     await this.updateBalances();
                     await this.loadStats();
                     await this.updateBurnedTotal();
+                    await this.updateContractBalances();
                     this.loadPendingCommit();
                     this.setStatus('🚀 智能区块链系统已完全连接', 'success');
 
@@ -551,9 +560,27 @@
 
                     document.getElementById('maoBalance').textContent = this.formatNumber(ethers.utils.formatEther(maoBalance));
                     document.getElementById('piBalance').textContent = this.formatNumber(ethers.utils.formatEther(piBalance));
+                    await this.updateContractBalances();
                 } catch (error) {
                     console.error('更新余额失败:', error);
                     this.setStatus('余额查询失败，网络可能有延迟', 'warning');
+                }
+            }
+
+            async updateContractBalances() {
+                if (!this.state.contracts.mao || !this.state.contracts.pi) return;
+                
+                try {
+                    const [maoBalance, piBalance] = await Promise.all([
+                        this.state.contracts.mao.balanceOf(this.addresses.WHEEL_GAME),
+                        this.state.contracts.pi.balanceOf(this.addresses.WHEEL_GAME)
+                    ]);
+                    document.getElementById('contractMaoBalance').textContent = `${this.formatNumber(ethers.utils.formatEther(maoBalance))} MAO`;
+                    document.getElementById('contractPiBalance').textContent = `${this.formatNumber(ethers.utils.formatEther(piBalance))} PI`;
+                } catch (error) {
+                    console.error('获取合约余额失败:', error);
+                    document.getElementById('contractMaoBalance').textContent = '查询失败';
+                    document.getElementById('contractPiBalance').textContent = '查询失败';
                 }
             }
 

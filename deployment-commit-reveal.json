@@ -1,0 +1,10 @@
+{
+  "contract": "WheelGameCommitReveal",
+  "address": "0xeF631FeEA82E528836398D64b24Bfa3670447D6e",
+  "maoToken": "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
+  "piToken": "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444",
+  "marketingWallet": "0x861A48051eFaA1876D4B38904516C9F7bbCca36d",
+  "deployer": "0xAf2032168aa1f7DD09f7dFbE294ad40E30E54408",
+  "chainId": "3797",
+  "timestamp": "2026-01-20T12:57:21.000Z"
+}
