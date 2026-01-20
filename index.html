@@ -557,45 +557,45 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="text-yellow-400">🐱 MAO代币:</span>
+                        <span class="text-yellow-400" data-i18n="admin_mao">🐱 MAO代币:</span>
                         <span class="contract-info text-emerald-600">0x22f49bcb3dad370a9268ba3fca33cb037ca3d022</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-purple-400">🥧 PI代币:</span>
+                        <span class="text-purple-400" data-i18n="admin_pi">🥧 PI代币:</span>
                         <span class="contract-info text-emerald-600">0xfd4680e25e05b3435c7f698668d1ce80d2a9f444</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-blue-400">🎮 游戏合约:</span>
+                        <span class="text-blue-400" data-i18n="admin_game">🎮 游戏合约:</span>
                         <span class="contract-info text-emerald-600">0x562A68418995A6632260F842Bc5267cE0Bd52117</span>
                     </div>
                 </div>
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="text-orange-400">💼 营销钱包:</span>
+                        <span class="text-orange-400" data-i18n="admin_marketing">💼 营销钱包:</span>
                         <span class="contract-info text-emerald-600">0x861A48051eFaA1876D4B38904516C9F7bbCca36d</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-emerald-400">🏆 奖金池:</span>
+                        <span class="text-emerald-400" data-i18n="admin_pool">🏆 奖金池:</span>
                         <span class="contract-info text-emerald-600">0x7fE15654952947ea4462A6FB52075A432dE49Eb0</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-cyan-300">🏦 合约MAO余额:</span>
-                        <span id="contractMaoBalance" class="text-cyan-200 font-bold">加载中...</span>
+                        <span class="text-cyan-300" data-i18n="admin_contract_mao">🏦 合约MAO余额:</span>
+                        <span id="contractMaoBalance" class="text-cyan-200 font-bold" data-i18n="loading_text">加载中...</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-cyan-300">🏦 合约PI余额:</span>
-                        <span id="contractPiBalance" class="text-cyan-200 font-bold">加载中...</span>
+                        <span class="text-cyan-300" data-i18n="admin_contract_pi">🏦 合约PI余额:</span>
+                        <span id="contractPiBalance" class="text-cyan-200 font-bold" data-i18n="loading_text">加载中...</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-yellow-300">🔓 奖池授权:</span>
-                        <span id="prizePoolAllowance" class="text-yellow-200 font-bold">未检查</span>
+                        <span class="text-yellow-300" data-i18n="admin_allowance">🔓 奖池授权:</span>
+                        <span id="prizePoolAllowance" class="text-yellow-200 font-bold" data-i18n="not_checked">未检查</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <button id="authorizePrizePool" class="game-btn">奖池一键授权</button>
+                        <button id="authorizePrizePool" class="game-btn" data-i18n="btn_authorize_pool">奖池一键授权</button>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-red-400">🔥 已销毁总量:</span>
-                        <span id="burnedTotal" class="text-red-300 font-bold">加载中...</span>
+                        <span class="text-red-400" data-i18n="admin_burned">🔥 已销毁总量:</span>
+                        <span id="burnedTotal" class="text-red-300 font-bold" data-i18n="loading_text">加载中...</span>
                     </div>
                 </div>
                 </div>
@@ -1014,7 +1014,7 @@
             <div class="fx-burst"></div>
             <div class="fx-card">
                 <div class="fx-title" id="bossOverlayTitle">BOSS READY</div>
-                <div class="fx-sub" id="bossOverlaySub">挑战开启</div>
+                <div class="fx-sub" id="bossOverlaySub" data-i18n="overlay_boss_ready">挑战开启</div>
             </div>
         </div>
 
@@ -1022,7 +1022,7 @@
             <div class="fx-burst"></div>
             <div class="fx-card">
                 <div class="fx-title" id="seasonOverlayTitle">SEASON UP</div>
-                <div class="fx-sub" id="seasonOverlaySub">等级提升</div>
+                <div class="fx-sub" id="seasonOverlaySub" data-i18n="overlay_season_up">等级提升</div>
             </div>
         </div>
 
@@ -1030,30 +1030,30 @@
             <div class="fx-burst"></div>
             <div class="fx-card">
                 <div class="fx-title" id="chestOverlayTitle">CHEST OPEN</div>
-                <div class="fx-sub" id="chestOverlaySub">宝箱已开启</div>
+                <div class="fx-sub" id="chestOverlaySub" data-i18n="overlay_chest_open">宝箱已开启</div>
             </div>
         </div>
 
         <!-- Lightweight Stats -->
         <details class="glass rounded-2xl p-6 mb-6">
-            <summary class="detail-summary text-lg">📊 我的统计（点击展开）</summary>
-            <h3 class="text-xl font-semibold mb-4 mt-4">真实区块链统计 - <span id="statsTokenType">MAO</span> 游戏</h3>
+            <summary class="detail-summary text-lg" data-i18n="stats_summary">📊 我的统计（点击展开）</summary>
+            <h3 class="text-xl font-semibold mb-4 mt-4" data-i18n="stats_title">真实区块链统计 - <span id="statsTokenType">MAO</span> 游戏</h3>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-slate-700" id="totalGames">0</div>
-                    <div class="text-sm">总局数</div>
+                    <div class="text-sm" data-i18n="stats_total_games">总局数</div>
                 </div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-emerald-600" id="winCount">0</div>
-                    <div class="text-sm">胜利数</div>
+                    <div class="text-sm" data-i18n="stats_win_count">胜利数</div>
                 </div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-amber-600" id="winRate">0%</div>
-                    <div class="text-sm">胜率</div>
+                    <div class="text-sm" data-i18n="stats_win_rate">胜率</div>
                 </div>
                 <div class="text-center">
                     <div class="text-2xl font-bold text-indigo-600" id="totalReward">0</div>
-                    <div class="text-sm">总奖励</div>
+                    <div class="text-sm" data-i18n="stats_total_reward">总奖励</div>
                 </div>
             </div>
         </details>
@@ -1067,18 +1067,18 @@
             <p id="resultMessage" class="mb-4"></p>
             <div id="resultReward" class="text-3xl font-bold text-yellow-400 mb-6"></div>
             <div id="txHash" class="text-xs text-blue-300 mb-4 font-mono break-all"></div>
-            <button id="closeModal" class="game-btn">继续游戏</button>
+            <button id="closeModal" class="game-btn" data-i18n="btn_continue">继续游戏</button>
         </div>
     </div>
 
     <div id="doubleModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
         <div class="double-modal">
-            <div class="text-3xl mb-2">🎲 双倍博弈</div>
-            <p class="text-sm text-slate-600 mb-4">仅影响幸运筹码，不影响链上奖励。</p>
-            <div class="text-xl font-bold mb-4">本次筹码：<span id="doubleAmount">0</span></div>
+            <div class="text-3xl mb-2" data-i18n="double_title">🎲 双倍博弈</div>
+            <p class="text-sm text-slate-600 mb-4" data-i18n="double_desc">仅影响幸运筹码，不影响链上奖励。</p>
+            <div class="text-xl font-bold mb-4" data-i18n="double_amount">本次筹码：<span id="doubleAmount">0</span></div>
             <div class="flex items-center justify-center gap-2">
-                <button id="takeChips" class="game-btn">保留筹码</button>
-                <button id="doubleChips" class="game-btn">双倍挑战</button>
+                <button id="takeChips" class="game-btn" data-i18n="double_keep">保留筹码</button>
+                <button id="doubleChips" class="game-btn" data-i18n="double_try">双倍挑战</button>
             </div>
             <div id="doubleResult" class="text-sm text-slate-600 mt-3"></div>
         </div>
@@ -1155,6 +1155,18 @@
                         banner: '💎 金色灯牌 · 热场开转',
                         network_init: '🔗 初始化智能区块链连接...',
                         admin_panel: '🔒 管理员面板（仅奖池钱包可见）',
+                        admin_mao: '🐱 MAO代币:',
+                        admin_pi: '🥧 PI代币:',
+                        admin_game: '🎮 游戏合约:',
+                        admin_marketing: '💼 营销钱包:',
+                        admin_pool: '🏆 奖金池:',
+                        admin_contract_mao: '🏦 合约MAO余额:',
+                        admin_contract_pi: '🏦 合约PI余额:',
+                        admin_allowance: '🔓 奖池授权:',
+                        btn_authorize_pool: '奖池一键授权',
+                        admin_burned: '🔥 已销毁总量:',
+                        loading_text: '加载中...',
+                        not_checked: '未检查',
                         btn_connect: '连接钱包开始游戏',
                         player_address: '玩家地址',
                         alv_fee_label: 'ALV 手续费：',
@@ -1232,6 +1244,21 @@
                         chest_desc: '消耗 150 筹码开启，随机获得筹码或幸运符。',
                         btn_open_chest: '开启宝箱',
                         leaderboard_title: '🏆 本地排行榜',
+                        stats_summary: '📊 我的统计（点击展开）',
+                        stats_title: '真实区块链统计 - <span id="statsTokenType">MAO</span> 游戏',
+                        stats_total_games: '总局数',
+                        stats_win_count: '胜利数',
+                        stats_win_rate: '胜率',
+                        stats_total_reward: '总奖励',
+                        btn_continue: '继续游戏',
+                        double_title: '🎲 双倍博弈',
+                        double_desc: '仅影响幸运筹码，不影响链上奖励。',
+                        double_amount: '本次筹码：<span id="doubleAmount">0</span>',
+                        double_keep: '保留筹码',
+                        double_try: '双倍挑战',
+                        overlay_boss_ready: '挑战开启',
+                        overlay_season_up: '等级提升',
+                        overlay_chest_open: '宝箱已开启',
                         btn_close: '关闭',
                         mine_tip: '三选一，可能踩雷或挖到宝藏。',
                         mine_pick: '挖这里',
@@ -1261,6 +1288,18 @@
                         banner: '💎 Golden marquee · Ready to spin',
                         network_init: '🔗 Initializing blockchain connection...',
                         admin_panel: '🔒 Admin Panel (Prize Pool Only)',
+                        admin_mao: '🐱 MAO Token:',
+                        admin_pi: '🥧 PI Token:',
+                        admin_game: '🎮 Game Contract:',
+                        admin_marketing: '💼 Marketing Wallet:',
+                        admin_pool: '🏆 Prize Pool:',
+                        admin_contract_mao: '🏦 Contract MAO Balance:',
+                        admin_contract_pi: '🏦 Contract PI Balance:',
+                        admin_allowance: '🔓 Pool Allowance:',
+                        btn_authorize_pool: 'Authorize Prize Pool',
+                        admin_burned: '🔥 Total Burned:',
+                        loading_text: 'Loading...',
+                        not_checked: 'Not checked',
                         btn_connect: 'Connect Wallet to Play',
                         player_address: 'Player Address',
                         alv_fee_label: 'ALV Gas:',
@@ -1338,6 +1377,21 @@
                         chest_desc: 'Spend 150 chips for random rewards.',
                         btn_open_chest: 'Open Chest',
                         leaderboard_title: '🏆 Local Leaderboard',
+                        stats_summary: '📊 My Stats (tap to expand)',
+                        stats_title: 'On-chain Stats - <span id="statsTokenType">MAO</span> Game',
+                        stats_total_games: 'Total Games',
+                        stats_win_count: 'Wins',
+                        stats_win_rate: 'Win Rate',
+                        stats_total_reward: 'Total Rewards',
+                        btn_continue: 'Continue',
+                        double_title: '🎲 Double or Nothing',
+                        double_desc: 'Only affects lucky chips, not on-chain rewards.',
+                        double_amount: 'This round: <span id="doubleAmount">0</span>',
+                        double_keep: 'Keep',
+                        double_try: 'Double',
+                        overlay_boss_ready: 'Challenge starts',
+                        overlay_season_up: 'Level up',
+                        overlay_chest_open: 'Chest opened',
                         btn_close: 'Close',
                         mine_tip: 'Pick one. It can be treasure or a trap.',
                         mine_pick: 'Dig here',
@@ -1363,11 +1417,11 @@
                     }
                 };
                 this.mapLevels = [
-                    { level: 1, name: '金沙大厅', need: 5 },
-                    { level: 2, name: '霓虹隧道', need: 6 },
-                    { level: 3, name: '星耀平台', need: 7 },
-                    { level: 4, name: '高额桌区', need: 8 },
-                    { level: 5, name: '终极皇冠', need: 9 }
+                    { level: 1, name: { zh: '金沙大厅', en: 'Golden Lobby' }, need: 5 },
+                    { level: 2, name: { zh: '霓虹隧道', en: 'Neon Tunnel' }, need: 6 },
+                    { level: 3, name: { zh: '星耀平台', en: 'Stellar Deck' }, need: 7 },
+                    { level: 4, name: { zh: '高额桌区', en: 'High Roller Zone' }, need: 8 },
+                    { level: 5, name: { zh: '终极皇冠', en: 'Crown Apex' }, need: 9 }
                 ];
                 
                 // 🔧 完全统一的合约地址配置 - 与.env文件现在完全一致
@@ -1500,7 +1554,7 @@
                     document.getElementById('burnedTotal').textContent = `${formatted} MAO`;
                 } catch (error) {
                     console.error('获取销毁统计失败:', error);
-                    document.getElementById('burnedTotal').textContent = '查询失败';
+                    document.getElementById('burnedTotal').textContent = this.lang === 'en' ? 'Failed' : '查询失败';
                 }
             }
 
@@ -1779,7 +1833,7 @@
                     await this.updateContractBalances();
                 } catch (error) {
                     console.error('更新余额失败:', error);
-                    this.setStatus('余额查询失败，网络可能有延迟', 'warning');
+                    this.setStatus(this.lang === 'en' ? 'Balance query failed, network delay' : '余额查询失败，网络可能有延迟', 'warning');
                 }
             }
 
@@ -1791,7 +1845,7 @@
                     document.getElementById('alvBalance').textContent = `${formatted} ALV`;
                 } catch (error) {
                     console.error('获取ALV余额失败:', error);
-                    document.getElementById('alvBalance').textContent = '查询失败';
+                    document.getElementById('alvBalance').textContent = this.lang === 'en' ? 'Failed' : '查询失败';
                 }
             }
 
@@ -1836,8 +1890,8 @@
                     document.getElementById('contractPiBalance').textContent = `${this.formatNumber(ethers.utils.formatEther(piBalance))} PI`;
                 } catch (error) {
                     console.error('获取合约余额失败:', error);
-                    document.getElementById('contractMaoBalance').textContent = '查询失败';
-                    document.getElementById('contractPiBalance').textContent = '查询失败';
+                    document.getElementById('contractMaoBalance').textContent = this.lang === 'en' ? 'Failed' : '查询失败';
+                    document.getElementById('contractPiBalance').textContent = this.lang === 'en' ? 'Failed' : '查询失败';
                 }
             }
 
@@ -1851,11 +1905,13 @@
                         this.state.contracts.pi.allowance(this.addresses.PRIZE_POOL, this.addresses.WHEEL_GAME)
                     ]);
                     const ok = maoAllowance.gt(0) && piAllowance.gt(0);
-                    target.textContent = ok ? '已授权' : '未授权';
+                    target.textContent = ok
+                        ? (this.lang === 'en' ? 'Authorized' : '已授权')
+                        : (this.lang === 'en' ? 'Not authorized' : '未授权');
                     target.className = ok ? 'text-green-300 font-bold' : 'text-red-300 font-bold';
                 } catch (error) {
                     console.error('奖池授权检查失败:', error);
-                    target.textContent = '查询失败';
+                    target.textContent = this.lang === 'en' ? 'Failed' : '查询失败';
                     target.className = 'text-red-300 font-bold';
                 }
             }
@@ -2301,6 +2357,57 @@
 
             translateDynamic(message) {
                 if (this.lang !== 'en') return message;
+                if (message.includes('ALV手续费不足')) {
+                    return message.replace('ALV手续费不足', 'Insufficient ALV gas');
+                }
+                if (message.includes('余额不足')) {
+                    return message.replace('余额不足', 'Insufficient balance');
+                }
+                if (message.includes('授权不足')) {
+                    return message.replace('授权不足', 'Insufficient allowance');
+                }
+                if (message.includes('请先连接钱包')) {
+                    return 'Please connect wallet first';
+                }
+                if (message.includes('切换到 AlveyChain 主网')) {
+                    return 'Switching to AlveyChain mainnet...';
+                }
+                if (message.includes('网络ID错误')) {
+                    return message.replace('网络ID错误', 'Wrong network ID');
+                }
+                if (message.includes('网络错误')) {
+                    return message.replace('网络错误', 'Network error');
+                }
+                if (message.includes('连接失败')) {
+                    return message.replace('连接失败', 'Connection failed');
+                }
+                if (message.includes('用户取消了交易')) {
+                    return 'User rejected the transaction';
+                }
+                if (message.includes('Gas费用不足')) {
+                    return 'Insufficient gas, increase gas';
+                }
+                if (message.includes('网络响应较慢')) {
+                    return 'Network is slow, please retry later';
+                }
+                if (message.includes('网络连接问题')) {
+                    return 'Network connection issue, switched RPC';
+                }
+                if (message.includes('智能合约调用失败')) {
+                    return 'Contract call failed, try later';
+                }
+                if (message.includes('奖金池授权问题')) {
+                    return 'Prize pool allowance issue, contact admin';
+                }
+                if (message.includes('智能合约执行失败')) {
+                    return 'Contract execution failed, check balance/allowance';
+                }
+                if (message.includes('游戏调用失败')) {
+                    return message.replace('游戏调用失败', 'Game call failed');
+                }
+                if (message.includes('建议：检查MetaMask')) {
+                    return message.replace('💡 建议：检查MetaMask中的', '💡 Tip: check MetaMask for');
+                }
                 const map = {
                     '请先正确连接AlveyChain网络': 'Please connect to AlveyChain network',
                     '连接区块链钱包...': 'Connecting wallet...',
@@ -2324,7 +2431,9 @@
                     '请先连接钱包以开启玩法功能': 'Connect wallet to access gameplay',
                     '奖池授权中...': 'Authorizing prize pool...',
                     '奖池授权成功': 'Prize pool authorized',
-                    '奖池授权失败，请检查gas或重试': 'Authorization failed, check gas or retry'
+                    '奖池授权失败，请检查gas或重试': 'Authorization failed, check gas or retry',
+                    '余额查询失败，网络可能有延迟': 'Balance query failed, network delay',
+                    '奖池授权状态未知，请稍后再试': 'Prize pool allowance unknown, try later'
                 };
                 return map[message] || message;
             }
@@ -2346,7 +2455,13 @@
             translatePage() {
                 document.querySelectorAll('[data-i18n]').forEach((node) => {
                     const key = node.dataset.i18n;
-                    if (key) node.textContent = this.t(key);
+                    if (!key) return;
+                    const value = this.t(key);
+                    if (value.includes('<')) {
+                        node.innerHTML = value;
+                    } else {
+                        node.textContent = value;
+                    }
                 });
             }
 
@@ -2441,9 +2556,9 @@
                 if (this.localGame.chips < cost) {
                     if (hintId) {
                         const hint = document.getElementById(hintId);
-                        if (hint) hint.textContent = '筹码不足';
+                        if (hint) hint.textContent = this.lang === 'en' ? 'Not enough chips' : '筹码不足';
                     }
-                    this.notify('筹码不足，请先赢取筹码', 'warn');
+                    this.notify(this.lang === 'en' ? 'Not enough chips, win more' : '筹码不足，请先赢取筹码', 'warn');
                     return false;
                 }
                 this.localGame.chips -= cost;
@@ -2542,16 +2657,34 @@
                     progress.style.width = `${pct}%`;
                 }
                 if (bossStatus) {
-                    bossStatus.textContent = this.localGame.bossActive ? 'Boss进行中' : this.localGame.bossReady ? '可进入' : '未解锁';
+                    if (this.lang === 'en') {
+                        bossStatus.textContent = this.localGame.bossActive ? 'Boss Active' : this.localGame.bossReady ? 'Ready' : 'Locked';
+                    } else {
+                        bossStatus.textContent = this.localGame.bossActive ? 'Boss进行中' : this.localGame.bossReady ? '可进入' : '未解锁';
+                    }
                 }
                 if (bossHint) {
-                    bossHint.textContent = this.localGame.bossActive ? '下一局胜利将获得额外筹码' : '';
+                    if (this.localGame.bossActive) {
+                        bossHint.textContent = this.lang === 'en' ? 'Win next round for bonus chips' : '下一局胜利将获得额外筹码';
+                    } else {
+                        bossHint.textContent = '';
+                    }
                 }
                 if (charmStatus) {
-                    charmStatus.textContent = this.localGame.charmCharges > 0 ? `激活中 (${this.localGame.charmCharges}局)` : '未激活';
+                    if (this.localGame.charmCharges > 0) {
+                        charmStatus.textContent = this.lang === 'en'
+                            ? `Active (${this.localGame.charmCharges} rounds)`
+                            : `激活中 (${this.localGame.charmCharges}局)`;
+                    } else {
+                        charmStatus.textContent = this.lang === 'en' ? 'Inactive' : '未激活';
+                    }
                 }
                 if (charmHint) {
-                    charmHint.textContent = this.localGame.charmCharges > 0 ? '筹码收益 +20%' : '';
+                    if (this.localGame.charmCharges > 0) {
+                        charmHint.textContent = this.lang === 'en' ? 'Chip gain +20%' : '筹码收益 +20%';
+                    } else {
+                        charmHint.textContent = '';
+                    }
                 }
                 document.querySelectorAll('.milestone').forEach((node) => {
                     const step = Number(node.dataset.step || 0);
@@ -2565,28 +2698,40 @@
                 this.updateMiniGameUI();
                 if (this.prevLocalSnapshot) {
                     if (!this.prevLocalSnapshot.bossReady && this.localGame.bossReady) {
-                        this.notify('Boss 房已解锁！', 'success');
+                        this.notify(this.lang === 'en' ? 'Boss room unlocked!' : 'Boss 房已解锁！', 'success');
                         this.flashCard('bossCard', 'success');
                     }
                     if (this.prevLocalSnapshot.streak >= 3 && this.localGame.streak === 0) {
-                        this.notify('连胜中断，继续加油', 'warn');
+                        this.notify(this.lang === 'en' ? 'Streak ended, keep going' : '连胜中断，继续加油', 'warn');
                         this.flashCard('bossCard', 'warn');
                     }
                     if (this.localGame.streak > this.prevLocalSnapshot.streak && this.localGame.streak % 5 === 0) {
-                        this.notify(`连胜 ${this.localGame.streak}！Boss 房更近了`, 'info');
+                        this.notify(
+                            this.lang === 'en'
+                                ? `Streak ${this.localGame.streak}! Boss room closer`
+                                : `连胜 ${this.localGame.streak}！Boss 房更近了`,
+                            'info'
+                        );
                     }
                     if (this.localGame.charmCharges > this.prevLocalSnapshot.charmCharges) {
-                        this.notify('幸运符已激活', 'success');
+                        this.notify(this.lang === 'en' ? 'Charm activated' : '幸运符已激活', 'success');
                         this.flashCard('charmCard', 'success');
                     }
                     if (!this.prevLocalSnapshot.dailyClaimed && this.localGame.daily.claimed) {
-                        this.notify('每日任务奖励已领取', 'success');
+                        this.notify(this.lang === 'en' ? 'Daily reward claimed' : '每日任务奖励已领取', 'success');
                         this.flashCard('taskCard', 'success');
                     }
                     if (this.prevLocalSnapshot.seasonRank && this.currentSeasonRank && this.prevLocalSnapshot.seasonRank !== this.currentSeasonRank) {
-                        this.showOverlay('seasonOverlay', `SEASON ${this.currentSeasonRank.toUpperCase()}`, '赛季等级提升');
+                        this.showOverlay(
+                            'seasonOverlay',
+                            `SEASON ${this.currentSeasonRank.toUpperCase()}`,
+                            this.lang === 'en' ? 'Season upgraded' : '赛季等级提升'
+                        );
                         this.spawnParticles('blue', 26);
-                        this.notify(`赛季升级：${this.currentSeasonRank}`, 'success');
+                        this.notify(
+                            this.lang === 'en' ? `Season upgraded: ${this.currentSeasonRank}` : `赛季升级：${this.currentSeasonRank}`,
+                            'success'
+                        );
                     }
                 }
                 this.prevLocalSnapshot = {
@@ -2622,7 +2767,11 @@
                         this.localGame.bossActive = false;
                         this.localGame.bossReady = false;
                         this.localGame.lastBossWin = true;
-                        this.showOverlay('bossOverlay', 'BOSS DEFEATED', '奖励加成已到账');
+                        this.showOverlay(
+                            'bossOverlay',
+                            'BOSS DEFEATED',
+                            this.lang === 'en' ? 'Bonus delivered' : '奖励加成已到账'
+                        );
                         this.spawnParticles('ember', 28);
                     }
                     this.localGame.chips += gained;
@@ -2666,14 +2815,14 @@
                 const win = Math.random() < 0.5;
                 if (win) {
                     this.localGame.chips += this.pendingChips;
-                    if (result) result.textContent = '🎉 成功！筹码翻倍到账';
-                    this.notify('双倍成功！筹码已翻倍', 'success');
+                    if (result) result.textContent = this.lang === 'en' ? '🎉 Success! Chips doubled' : '🎉 成功！筹码翻倍到账';
+                    this.notify(this.lang === 'en' ? 'Double success! Chips doubled' : '双倍成功！筹码已翻倍', 'success');
                     this.localGame.lastDoubleWin = true;
                 } else {
                     this.localGame.chips -= this.pendingChips;
                     if (this.localGame.chips < 0) this.localGame.chips = 0;
-                    if (result) result.textContent = '😵 失败！本次筹码归零';
-                    this.notify('双倍失败，筹码清零', 'warn');
+                    if (result) result.textContent = this.lang === 'en' ? '😵 Failed! Chips lost' : '😵 失败！本次筹码归零';
+                    this.notify(this.lang === 'en' ? 'Double failed, chips lost' : '双倍失败，筹码清零', 'warn');
                 }
                 this.localGame.daily.doubleCount += 1;
                 this.checkAchievements();
@@ -2735,7 +2884,8 @@
                     if (this.localGame.mapLevel > this.mapLevels.length) {
                         this.localGame.mapLevel = this.mapLevels.length;
                     }
-                    this.notify(`解锁地图：${this.mapLevels[this.localGame.mapLevel - 1].name}`, 'success');
+                    const name = this.mapLevels[this.localGame.mapLevel - 1].name[this.lang === 'en' ? 'en' : 'zh'];
+                    this.notify(this.lang === 'en' ? `Map unlocked: ${name}` : `解锁地图：${name}`, 'success');
                 }
             }
 
@@ -2745,12 +2895,17 @@
                 if (!track) return;
                 track.innerHTML = this.mapLevels.map((level) => {
                     const active = this.localGame.mapLevel >= level.level;
-                    return `<div class="map-node ${active ? 'active' : ''}">Lv.${level.level}<br>${level.name}</div>`;
+                    const name = level.name[this.lang === 'en' ? 'en' : 'zh'];
+                    return `<div class="map-node ${active ? 'active' : ''}">Lv.${level.level}<br>${name}</div>`;
                 }).join('');
                 if (hint) {
                     const current = this.mapLevels.find((item) => item.level === this.localGame.mapLevel);
                     if (current) {
-                        hint.textContent = `当前：${current.name}，再赢 ${Math.max(current.need - this.localGame.mapProgress, 0)} 局升级。`;
+                        const name = current.name[this.lang === 'en' ? 'en' : 'zh'];
+                        const left = Math.max(current.need - this.localGame.mapProgress, 0);
+                        hint.textContent = this.lang === 'en'
+                            ? `Current: ${name}, win ${left} more to upgrade.`
+                            : `当前：${name}，再赢 ${left} 局升级。`;
                     }
                 }
             }
@@ -2761,7 +2916,8 @@
                 const achievements = this.getAchievementList();
                 list.innerHTML = achievements.map((item) => {
                     const unlocked = this.localGame.achievements[item.id];
-                    return `<span class="achievement-badge ${unlocked ? 'unlocked' : ''}">${unlocked ? '✅' : '🔒'} ${item.title}</span>`;
+                    const title = item.title[this.lang === 'en' ? 'en' : 'zh'];
+                    return `<span class="achievement-badge ${unlocked ? 'unlocked' : ''}">${unlocked ? '✅' : '🔒'} ${title}</span>`;
                 }).join('');
             }
 
@@ -2797,10 +2953,10 @@
 
             checkSeasonMilestones(hintNode) {
                 const milestones = [
-                    { points: 40, reward: { chips: 200 }, label: '赛季 40 积分奖励：+200 筹码' },
-                    { points: 100, reward: { chips: 400, charm: 2 }, label: '赛季 100 积分奖励：+400 筹码 +2 幸运符' },
-                    { points: 180, reward: { chips: 800, charm: 3 }, label: '赛季 180 积分奖励：+800 筹码 +3 幸运符' },
-                    { points: 260, reward: { chips: 1200, charm: 5 }, label: '赛季 260 积分奖励：+1200 筹码 +5 幸运符' }
+                    { points: 40, reward: { chips: 200 }, label: { zh: '赛季 40 积分奖励：+200 筹码', en: 'Season 40 pts: +200 chips' } },
+                    { points: 100, reward: { chips: 400, charm: 2 }, label: { zh: '赛季 100 积分奖励：+400 筹码 +2 幸运符', en: 'Season 100 pts: +400 chips +2 charms' } },
+                    { points: 180, reward: { chips: 800, charm: 3 }, label: { zh: '赛季 180 积分奖励：+800 筹码 +3 幸运符', en: 'Season 180 pts: +800 chips +3 charms' } },
+                    { points: 260, reward: { chips: 1200, charm: 5 }, label: { zh: '赛季 260 积分奖励：+1200 筹码 +5 幸运符', en: 'Season 260 pts: +1200 chips +5 charms' } }
                 ];
                 const claimed = this.localGame.season.rewardsClaimed || [];
                 let unlocked = null;
@@ -2816,29 +2972,32 @@
                     this.localGame.season.rewardsClaimed = claimed;
                     this.saveLocalGame();
                     this.updateLocalGameUI();
-                    this.showOverlay('seasonOverlay', 'SEASON REWARD', unlocked.label);
+                    const label = unlocked.label[this.lang === 'en' ? 'en' : 'zh'];
+                    this.showOverlay('seasonOverlay', 'SEASON REWARD', label);
                     this.spawnParticles('blue', 30);
-                    this.notify('赛季里程碑奖励已到账', 'success');
+                    this.notify(this.lang === 'en' ? 'Season milestone reward delivered' : '赛季里程碑奖励已到账', 'success');
                 } else if (hintNode) {
                     const next = milestones.find((item) => !claimed.includes(item.points));
                     if (next) {
-                        hintNode.textContent = `下一里程碑：${next.points} 积分`;
+                        hintNode.textContent = this.lang === 'en'
+                            ? `Next milestone: ${next.points} pts`
+                            : `下一里程碑：${next.points} 积分`;
                     } else {
-                        hintNode.textContent = '赛季奖励已全部领取';
+                        hintNode.textContent = this.lang === 'en' ? 'All season rewards claimed' : '赛季奖励已全部领取';
                     }
                 }
             }
 
             getAchievementList() {
                 return [
-                    { id: 'firstWin', title: '首胜' },
-                    { id: 'streak3', title: '连胜3局' },
-                    { id: 'streak5', title: '连胜5局' },
-                    { id: 'streak10', title: '连胜10局' },
-                    { id: 'wins10', title: '累计胜利10局' },
-                    { id: 'wins50', title: '累计胜利50局' },
-                    { id: 'bossClear', title: 'Boss 首胜' },
-                    { id: 'doubleWin', title: '双倍成功' }
+                    { id: 'firstWin', title: { zh: '首胜', en: 'First Win' } },
+                    { id: 'streak3', title: { zh: '连胜3局', en: '3 Win Streak' } },
+                    { id: 'streak5', title: { zh: '连胜5局', en: '5 Win Streak' } },
+                    { id: 'streak10', title: { zh: '连胜10局', en: '10 Win Streak' } },
+                    { id: 'wins10', title: { zh: '累计胜利10局', en: '10 Total Wins' } },
+                    { id: 'wins50', title: { zh: '累计胜利50局', en: '50 Total Wins' } },
+                    { id: 'bossClear', title: { zh: 'Boss 首胜', en: 'Boss First Win' } },
+                    { id: 'doubleWin', title: { zh: '双倍成功', en: 'Double Win' } }
                 ];
             }
 
@@ -2854,7 +3013,10 @@
                 if (this.localGame.lastDoubleWin) this.localGame.achievements.doubleWin = true;
                 const unlocked = Object.keys(this.localGame.achievements).filter((key) => this.localGame.achievements[key] && !prev[key]);
                 if (unlocked.length) {
-                    this.notify(`解锁成就：${unlocked.length} 个`, 'success');
+                    this.notify(
+                        this.lang === 'en' ? `Achievements unlocked: ${unlocked.length}` : `解锁成就：${unlocked.length} 个`,
+                        'success'
+                    );
                 }
                 this.localGame.lastDoubleWin = false;
                 this.localGame.lastBossWin = false;
@@ -2940,12 +3102,12 @@
 
             updateMiniAchievementsUI() {
                 const configs = {
-                    mine: { id: 'mineAchievements', label: '宝箱挖掘' },
-                    dice: { id: 'diceAchievements', label: '骰子冲刺' },
-                    flip: { id: 'flipAchievements', label: '幸运翻牌' },
-                    dungeon: { id: 'dungeonAchievements', label: '连胜闯关' },
-                    slot: { id: 'slotAchievements', label: '拉霸机' },
-                    sprint: { id: 'sprintAchievements', label: '竞速冲榜' }
+                    mine: { id: 'mineAchievements', label: { zh: '宝箱挖掘', en: 'Treasure Dig' } },
+                    dice: { id: 'diceAchievements', label: { zh: '骰子冲刺', en: 'Dice Rush' } },
+                    flip: { id: 'flipAchievements', label: { zh: '幸运翻牌', en: 'Lucky Flip' } },
+                    dungeon: { id: 'dungeonAchievements', label: { zh: '连胜闯关', en: 'Streak Dungeon' } },
+                    slot: { id: 'slotAchievements', label: { zh: '拉霸机', en: 'Slots' } },
+                    sprint: { id: 'sprintAchievements', label: { zh: '竞速冲榜', en: 'Sprint Ranking' } }
                 };
                 Object.keys(configs).forEach((key) => {
                     const node = document.getElementById(configs[key].id);
@@ -2961,10 +3123,11 @@
                             ? (this.lang === 'en' ? '✅ 50 pts' : '✅ 50分')
                             : (this.lang === 'en' ? '🔒 50 pts' : '🔒 50分');
                     }
+                    const label = configs[key].label[this.lang === 'en' ? 'en' : 'zh'];
                     if (this.lang === 'en') {
-                        node.textContent = `${configs[key].label} Achv: ${badge} · ${badge2}${badge3 ? ` · ${badge3}` : ''}`;
+                        node.textContent = `${label} Achv: ${badge} · ${badge2}${badge3 ? ` · ${badge3}` : ''}`;
                     } else {
-                        node.textContent = `${configs[key].label}成就: ${badge} · ${badge2}${badge3 ? ` · ${badge3}` : ''}`;
+                        node.textContent = `${label}成就: ${badge} · ${badge2}${badge3 ? ` · ${badge3}` : ''}`;
                     }
                 });
             }
@@ -3099,7 +3262,7 @@
                 this.localGame.mini.flip.picks = [];
                 this.localGame.mini.flip.costPaid = false;
                 const hint = document.getElementById('flipHint');
-                if (hint) hint.textContent = '请选择两张牌';
+                if (hint) hint.textContent = this.lang === 'en' ? 'Pick two cards' : '请选择两张牌';
                 this.saveLocalGame();
                 this.updateFlipUI();
             }
@@ -3198,7 +3361,9 @@
                         this.localGame.dailyMini.sprint50 = true;
                     }
                     const hint = document.getElementById('sprintHint');
-                    if (hint) hint.textContent = `本次得分 ${sprint.score}`;
+                    if (hint) hint.textContent = this.lang === 'en'
+                        ? `Score ${sprint.score}`
+                        : `本次得分 ${sprint.score}`;
                     this.updateSprintBoard(sprint.score);
                     if (this.sprintTimer) {
                         clearInterval(this.sprintTimer);
@@ -3243,13 +3408,21 @@
                 const hint = document.getElementById('taskHint');
                 if (!list) return;
                 const daily = this.localGame.daily;
-                list.innerHTML = `
-                    <div>完成3局: ${daily.playCount}/3</div>
-                    <div>赢1局: ${daily.winCount}/1</div>
-                    <div>双倍1次: ${daily.doubleCount}/1</div>
-                `;
+                if (this.lang === 'en') {
+                    list.innerHTML = `
+                        <div>Play 3 games: ${daily.playCount}/3</div>
+                        <div>Win 1 game: ${daily.winCount}/1</div>
+                        <div>Double 1 time: ${daily.doubleCount}/1</div>
+                    `;
+                } else {
+                    list.innerHTML = `
+                        <div>完成3局: ${daily.playCount}/3</div>
+                        <div>赢1局: ${daily.winCount}/1</div>
+                        <div>双倍1次: ${daily.doubleCount}/1</div>
+                    `;
+                }
                 if (hint) {
-                    hint.textContent = daily.claimed ? '今日奖励已领取' : '';
+                    hint.textContent = daily.claimed ? (this.lang === 'en' ? 'Reward claimed today' : '今日奖励已领取') : '';
                 }
             }
 
@@ -3263,22 +3436,22 @@
                     this.saveLocalGame();
                     this.updateLocalGameUI();
                     const hint = document.getElementById('taskHint');
-                    if (hint) hint.textContent = '✅ 已领取 300 筹码';
+                    if (hint) hint.textContent = this.lang === 'en' ? '✅ Claimed 300 chips' : '✅ 已领取 300 筹码';
                     this.flashCard('taskCard', 'success');
                 } else {
                     const hint = document.getElementById('taskHint');
-                    if (hint) hint.textContent = '任务未完成';
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Tasks incomplete' : '任务未完成';
                     this.flashCard('taskCard', 'warn');
-                    this.notify('任务未完成，继续挑战', 'warn');
+                    this.notify(this.lang === 'en' ? 'Tasks incomplete, keep going' : '任务未完成，继续挑战', 'warn');
                 }
             }
 
             enterBossRoom() {
                 if (!this.localGame.bossReady) {
                     const hint = document.getElementById('bossHint');
-                    if (hint) hint.textContent = '连胜 5 次后解锁';
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Unlock at 5-win streak' : '连胜 5 次后解锁';
                     this.flashCard('bossCard', 'warn');
-                    this.notify('Boss 房尚未解锁', 'warn');
+                    this.notify(this.lang === 'en' ? 'Boss room locked' : 'Boss 房尚未解锁', 'warn');
                     return;
                 }
                 this.localGame.bossActive = true;
@@ -3286,10 +3459,10 @@
                 this.saveLocalGame();
                 this.updateLocalGameUI();
                 const hint = document.getElementById('bossHint');
-                if (hint) hint.textContent = 'Boss 模式已开启！';
+                if (hint) hint.textContent = this.lang === 'en' ? 'Boss mode active!' : 'Boss 模式已开启！';
                 this.flashCard('bossCard', 'success');
-                this.notify('Boss 房开启，下一局赢取额外筹码', 'success');
-                this.showOverlay('bossOverlay', 'BOSS READY', '挑战开启');
+                this.notify(this.lang === 'en' ? 'Boss room open, bonus next win' : 'Boss 房开启，下一局赢取额外筹码', 'success');
+                this.showOverlay('bossOverlay', 'BOSS READY', this.lang === 'en' ? 'Challenge starts' : '挑战开启');
                 this.spawnParticles('ember', 22);
             }
 
@@ -3297,9 +3470,9 @@
                 const cost = 200;
                 if (this.localGame.chips < cost) {
                     const hint = document.getElementById('charmHint');
-                    if (hint) hint.textContent = '筹码不足';
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Not enough chips' : '筹码不足';
                     this.flashCard('charmCard', 'warn');
-                    this.notify('筹码不足，先赢几局吧', 'warn');
+                    this.notify(this.lang === 'en' ? 'Not enough chips, win more' : '筹码不足，先赢几局吧', 'warn');
                     return;
                 }
                 this.localGame.chips -= cost;
@@ -3307,17 +3480,17 @@
                 this.saveLocalGame();
                 this.updateLocalGameUI();
                 const hint = document.getElementById('charmHint');
-                if (hint) hint.textContent = '幸运符已就位，筹码收益提升';
+                if (hint) hint.textContent = this.lang === 'en' ? 'Charm active, chip gains boosted' : '幸运符已就位，筹码收益提升';
                 this.flashCard('charmCard', 'success');
-                this.notify('幸运符购买成功', 'success');
+                this.notify(this.lang === 'en' ? 'Charm purchased' : '幸运符购买成功', 'success');
             }
 
             openChest() {
                 const hint = document.getElementById('chestHint');
                 const cost = 150;
                 if (this.localGame.chips < cost) {
-                    if (hint) hint.textContent = '筹码不足';
-                    this.notify('筹码不足，无法开启宝箱', 'warn');
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Not enough chips' : '筹码不足';
+                    this.notify(this.lang === 'en' ? 'Not enough chips to open' : '筹码不足，无法开启宝箱', 'warn');
                     return;
                 }
                 this.localGame.chips -= cost;
@@ -3325,18 +3498,18 @@
                 if (roll < 0.6) {
                     const reward = 100 + Math.floor(Math.random() * 120);
                     this.localGame.chips += reward;
-                    if (hint) hint.textContent = `🎉 获得 ${reward} 筹码`;
-                    this.showOverlay('chestOverlay', 'CHEST OPEN', `获得 ${reward} 筹码`);
+                    if (hint) hint.textContent = this.lang === 'en' ? `🎉 +${reward} chips` : `🎉 获得 ${reward} 筹码`;
+                    this.showOverlay('chestOverlay', 'CHEST OPEN', this.lang === 'en' ? `+${reward} chips` : `获得 ${reward} 筹码`);
                     this.spawnParticles('gold', 30);
                 } else {
                     this.localGame.charmCharges += 3;
-                    if (hint) hint.textContent = '✨ 获得 3 局幸运符';
-                    this.showOverlay('chestOverlay', 'CHEST OPEN', '获得 3 局幸运符');
+                    if (hint) hint.textContent = this.lang === 'en' ? '✨ +3 charm rounds' : '✨ 获得 3 局幸运符';
+                    this.showOverlay('chestOverlay', 'CHEST OPEN', this.lang === 'en' ? 'Gained 3 charm rounds' : '获得 3 局幸运符');
                     this.spawnParticles('gold', 30);
                 }
                 this.saveLocalGame();
                 this.updateLocalGameUI();
-                this.notify('宝箱已开启', 'success');
+                this.notify(this.lang === 'en' ? 'Chest opened' : '宝箱已开启', 'success');
             }
 
             updateLeaderboard() {
@@ -3355,7 +3528,11 @@
                 board.sort((a, b) => b.chips - a.chips);
                 board = board.slice(0, 5);
                 localStorage.setItem(key, JSON.stringify(board));
-                list.innerHTML = board.map((item, idx) => `#${idx + 1} ${item.address} · 筹码 ${item.chips} · 连胜 ${item.maxStreak}`).join('<br>');
+                if (this.lang === 'en') {
+                    list.innerHTML = board.map((item, idx) => `#${idx + 1} ${item.address} · Chips ${item.chips} · Streak ${item.maxStreak}`).join('<br>');
+                } else {
+                    list.innerHTML = board.map((item, idx) => `#${idx + 1} ${item.address} · 筹码 ${item.chips} · 连胜 ${item.maxStreak}`).join('<br>');
+                }
             }
 
             triggerSpark() {
