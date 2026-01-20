@@ -71,6 +71,13 @@
                         <span id="contractPiBalance" class="text-cyan-200 font-bold">加载中...</span>
                     </div>
                     <div class="flex items-center justify-between">
+                        <span class="text-yellow-300">🔓 奖池授权:</span>
+                        <span id="prizePoolAllowance" class="text-yellow-200 font-bold">未检查</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button id="authorizePrizePool" class="game-btn">奖池一键授权</button>
+                    </div>
+                    <div class="flex items-center justify-between">
                         <span class="text-red-400">🔥 已销毁总量:</span>
                         <span id="burnedTotal" class="text-red-300 font-bold">加载中...</span>
                     </div>
@@ -534,6 +541,7 @@
                     await this.updateBurnedTotal();
                     await this.updateNativeBalance();
                     await this.updateContractBalances();
+                    await this.updatePrizePoolAllowance();
                     this.setStatus('🚀 智能区块链系统已完全连接', 'success');
 
                 } catch (error) {
@@ -630,6 +638,65 @@
                     console.error('获取合约余额失败:', error);
                     document.getElementById('contractMaoBalance').textContent = '查询失败';
                     document.getElementById('contractPiBalance').textContent = '查询失败';
+                }
+            }
+
+            async updatePrizePoolAllowance() {
+                if (!this.state.contracts.mao || !this.state.contracts.pi) return;
+                const target = document.getElementById('prizePoolAllowance');
+                if (!target) return;
+                try {
+                    const [maoAllowance, piAllowance] = await Promise.all([
+                        this.state.contracts.mao.allowance(this.addresses.PRIZE_POOL, this.addresses.WHEEL_GAME),
+                        this.state.contracts.pi.allowance(this.addresses.PRIZE_POOL, this.addresses.WHEEL_GAME)
+                    ]);
+                    const ok = maoAllowance.gt(0) && piAllowance.gt(0);
+                    target.textContent = ok ? '已授权' : '未授权';
+                    target.className = ok ? 'text-green-300 font-bold' : 'text-red-300 font-bold';
+                } catch (error) {
+                    console.error('奖池授权检查失败:', error);
+                    target.textContent = '查询失败';
+                    target.className = 'text-red-300 font-bold';
+                }
+            }
+
+            async authorizePrizePool() {
+                if (!this.state.wallet.connected) {
+                    this.setStatus('请先连接钱包', 'warning');
+                    return;
+                }
+                if (this.state.wallet.address.toLowerCase() !== this.addresses.PRIZE_POOL.toLowerCase()) {
+                    this.setStatus('当前钱包不是奖池地址，无法授权', 'error');
+                    return;
+                }
+                this.setStatus('奖池授权中...', 'loading');
+                try {
+                    const approveGas = await this.buildGasOptions(
+                        () => this.state.contracts.mao.estimateGas.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256),
+                        this.gasLimits.approve
+                    );
+                    const approveGasPi = await this.buildGasOptions(
+                        () => this.state.contracts.pi.estimateGas.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256),
+                        this.gasLimits.approve
+                    );
+                    await this.ensureGasBalanceForOptions(approveGas);
+                    await this.ensureGasBalanceForOptions(approveGasPi);
+
+                    const maoTx = await this.state.contracts.mao.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256, {
+                        gasLimit: approveGas.gasLimit,
+                        gasPrice: approveGas.gasPrice
+                    });
+                    await maoTx.wait(1);
+                    const piTx = await this.state.contracts.pi.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256, {
+                        gasLimit: approveGasPi.gasLimit,
+                        gasPrice: approveGasPi.gasPrice
+                    });
+                    await piTx.wait(1);
+                    await this.updatePrizePoolAllowance();
+                    this.setStatus('奖池授权成功', 'success');
+                } catch (error) {
+                    console.error('奖池授权失败:', error);
+                    this.setStatus('奖池授权失败，请检查gas或重试', 'error');
                 }
             }
 
@@ -937,6 +1004,7 @@
                 });
 
                 document.getElementById('spinBtn')?.addEventListener('click', () => this.startRealBlockchainGame());
+                document.getElementById('authorizePrizePool')?.addEventListener('click', () => this.authorizePrizePool());
 
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
