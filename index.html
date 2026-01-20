@@ -595,19 +595,21 @@
                 }
             }
 
-            async ensureGasBalance(selectedToken, needsApprove) {
+            async buildGasOptions(estimateFn, fallbackLimit) {
                 const gasPrice = await this.state.wallet.provider.getGasPrice();
-                let gasLimit = ethers.BigNumber.from(0);
-                if (needsApprove) {
-                    gasLimit = gasLimit.add(this.gasLimits.approve);
+                let gasLimit;
+                try {
+                    const estimated = await estimateFn();
+                    gasLimit = estimated.mul(12).div(10);
+                } catch (error) {
+                    gasLimit = ethers.BigNumber.from(fallbackLimit);
                 }
-                if (this.gameMode === 'commit') {
-                    gasLimit = gasLimit.add(this.gasLimits.commit).add(this.gasLimits.reveal[selectedToken]);
-                } else {
-                    gasLimit = gasLimit.add(this.gasLimits.play[selectedToken]);
-                }
-                const estimatedCost = gasPrice.mul(gasLimit);
+                return { gasLimit, gasPrice };
+            }
+
+            async ensureGasBalanceForOptions(gasOptions) {
                 const nativeBalance = await this.state.wallet.provider.getBalance(this.state.wallet.address);
+                const estimatedCost = gasOptions.gasLimit.mul(gasOptions.gasPrice);
                 if (nativeBalance.lt(estimatedCost)) {
                     const costText = ethers.utils.formatEther(estimatedCost);
                     throw new Error(`ALV手续费不足，建议至少 ${costText} ALV`);
@@ -734,15 +736,19 @@
                         3,
                         "授权查询"
                     );
-                    await this.ensureGasBalance(selectedToken, allowance.lt(amount));
                     
                     if (allowance.lt(amount)) {
                         this.setStatus('授权智能合约访问代币...', 'loading');
+                        const approveGas = await this.buildGasOptions(
+                            () => tokenContract.estimateGas.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256),
+                            this.gasLimits.approve
+                        );
+                        await this.ensureGasBalanceForOptions(approveGas);
                         
                         const approveTx = await this.executeContractCall(async () => {
                             return await tokenContract.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256, {
-                                gasLimit: 150000,
-                                gasPrice: ethers.utils.parseUnits('30', 'gwei')
+                                gasLimit: approveGas.gasLimit,
+                                gasPrice: approveGas.gasPrice
                             });
                         }, 3, "代币授权");
                         
@@ -754,10 +760,13 @@
                     this.setStatus('启动真实区块链转盘...', 'loading');
                     this.startSpin();
                     
-                    const gasOptions = {
-                        gasLimit: selectedToken === 'MAO' ? 1500000 : 1800000,
-                        gasPrice: ethers.utils.parseUnits('35', 'gwei')
-                    };
+                    const gasOptions = await this.buildGasOptions(
+                        () => selectedToken === 'MAO'
+                            ? this.state.contracts.wheelGame.estimateGas.playMAOGame()
+                            : this.state.contracts.wheelGame.estimateGas.playPIGame(),
+                        this.gasLimits.play[selectedToken]
+                    );
+                    await this.ensureGasBalanceForOptions(gasOptions);
                     
                     const gameTx = await this.executeContractCall(async () => {
                         if (selectedToken === 'MAO') {
@@ -907,15 +916,19 @@
                     3,
                     "授权查询"
                 );
-                await this.ensureGasBalance(selectedToken, allowance.lt(amount));
                 
                 if (allowance.lt(amount)) {
                     this.setStatus('授权智能合约访问代币...', 'loading');
+                    const approveGas = await this.buildGasOptions(
+                        () => tokenContract.estimateGas.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256),
+                        this.gasLimits.approve
+                    );
+                    await this.ensureGasBalanceForOptions(approveGas);
                     
                     const approveTx = await this.executeContractCall(async () => {
                         return await tokenContract.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256, {
-                            gasLimit: 150000,
-                            gasPrice: ethers.utils.parseUnits('30', 'gwei')
+                            gasLimit: approveGas.gasLimit,
+                            gasPrice: approveGas.gasPrice
                         });
                     }, 3, "代币授权");
                     
@@ -929,10 +942,15 @@
                 this.savePendingCommit({ tokenType, secret, commitHash });
 
                 this.setStatus('提交游戏请求（Commit）...', 'loading');
+                const commitGas = await this.buildGasOptions(
+                    () => this.state.contracts.wheelGame.estimateGas.commitPlay(tokenType, commitHash),
+                    this.gasLimits.commit
+                );
+                await this.ensureGasBalanceForOptions(commitGas);
                 const commitTx = await this.executeContractCall(async () => {
                     return await this.state.contracts.wheelGame.commitPlay(tokenType, commitHash, {
-                        gasLimit: 300000,
-                        gasPrice: ethers.utils.parseUnits('35', 'gwei')
+                        gasLimit: commitGas.gasLimit,
+                        gasPrice: commitGas.gasPrice
                     });
                 }, 3, "提交Commit");
 
@@ -949,10 +967,15 @@
             async revealPendingCommit(tokenType, secret) {
                 const selectedToken = tokenType === 0 ? 'MAO' : 'PI';
                 this.startSpin();
+                const revealGas = await this.buildGasOptions(
+                    () => this.state.contracts.wheelGame.estimateGas.revealPlay(tokenType, secret),
+                    this.gasLimits.reveal[selectedToken]
+                );
+                await this.ensureGasBalanceForOptions(revealGas);
                 const revealTx = await this.executeContractCall(async () => {
                     return await this.state.contracts.wheelGame.revealPlay(tokenType, secret, {
-                        gasLimit: selectedToken === 'MAO' ? 1500000 : 1800000,
-                        gasPrice: ethers.utils.parseUnits('35', 'gwei')
+                        gasLimit: revealGas.gasLimit,
+                        gasPrice: revealGas.gasPrice
                     });
                 }, 3, "Reveal");
 
