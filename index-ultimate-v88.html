@@ -215,6 +215,39 @@
             opacity: 0;
             animation: spark 1.2s ease-out;
         }
+        .mini-toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            padding: 12px 18px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 12px 30px rgba(17, 24, 39, 0.15);
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 50;
+        }
+        .mini-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .mini-toast.success { border: 1px solid rgba(34, 197, 94, 0.45); color: #166534; }
+        .mini-toast.warn { border: 1px solid rgba(234, 179, 8, 0.45); color: #854d0e; }
+        .mini-toast.info { border: 1px solid rgba(59, 130, 246, 0.45); color: #1e3a8a; }
+        .pulse-card {
+            animation: pulseGlow 0.9s ease;
+        }
+        .pulse-card.success { box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.35), 0 18px 40px rgba(34, 197, 94, 0.18); }
+        .pulse-card.warn { box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.35), 0 18px 40px rgba(234, 179, 8, 0.18); }
+        .pulse-card.info { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35), 0 18px 40px rgba(59, 130, 246, 0.18); }
+        @keyframes pulseGlow {
+            0% { transform: scale(1); }
+            35% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
         @keyframes spark {
             0% { opacity: 0; transform: scale(0.9); }
             30% { opacity: 1; }
@@ -233,6 +266,7 @@
         <div class="flex justify-center mb-8">
             <span class="jackpot-banner">💎 金色灯牌 · 热场开转</span>
         </div>
+        <div id="miniToast" class="mini-toast info"></div>
         
         <!-- Status Bar -->
         <div class="glass rounded-2xl p-4 mb-6">
@@ -419,21 +453,21 @@
         <div class="glass rounded-2xl p-6 mb-6">
             <h3 class="text-xl font-semibold mb-4">🎲 玩法控制台</h3>
             <div class="panel-grid">
-                <div class="glass rounded-xl p-4">
+                <div class="glass rounded-xl p-4" id="bossCard">
                     <div class="text-sm text-slate-500">Boss 房</div>
                     <div class="text-lg font-bold mt-1" id="bossStatus">未解锁</div>
                     <p class="text-xs text-slate-500 mt-2">连胜 5 解锁，赢得额外筹码。</p>
                     <button id="enterBoss" class="game-btn mt-3">进入 Boss 房</button>
                     <div id="bossHint" class="text-xs text-slate-500 mt-2"></div>
                 </div>
-                <div class="glass rounded-xl p-4">
+                <div class="glass rounded-xl p-4" id="taskCard">
                     <div class="text-sm text-slate-500">每日任务</div>
                     <div class="text-xs text-slate-600 mt-2">今日进度</div>
                     <div class="text-sm mt-2" id="taskList"></div>
                     <button id="claimTasks" class="game-btn mt-3">领取任务奖励</button>
                     <div id="taskHint" class="text-xs text-slate-500 mt-2"></div>
                 </div>
-                <div class="glass rounded-xl p-4">
+                <div class="glass rounded-xl p-4" id="charmCard">
                     <div class="text-sm text-slate-500">幸运符</div>
                     <div class="text-lg font-bold mt-1" id="charmStatus">未激活</div>
                     <p class="text-xs text-slate-500 mt-2">消耗 200 筹码，提升筹码收益。</p>
@@ -537,6 +571,8 @@
                     }
                 };
                 this.pendingChips = 0;
+                this.prevLocalSnapshot = null;
+                this.toastTimer = null;
                 
                 // 🔧 完全统一的合约地址配置 - 与.env文件现在完全一致
                 this.addresses = {
@@ -1372,6 +1408,31 @@
                 hint.textContent = '快速模式：单笔交易';
             }
 
+            notify(message, type = 'info') {
+                const toast = document.getElementById('miniToast');
+                if (!toast) return;
+                toast.textContent = message;
+                toast.classList.remove('success', 'warn', 'info', 'show');
+                toast.classList.add(type);
+                void toast.offsetHeight;
+                toast.classList.add('show');
+                if (this.toastTimer) clearTimeout(this.toastTimer);
+                this.toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2400);
+            }
+
+            flashCard(cardId, type = 'info') {
+                const card = document.getElementById(cardId);
+                if (!card) return;
+                card.classList.remove('pulse-card', 'success', 'warn', 'info');
+                void card.offsetHeight;
+                card.classList.add('pulse-card', type);
+                setTimeout(() => {
+                    card.classList.remove('pulse-card', 'success', 'warn', 'info');
+                }, 1000);
+            }
+
             loadLocalGame() {
                 if (!this.state.wallet?.address) return;
                 const raw = localStorage.getItem(`mao_local_${this.state.wallet.address}`);
@@ -1439,6 +1500,33 @@
                 });
                 this.updateTaskUI();
                 this.updateLeaderboard();
+                if (this.prevLocalSnapshot) {
+                    if (!this.prevLocalSnapshot.bossReady && this.localGame.bossReady) {
+                        this.notify('Boss 房已解锁！', 'success');
+                        this.flashCard('bossCard', 'success');
+                    }
+                    if (this.prevLocalSnapshot.streak >= 3 && this.localGame.streak === 0) {
+                        this.notify('连胜中断，继续加油', 'warn');
+                        this.flashCard('bossCard', 'warn');
+                    }
+                    if (this.localGame.streak > this.prevLocalSnapshot.streak && this.localGame.streak % 5 === 0) {
+                        this.notify(`连胜 ${this.localGame.streak}！Boss 房更近了`, 'info');
+                    }
+                    if (this.localGame.charmCharges > this.prevLocalSnapshot.charmCharges) {
+                        this.notify('幸运符已激活', 'success');
+                        this.flashCard('charmCard', 'success');
+                    }
+                    if (!this.prevLocalSnapshot.dailyClaimed && this.localGame.daily.claimed) {
+                        this.notify('每日任务奖励已领取', 'success');
+                        this.flashCard('taskCard', 'success');
+                    }
+                }
+                this.prevLocalSnapshot = {
+                    streak: this.localGame.streak,
+                    bossReady: this.localGame.bossReady,
+                    charmCharges: this.localGame.charmCharges,
+                    dailyClaimed: this.localGame.daily.claimed
+                };
             }
 
             applyLocalGameResult(result) {
@@ -1498,10 +1586,12 @@
                 if (win) {
                     this.localGame.chips += this.pendingChips;
                     if (result) result.textContent = '🎉 成功！筹码翻倍到账';
+                    this.notify('双倍成功！筹码已翻倍', 'success');
                 } else {
                     this.localGame.chips -= this.pendingChips;
                     if (this.localGame.chips < 0) this.localGame.chips = 0;
                     if (result) result.textContent = '😵 失败！本次筹码归零';
+                    this.notify('双倍失败，筹码清零', 'warn');
                 }
                 this.localGame.daily.doubleCount += 1;
                 this.saveLocalGame();
@@ -1556,9 +1646,12 @@
                     this.updateLocalGameUI();
                     const hint = document.getElementById('taskHint');
                     if (hint) hint.textContent = '✅ 已领取 300 筹码';
+                    this.flashCard('taskCard', 'success');
                 } else {
                     const hint = document.getElementById('taskHint');
                     if (hint) hint.textContent = '任务未完成';
+                    this.flashCard('taskCard', 'warn');
+                    this.notify('任务未完成，继续挑战', 'warn');
                 }
             }
 
@@ -1566,12 +1659,18 @@
                 if (!this.localGame.bossReady) {
                     const hint = document.getElementById('bossHint');
                     if (hint) hint.textContent = '连胜 5 次后解锁';
+                    this.flashCard('bossCard', 'warn');
+                    this.notify('Boss 房尚未解锁', 'warn');
                     return;
                 }
                 this.localGame.bossActive = true;
                 this.localGame.bossReady = false;
                 this.saveLocalGame();
                 this.updateLocalGameUI();
+                const hint = document.getElementById('bossHint');
+                if (hint) hint.textContent = 'Boss 模式已开启！';
+                this.flashCard('bossCard', 'success');
+                this.notify('Boss 房开启，下一局赢取额外筹码', 'success');
             }
 
             buyCharm() {
@@ -1579,12 +1678,18 @@
                 if (this.localGame.chips < cost) {
                     const hint = document.getElementById('charmHint');
                     if (hint) hint.textContent = '筹码不足';
+                    this.flashCard('charmCard', 'warn');
+                    this.notify('筹码不足，先赢几局吧', 'warn');
                     return;
                 }
                 this.localGame.chips -= cost;
                 this.localGame.charmCharges += 5;
                 this.saveLocalGame();
                 this.updateLocalGameUI();
+                const hint = document.getElementById('charmHint');
+                if (hint) hint.textContent = '幸运符已就位，筹码收益提升';
+                this.flashCard('charmCard', 'success');
+                this.notify('幸运符购买成功', 'success');
             }
 
             updateLeaderboard() {
