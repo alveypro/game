@@ -4,29 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎰 MAO Real Blockchain Wheel - ULTIMATE FIXED v8.8</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Bebas+Neue&display=swap">
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; font-family: "Space Grotesk", "Trebuchet MS", sans-serif; }
-        .glass { background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3); }
-        .wheel { width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(from 0deg, #ef4444 0deg 180deg, #10b981 180deg 360deg); transition: transform 4s ease; position: relative; }
+        :root {
+            --ink: #1b1a17;
+            --cream: #f7f2e8;
+            --sand: #efe2c8;
+            --glow: #ffd166;
+            --mint: #1bb8a6;
+            --ember: #e86f3e;
+            --ocean: #2e7dd7;
+        }
+        body {
+            min-height: 100vh;
+            font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+            color: var(--ink);
+            background-image:
+                radial-gradient(1200px 800px at 10% 10%, #fff6d5 0%, transparent 55%),
+                radial-gradient(900px 600px at 90% 20%, #dff6f1 0%, transparent 60%),
+                linear-gradient(140deg, #f7f2e8 0%, #f0e0c9 45%, #e6f1ff 100%);
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(27, 26, 23, 0.08);
+            box-shadow: 0 18px 50px rgba(17, 24, 39, 0.12);
+            backdrop-filter: blur(12px);
+            animation: fadeUp 0.6s ease both;
+        }
+        .hero-title {
+            font-family: "Bebas Neue", "Space Grotesk", sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ink);
+            text-shadow: 0 6px 24px rgba(255, 209, 102, 0.35);
+        }
+        .wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #f6c453 0deg 60deg,
+                #1bb8a6 60deg 120deg,
+                #2e7dd7 120deg 180deg,
+                #e86f3e 180deg 240deg,
+                #6ccf8a 240deg 300deg,
+                #ff8aa1 300deg 360deg
+            );
+            transition: transform 4s ease;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18), inset 0 0 0 10px rgba(255, 255, 255, 0.6);
+        }
         .spinning { animation: spin 4s ease; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(1800deg); } }
-        .token-btn { padding: 12px 24px; border-radius: 12px; cursor: pointer; transition: all 0.3s; }
-        .token-btn.active { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: black; }
-        .game-btn { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 16px 32px; border-radius: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .token-btn {
+            padding: 12px 24px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            color: var(--ink);
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(27, 26, 23, 0.12);
+        }
+        .token-btn.active {
+            background: linear-gradient(135deg, var(--glow), #ffe5a5);
+            color: #1b1a17;
+            box-shadow: 0 12px 24px rgba(255, 209, 102, 0.35);
+        }
+        .game-btn {
+            background: linear-gradient(135deg, var(--ember), var(--ocean));
+            color: white;
+            padding: 16px 32px;
+            border-radius: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 12px 24px rgba(46, 125, 215, 0.25);
+        }
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 30px rgba(232, 111, 62, 0.35);
+        }
         .loading { width: 20px; height: 20px; border: 2px solid #fff; border-top: 2px solid #f59e0b; border-radius: 50%; animation: rotate 1s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .contract-info { font-family: 'Courier New', monospace; font-size: 0.75rem; }
         summary { list-style: none; }
         summary::-webkit-details-marker { display: none; }
         .detail-summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="text-white">
     <div class="container mx-auto p-8">
-        <h1 class="text-4xl font-bold text-center mb-8">🎰 MAO Real Blockchain Game - ULTIMATE FIXED v8.8</h1>
+        <h1 class="text-4xl font-bold text-center mb-8 hero-title">🎰 MAO Real Blockchain Game</h1>
         
         <!-- Status Bar -->
         <div class="glass rounded-2xl p-4 mb-6">
