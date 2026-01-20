@@ -632,6 +632,71 @@
                 </div>
             </div>
         </div>
+
+        <!-- Game Hall -->
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🎮 大型游戏厅</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <div class="glass rounded-xl p-4 highlight-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-slate-500">今日推荐玩法</div>
+                            <div class="text-lg font-bold" id="featuredGameName">宝箱挖掘</div>
+                        </div>
+                        <span class="badge">推荐</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2" id="featuredGameDesc">三选一，连胜加成，适合热身。</p>
+                    <button class="game-btn mt-3" id="featuredGameBtn">立即开玩</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-sm text-slate-500">大厅每日任务</div>
+                    <div class="text-sm mt-2" id="miniTaskList"></div>
+                    <button class="game-btn mt-3" id="claimMiniTasks">领取大厅奖励</button>
+                    <button class="choice-btn w-full mt-3" id="claimMiniSupply">领取今日补给</button>
+                    <div id="miniTaskHint" class="text-xs text-slate-500 mt-2"></div>
+                    <div id="miniSupplyHint" class="text-xs text-slate-500 mt-2"></div>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">小游戏与转盘相同，使用 MAO/PI 进行链上交易，奖励直接发放到钱包。</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">宝箱挖掘</div>
+                    <p class="text-xs text-slate-500 mt-2">三选一，避开陷阱，连胜加成。</p>
+                    <div class="text-xs text-slate-500 mt-2">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn mt-3" data-open="mineModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">骰子冲刺</div>
+                    <p class="text-xs text-slate-500 mt-2">押高/低/中，翻倍冲刺。</p>
+                    <div class="text-xs text-slate-500 mt-2">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn mt-3" data-open="diceModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">幸运翻牌</div>
+                    <p class="text-xs text-slate-500 mt-2">翻两张，连中爆奖。</p>
+                    <div class="text-xs text-slate-500 mt-2">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn mt-3" data-open="flipModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">连胜闯关</div>
+                    <p class="text-xs text-slate-500 mt-2">连赢晋级，通关大奖。</p>
+                    <div class="text-xs text-slate-500 mt-2">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn mt-3" data-open="dungeonModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">拉霸机</div>
+                    <p class="text-xs text-slate-500 mt-2">经典三转轴，大奖刺激。</p>
+                    <div class="text-xs text-slate-500 mt-2">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn mt-3" data-open="slotModal">进入</button>
+                </div>
+                <div class="glass rounded-xl p-4">
+                    <div class="text-lg font-bold">竞速冲榜</div>
+                    <p class="text-xs text-slate-500 mt-2">限时冲分，赛季排行。</p>
+                    <div class="text-xs text-slate-500 mt-2">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn mt-3" data-open="sprintModal">进入</button>
+                </div>
+            </div>
+        </div>
         
         <!-- Prize Odds -->
         <div class="glass rounded-2xl p-6 mb-6">
@@ -695,71 +760,6 @@
                     <p class="text-xs text-slate-500 mt-2">消耗 200 筹码，提升筹码收益。</p>
                     <button id="buyCharm" class="game-btn mt-3">购买幸运符</button>
                     <div id="charmHint" class="text-xs text-slate-500 mt-2"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Game Hall -->
-        <div class="glass rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-semibold mb-4">🎮 游戏大厅</h3>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <div class="glass rounded-xl p-4 highlight-card">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <div class="text-xs text-slate-500">今日推荐玩法</div>
-                            <div class="text-lg font-bold" id="featuredGameName">宝箱挖掘</div>
-                        </div>
-                        <span class="badge">推荐</span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-2" id="featuredGameDesc">三选一，连胜加成，适合热身。</p>
-                    <button class="game-btn mt-3" id="featuredGameBtn">立即开玩</button>
-                </div>
-                <div class="glass rounded-xl p-4">
-                    <div class="text-sm text-slate-500">大厅每日任务</div>
-                    <div class="text-sm mt-2" id="miniTaskList"></div>
-                    <button class="game-btn mt-3" id="claimMiniTasks">领取大厅奖励</button>
-                    <button class="choice-btn w-full mt-3" id="claimMiniSupply">领取今日补给</button>
-                    <div id="miniTaskHint" class="text-xs text-slate-500 mt-2"></div>
-                    <div id="miniSupplyHint" class="text-xs text-slate-500 mt-2"></div>
-                </div>
-            </div>
-            <p class="text-xs text-slate-500 mb-4">小游戏使用幸运筹码，筹码来自转盘奖励或今日补给。</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div class="glass rounded-xl p-4">
-                    <div class="text-lg font-bold">宝箱挖掘</div>
-                    <p class="text-xs text-slate-500 mt-2">三选一，避开陷阱，连胜加成。</p>
-                    <div class="text-xs text-slate-500 mt-2">入场 80 筹码</div>
-                    <button class="game-btn mt-3" data-open="mineModal">进入</button>
-                </div>
-                <div class="glass rounded-xl p-4">
-                    <div class="text-lg font-bold">骰子冲刺</div>
-                    <p class="text-xs text-slate-500 mt-2">押高/低/中，翻倍冲刺。</p>
-                    <div class="text-xs text-slate-500 mt-2">入场 60 筹码</div>
-                    <button class="game-btn mt-3" data-open="diceModal">进入</button>
-                </div>
-                <div class="glass rounded-xl p-4">
-                    <div class="text-lg font-bold">幸运翻牌</div>
-                    <p class="text-xs text-slate-500 mt-2">翻两张，连中爆奖。</p>
-                    <div class="text-xs text-slate-500 mt-2">入场 70 筹码</div>
-                    <button class="game-btn mt-3" data-open="flipModal">进入</button>
-                </div>
-                <div class="glass rounded-xl p-4">
-                    <div class="text-lg font-bold">连胜闯关</div>
-                    <p class="text-xs text-slate-500 mt-2">连赢晋级，通关大奖。</p>
-                    <div class="text-xs text-slate-500 mt-2">入场 70 筹码</div>
-                    <button class="game-btn mt-3" data-open="dungeonModal">进入</button>
-                </div>
-                <div class="glass rounded-xl p-4">
-                    <div class="text-lg font-bold">拉霸机</div>
-                    <p class="text-xs text-slate-500 mt-2">经典三转轴，大奖刺激。</p>
-                    <div class="text-xs text-slate-500 mt-2">入场 80 筹码</div>
-                    <button class="game-btn mt-3" data-open="slotModal">进入</button>
-                </div>
-                <div class="glass rounded-xl p-4">
-                    <div class="text-lg font-bold">竞速冲榜</div>
-                    <p class="text-xs text-slate-500 mt-2">限时冲分，赛季排行。</p>
-                    <div class="text-xs text-slate-500 mt-2">每次 30 筹码</div>
-                    <button class="game-btn mt-3" data-open="sprintModal">进入</button>
                 </div>
             </div>
         </div>
@@ -1053,6 +1053,7 @@
                 this.prevLocalSnapshot = null;
                 this.toastTimer = null;
                 this.sprintTimer = null;
+                this.activeMiniGame = null;
                 this.mapLevels = [
                     { level: 1, name: '金沙大厅', need: 5 },
                     { level: 2, name: '霓虹隧道', need: 6 },
@@ -1218,6 +1219,22 @@
                     msg.textContent = '这次没中奖，但是真实的区块链交易！';
                     reward.textContent = '继续真实游戏';
                 }
+                if (this.activeMiniGame) {
+                    const nameMap = {
+                        mine: '宝箱挖掘',
+                        dice: '骰子冲刺',
+                        flip: '幸运翻牌',
+                        dungeon: '连胜闯关',
+                        slot: '拉霸机',
+                        sprint: '竞速冲榜'
+                    };
+                    const name = nameMap[this.activeMiniGame.id] || '小游戏';
+                    title.textContent = `🎮 ${name} 结果`;
+                    msg.textContent = result.isWin ? '链上中奖，奖励已发放' : '链上未中奖，继续挑战';
+                    reward.textContent = result.isWin
+                        ? `+${this.formatNumber(result.amount)} ${this.state.selectedToken}`
+                        : '未中奖';
+                }
 
                 if (hash) {
                     tx.innerHTML = `<a href="https://alveyscan.com/tx/${hash}" target="_blank" class="text-blue-300">查看真实交易: ${hash.slice(0, 16)}...</a>`;
@@ -1231,6 +1248,10 @@
                     this.updateBurnedTotal();
                 }, 2000);
 
+                if (this.activeMiniGame) {
+                    this.applyMiniResult(result);
+                    this.activeMiniGame = null;
+                }
                 this.applyLocalGameResult(result);
             }
 
@@ -2541,45 +2562,105 @@
                 });
             }
 
-            playMine() {
-                if (!this.spendChips(80, 'mineHint')) return;
-                const win = Math.random() < 0.66;
-                let reward = 0;
-                if (win) {
-                    reward = 100 + Math.floor(Math.random() * 120);
-                    this.localGame.chips += reward;
-                    this.spawnParticles('gold', 20);
-                    this.notify(`挖到宝藏 +${reward}`, 'success');
-                } else {
-                    this.spawnParticles('ember', 16);
-                    this.notify('踩到陷阱，空手而归', 'warn');
+            applyMiniResult(result) {
+                const context = this.activeMiniGame;
+                if (!context) return;
+                const win = result.isWin;
+                if (context.id === 'mine') {
+                    const hint = document.getElementById('mineHint');
+                    if (hint) hint.textContent = win ? '🎉 挖到宝藏，奖励已发放' : '😵 踩到陷阱，未中奖';
+                    this.spawnParticles(win ? 'gold' : 'ember', 18);
+                    this.recordMiniResult('mine', win);
                 }
-                this.recordMiniResult('mine', win);
+                if (context.id === 'dice') {
+                    const choice = context.choice;
+                    let roll = 1;
+                    if (win) {
+                        if (choice === 'low') roll = 2;
+                        if (choice === 'mid') roll = 3;
+                        if (choice === 'high') roll = 6;
+                    } else {
+                        if (choice === 'low') roll = 5;
+                        if (choice === 'mid') roll = 2;
+                        if (choice === 'high') roll = 1;
+                    }
+                    const resultNode = document.getElementById('diceResult');
+                    if (resultNode) resultNode.textContent = `🎲 点数：${roll}`;
+                    const hint = document.getElementById('diceHint');
+                    if (hint) hint.textContent = win ? '✅ 命中，链上奖励已发放' : '未命中';
+                    this.recordMiniResult('dice', win);
+                }
+                if (context.id === 'flip') {
+                    const flip = this.localGame.mini.flip;
+                    const picks = context.picks || flip.picks;
+                    const cards = ['💎', '💎', '🍀', '💣'];
+                    if (win) {
+                        flip.cards = ['💎', '💎', '🍀', '🍀'];
+                    } else {
+                        flip.cards = cards;
+                    }
+                    flip.picks = picks;
+                    this.updateFlipUI();
+                    const hint = document.getElementById('flipHint');
+                    if (hint) hint.textContent = win ? '✨ 配对成功，奖励已发放' : '💥 炸弹，未中奖';
+                    this.recordMiniResult('flip', win);
+                }
+                if (context.id === 'dungeon') {
+                    if (win) {
+                        this.localGame.mini.dungeonStage += 1;
+                        if (this.localGame.mini.dungeonStage > 5) {
+                            this.localGame.mini.dungeonStage = 1;
+                            this.showOverlay('bossOverlay', 'STAGE CLEAR', '闯关完成大奖');
+                            this.spawnParticles('gold', 26);
+                        }
+                    } else {
+                        this.localGame.mini.dungeonStage = 1;
+                    }
+                    this.updateDungeonUI();
+                    const hint = document.getElementById('dungeonHint');
+                    if (hint) hint.textContent = win ? '✅ 闯关成功，奖励已发放' : '闯关失败，回到第 1 关';
+                    this.recordMiniResult('dungeon', win);
+                }
+                if (context.id === 'slot') {
+                    const icons = ['🍒', '🍋', '⭐', '💎', '7'];
+                    let a = icons[0];
+                    let b = icons[1];
+                    let c = icons[2];
+                    if (win) {
+                        a = b = c = '💎';
+                    }
+                    document.getElementById('slot1').textContent = a;
+                    document.getElementById('slot2').textContent = b;
+                    document.getElementById('slot3').textContent = c;
+                    const hint = document.getElementById('slotHint');
+                    if (hint) hint.textContent = win ? '🎉 三连中奖，奖励已发放' : '未中奖';
+                    this.recordMiniResult('slot', win);
+                }
+                if (context.id === 'sprint') {
+                    const sprint = this.localGame.mini.sprint;
+                    const add = win ? 18 : 6;
+                    sprint.score += add;
+                    const hint = document.getElementById('sprintHint');
+                    if (hint) hint.textContent = win ? `加分 +${add}` : `小幅加分 +${add}`;
+                    this.recordMiniResult('sprint', win);
+                    this.updateSprintUI(true);
+                }
+            }
+
+            playMine(choiceIndex) {
+                if (this.state.isPlaying) return;
                 const hint = document.getElementById('mineHint');
-                if (hint) hint.textContent = win ? `🎉 挖到宝藏 +${reward} 筹码` : '😵 踩到陷阱，损失 80 筹码';
-                this.saveLocalGame();
-                this.updateLocalGameUI();
+                if (hint) hint.textContent = '链上开奖中...';
+                this.activeMiniGame = { id: 'mine', choice: choiceIndex };
+                this.startRealBlockchainGame();
             }
 
             playDice(choice) {
-                if (!this.spendChips(60, 'diceHint')) return;
-                const roll = 1 + Math.floor(Math.random() * 6);
-                const win = (choice === 'low' && roll <= 3) || (choice === 'high' && roll >= 4) || (choice === 'mid' && (roll === 3 || roll === 4));
-                const reward = win ? Math.round(60 * (choice === 'mid' ? 2.4 : 1.6)) : 0;
-                if (win) {
-                    this.localGame.chips += reward;
-                    this.spawnParticles('gold', 18);
-                    this.notify(`命中！+${reward}`, 'success');
-                } else {
-                    this.notify('未命中，下次加油', 'warn');
-                }
-                this.recordMiniResult('dice', win);
-                const result = document.getElementById('diceResult');
-                if (result) result.textContent = `🎲 点数：${roll}`;
+                if (this.state.isPlaying) return;
                 const hint = document.getElementById('diceHint');
-                if (hint) hint.textContent = win ? `奖励 +${reward} 筹码` : '未中奖';
-                this.saveLocalGame();
-                this.updateLocalGameUI();
+                if (hint) hint.textContent = '链上开奖中...';
+                this.activeMiniGame = { id: 'dice', choice };
+                this.startRealBlockchainGame();
             }
 
             prepareFlip() {
@@ -2608,35 +2689,13 @@
                 const flip = this.localGame.mini.flip;
                 if (!flip.cards.length) this.resetFlip();
                 if (flip.picks.includes(index) || flip.picks.length >= 2) return;
-                if (!flip.costPaid) {
-                    if (!this.spendChips(70, 'flipHint')) return;
-                    flip.costPaid = true;
-                }
                 flip.picks.push(index);
                 this.updateFlipUI();
                 if (flip.picks.length === 2) {
-                    const [a, b] = flip.picks.map((i) => flip.cards[i]);
-                    let reward = 0;
-                    let message = '未中奖';
-                    if (a === '💣' || b === '💣') {
-                        message = '💥 炸弹，损失入场费';
-                        this.spawnParticles('ember', 18);
-                    } else if (a === b) {
-                        reward = 220;
-                        message = `✨ 配对成功 +${reward} 筹码`;
-                        this.spawnParticles('gold', 22);
-                    } else {
-                        reward = 120;
-                        message = `🙂 小奖 +${reward} 筹码`;
-                        this.spawnParticles('gold', 14);
-                    }
-                    if (reward) this.localGame.chips += reward;
-                    this.recordMiniResult('flip', reward > 0);
                     const hint = document.getElementById('flipHint');
-                    if (hint) hint.textContent = message;
-                    flip.costPaid = false;
-                    this.saveLocalGame();
-                    this.updateLocalGameUI();
+                    if (hint) hint.textContent = '链上开奖中...';
+                    this.activeMiniGame = { id: 'flip', picks: [...flip.picks] };
+                    this.startRealBlockchainGame();
                 }
             }
 
@@ -2650,29 +2709,11 @@
             }
 
             playDungeon() {
-                if (!this.spendChips(70, 'dungeonHint')) return;
-                const win = Math.random() < 0.6;
-                const rewards = [80, 120, 180, 260, 500];
-                if (win) {
-                    const stageIndex = Math.min(this.localGame.mini.dungeonStage - 1, rewards.length - 1);
-                    const reward = rewards[stageIndex];
-                    this.localGame.chips += reward;
-                    this.localGame.mini.dungeonStage += 1;
-                    if (this.localGame.mini.dungeonStage > 5) {
-                        this.localGame.mini.dungeonStage = 1;
-                        this.showOverlay('bossOverlay', 'STAGE CLEAR', '闯关完成大奖');
-                        this.spawnParticles('gold', 28);
-                    }
-                    const hint = document.getElementById('dungeonHint');
-                    if (hint) hint.textContent = `闯关成功 +${reward} 筹码`;
-                } else {
-                    this.localGame.mini.dungeonStage = 1;
-                    const hint = document.getElementById('dungeonHint');
-                    if (hint) hint.textContent = '闯关失败，回到第 1 关';
-                }
-                this.recordMiniResult('dungeon', win);
-                this.saveLocalGame();
-                this.updateLocalGameUI();
+                if (this.state.isPlaying) return;
+                const hint = document.getElementById('dungeonHint');
+                if (hint) hint.textContent = '链上开奖中...';
+                this.activeMiniGame = { id: 'dungeon' };
+                this.startRealBlockchainGame();
             }
 
             updateDungeonUI() {
@@ -2681,31 +2722,11 @@
             }
 
             spinSlot() {
-                if (!this.spendChips(80, 'slotHint')) return;
-                const icons = ['🍒', '🍋', '⭐', '💎', '7'];
-                const reel = () => icons[Math.floor(Math.random() * icons.length)];
-                const a = reel();
-                const b = reel();
-                const c = reel();
-                document.getElementById('slot1').textContent = a;
-                document.getElementById('slot2').textContent = b;
-                document.getElementById('slot3').textContent = c;
-                let reward = 0;
-                if (a === b && b === c) {
-                    reward = 500;
-                } else if (a === b || b === c || a === c) {
-                    reward = 140;
-                }
-                if (reward) {
-                    this.localGame.chips += reward;
-                    this.spawnParticles('gold', 24);
-                    this.notify(`拉霸中奖 +${reward}`, 'success');
-                }
-                this.recordMiniResult('slot', reward > 0);
+                if (this.state.isPlaying) return;
                 const hint = document.getElementById('slotHint');
-                if (hint) hint.textContent = reward ? `🎉 中奖 +${reward} 筹码` : '未中奖';
-                this.saveLocalGame();
-                this.updateLocalGameUI();
+                if (hint) hint.textContent = '链上开奖中...';
+                this.activeMiniGame = { id: 'slot' };
+                this.startRealBlockchainGame();
             }
 
             startSprint() {
@@ -2727,15 +2748,11 @@
                     if (hint) hint.textContent = '请先开始冲榜';
                     return;
                 }
-                if (!this.spendChips(30, 'sprintHint')) return;
-                const win = Math.random() < 0.6;
-                const add = win ? 12 + Math.floor(Math.random() * 10) : 3;
-                sprint.score += add;
+                if (this.state.isPlaying) return;
                 const hint = document.getElementById('sprintHint');
-                if (hint) hint.textContent = win ? `加分 +${add}` : `小幅加分 +${add}`;
-                this.recordMiniResult('sprint', win);
-                this.updateSprintUI(true);
-                this.saveLocalGame();
+                if (hint) hint.textContent = '链上开奖中...';
+                this.activeMiniGame = { id: 'sprint' };
+                this.startRealBlockchainGame();
             }
 
             updateSprintUI(tickOnly) {
