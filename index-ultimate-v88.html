@@ -588,7 +588,8 @@
                 if (!this.state.wallet.provider) return;
                 try {
                     const nativeBalance = await this.state.wallet.provider.getBalance(this.state.wallet.address);
-                    document.getElementById('alvBalance').textContent = `${ethers.utils.formatEther(nativeBalance)} ALV`;
+                    const formatted = Number(ethers.utils.formatEther(nativeBalance)).toFixed(4);
+                    document.getElementById('alvBalance').textContent = `${formatted} ALV`;
                 } catch (error) {
                     console.error('获取ALV余额失败:', error);
                     document.getElementById('alvBalance').textContent = '查询失败';
@@ -596,7 +597,11 @@
             }
 
             async buildGasOptions(estimateFn, fallbackLimit) {
-                const gasPrice = await this.state.wallet.provider.getGasPrice();
+                let gasPrice = await this.state.wallet.provider.getGasPrice();
+                const maxGasPrice = ethers.utils.parseUnits('100', 'gwei');
+                if (gasPrice.gt(maxGasPrice)) {
+                    gasPrice = ethers.utils.parseUnits('30', 'gwei');
+                }
                 let gasLimit;
                 try {
                     const estimated = await estimateFn();
