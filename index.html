@@ -720,6 +720,15 @@
                         return;
                     }
 
+                    const directSupported = await this.checkDirectModeSupport();
+                    if (!directSupported) {
+                        this.gameMode = 'commit';
+                        this.updateModeHint();
+                        this.setStatus('检测到安全合约，仅支持Commit-Reveal模式', 'warning');
+                        await this.startCommitRevealGame();
+                        return;
+                    }
+
                     const { selectedToken } = this.state;
                     const tokenContract = selectedToken === 'MAO' ? this.state.contracts.mao : this.state.contracts.pi;
                     const amount = ethers.utils.parseEther(selectedToken === 'MAO' ? '100' : '1000');
@@ -1154,6 +1163,18 @@
                     hint.textContent = '安全模式：需要两笔交易（Commit + Reveal）';
                 } else {
                     hint.textContent = '快速模式：单笔交易';
+                }
+            }
+
+            async checkDirectModeSupport() {
+                try {
+                    if (!this.state.contracts.wheelGame?.estimateGas?.playMAOGame) {
+                        return false;
+                    }
+                    await this.state.contracts.wheelGame.estimateGas.playMAOGame();
+                    return true;
+                } catch (error) {
+                    return false;
                 }
             }
         }
