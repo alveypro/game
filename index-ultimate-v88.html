@@ -286,6 +286,71 @@
             font-weight: 700;
             color: #1e3a8a;
         }
+        .season-track {
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(27, 26, 23, 0.1);
+            overflow: hidden;
+        }
+        .season-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #ffe5a5, #ff8aa1);
+            transition: width 0.4s ease;
+        }
+        .fx-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, rgba(255, 222, 148, 0.6), rgba(0, 0, 0, 0.8));
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 60;
+        }
+        .fx-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .fx-card {
+            text-align: center;
+            padding: 24px 32px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            animation: fxPop 0.6s ease;
+        }
+        .fx-title {
+            font-family: "Bebas Neue", "Space Grotesk", sans-serif;
+            font-size: 44px;
+            letter-spacing: 2px;
+            color: #9a3412;
+        }
+        .fx-sub {
+            font-size: 14px;
+            color: #4b5563;
+            margin-top: 6px;
+        }
+        .fx-burst {
+            position: absolute;
+            inset: -120px;
+            background: repeating-conic-gradient(from 0deg, rgba(255, 214, 102, 0.7) 0 8deg, transparent 8deg 16deg);
+            opacity: 0.5;
+            animation: burstSpin 2s linear infinite;
+        }
+        .fx-hidden {
+            display: none;
+        }
+        @keyframes fxPop {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes burstSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
         @keyframes spark {
             0% { opacity: 0; transform: scale(0.9); }
             30% { opacity: 1; }
@@ -545,6 +610,9 @@
                     <div class="text-lg font-bold" id="seasonWinRate">0%</div>
                 </div>
             </div>
+            <div class="season-track mt-4">
+                <div class="season-fill" id="seasonFill"></div>
+            </div>
         </div>
 
         <!-- Surprise Chest -->
@@ -559,6 +627,30 @@
         <div class="glass rounded-2xl p-6 mb-6">
             <h3 class="text-xl font-semibold mb-4">🏆 本地排行榜</h3>
             <div id="leaderboardList" class="text-sm text-slate-600"></div>
+        </div>
+
+        <div id="bossOverlay" class="fx-overlay fx-hidden">
+            <div class="fx-burst"></div>
+            <div class="fx-card">
+                <div class="fx-title" id="bossOverlayTitle">BOSS READY</div>
+                <div class="fx-sub" id="bossOverlaySub">挑战开启</div>
+            </div>
+        </div>
+
+        <div id="seasonOverlay" class="fx-overlay fx-hidden">
+            <div class="fx-burst"></div>
+            <div class="fx-card">
+                <div class="fx-title" id="seasonOverlayTitle">SEASON UP</div>
+                <div class="fx-sub" id="seasonOverlaySub">等级提升</div>
+            </div>
+        </div>
+
+        <div id="chestOverlay" class="fx-overlay fx-hidden">
+            <div class="fx-burst"></div>
+            <div class="fx-card">
+                <div class="fx-title" id="chestOverlayTitle">CHEST OPEN</div>
+                <div class="fx-sub" id="chestOverlaySub">宝箱已开启</div>
+            </div>
         </div>
 
         <!-- Lightweight Stats -->
@@ -1535,6 +1627,27 @@
                 }, 1000);
             }
 
+            showOverlay(id, title, sub) {
+                const overlay = document.getElementById(id);
+                if (!overlay) return;
+                const titleNode = overlay.querySelector('.fx-title');
+                const subNode = overlay.querySelector('.fx-sub');
+                if (titleNode) titleNode.textContent = title;
+                if (subNode) subNode.textContent = sub;
+                overlay.classList.remove('fx-hidden');
+                void overlay.offsetHeight;
+                overlay.classList.add('show');
+                this.initAudio();
+                this.playTone(520, 0.12, 'square', 0.06);
+                this.playTone(760, 0.18, 'triangle', 0.05);
+                setTimeout(() => {
+                    overlay.classList.remove('show');
+                }, 1200);
+                setTimeout(() => {
+                    overlay.classList.add('fx-hidden');
+                }, 1600);
+            }
+
             loadLocalGame() {
                 if (!this.state.wallet?.address) return;
                 const raw = localStorage.getItem(`mao_local_${this.state.wallet.address}`);
@@ -1634,12 +1747,17 @@
                         this.notify('每日任务奖励已领取', 'success');
                         this.flashCard('taskCard', 'success');
                     }
+                    if (this.prevLocalSnapshot.seasonRank && this.currentSeasonRank && this.prevLocalSnapshot.seasonRank !== this.currentSeasonRank) {
+                        this.showOverlay('seasonOverlay', `SEASON ${this.currentSeasonRank.toUpperCase()}`, '赛季等级提升');
+                        this.notify(`赛季升级：${this.currentSeasonRank}`, 'success');
+                    }
                 }
                 this.prevLocalSnapshot = {
                     streak: this.localGame.streak,
                     bossReady: this.localGame.bossReady,
                     charmCharges: this.localGame.charmCharges,
-                    dailyClaimed: this.localGame.daily.claimed
+                    dailyClaimed: this.localGame.daily.claimed,
+                    seasonRank: this.currentSeasonRank || 'Bronze'
                 };
             }
 
@@ -1667,6 +1785,7 @@
                         this.localGame.bossActive = false;
                         this.localGame.bossReady = false;
                         this.localGame.lastBossWin = true;
+                        this.showOverlay('bossOverlay', 'BOSS DEFEATED', '奖励加成已到账');
                     }
                     this.localGame.chips += gained;
                     this.pendingChips = gained;
@@ -1801,6 +1920,7 @@
                 const points = document.getElementById('seasonPoints');
                 const rank = document.getElementById('seasonRank');
                 const rate = document.getElementById('seasonWinRate');
+                const fill = document.getElementById('seasonFill');
                 if (!points || !rank || !rate) return;
                 points.textContent = this.localGame.season.points;
                 const ranks = [
@@ -1812,8 +1932,16 @@
                 ];
                 const current = ranks.slice().reverse().find((item) => this.localGame.season.points >= item.min) || ranks[0];
                 rank.textContent = current.name;
+                this.currentSeasonRank = current.name;
                 const winRate = this.localGame.season.plays ? Math.round((this.localGame.season.wins / this.localGame.season.plays) * 100) : 0;
                 rate.textContent = `${winRate}%`;
+                if (fill) {
+                    const nextIndex = Math.min(ranks.findIndex((item) => item.name === current.name) + 1, ranks.length - 1);
+                    const next = ranks[nextIndex];
+                    const span = next.min - current.min || 1;
+                    const progress = Math.min((this.localGame.season.points - current.min) / span, 1);
+                    fill.style.width = `${Math.round(progress * 100)}%`;
+                }
             }
 
             getAchievementList() {
@@ -1898,6 +2026,7 @@
                 if (hint) hint.textContent = 'Boss 模式已开启！';
                 this.flashCard('bossCard', 'success');
                 this.notify('Boss 房开启，下一局赢取额外筹码', 'success');
+                this.showOverlay('bossOverlay', 'BOSS READY', '挑战开启');
             }
 
             buyCharm() {
@@ -1933,9 +2062,11 @@
                     const reward = 100 + Math.floor(Math.random() * 120);
                     this.localGame.chips += reward;
                     if (hint) hint.textContent = `🎉 获得 ${reward} 筹码`;
+                    this.showOverlay('chestOverlay', 'CHEST OPEN', `获得 ${reward} 筹码`);
                 } else {
                     this.localGame.charmCharges += 3;
                     if (hint) hint.textContent = '✨ 获得 3 局幸运符';
+                    this.showOverlay('chestOverlay', 'CHEST OPEN', '获得 3 局幸运符');
                 }
                 this.saveLocalGame();
                 this.updateLocalGameUI();
