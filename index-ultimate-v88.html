@@ -25,9 +25,34 @@
                 radial-gradient(1200px 800px at 10% 10%, #fff6d5 0%, transparent 55%),
                 radial-gradient(900px 600px at 90% 20%, #dff6f1 0%, transparent 60%),
                 linear-gradient(140deg, #f7f2e8 0%, #f0e0c9 45%, #e6f1ff 100%);
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.6), transparent 60%),
+                radial-gradient(2px 2px at 70% 10%, rgba(255, 255, 255, 0.45), transparent 60%),
+                radial-gradient(2px 2px at 40% 70%, rgba(255, 255, 255, 0.35), transparent 60%),
+                repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.04) 0 2px, transparent 2px 6px);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(800px 400px at 50% 0%, rgba(255, 209, 102, 0.18), transparent 60%);
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: 0;
         }
         .container {
             max-width: 1200px;
+            position: relative;
+            z-index: 1;
         }
         .glass {
             background: rgba(255, 255, 255, 0.75);
@@ -58,7 +83,34 @@
             );
             transition: transform 4s ease;
             position: relative;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18), inset 0 0 0 10px rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18), inset 0 0 0 12px rgba(255, 255, 255, 0.6);
+            overflow: visible;
+        }
+        .wheel::before {
+            content: "";
+            position: absolute;
+            inset: -12px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #fff2cc, #ffd166, #ffe9b0, #ffc857, #fff2cc);
+            box-shadow: inset 0 0 30px rgba(255, 214, 102, 0.45);
+            z-index: -1;
+        }
+        .wheel::after {
+            content: "";
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            background: repeating-conic-gradient(rgba(255, 255, 255, 0.8) 0 6deg, rgba(255, 214, 102, 0.3) 6deg 12deg);
+            mix-blend-mode: soft-light;
+            opacity: 0.4;
+        }
+        .wheel.spinning {
+            filter: drop-shadow(0 0 18px rgba(255, 209, 102, 0.5));
+        }
+        .wheel-core {
+            background: radial-gradient(circle at 30% 30%, #ffffff, #f2d7a1 60%, #d2a564 100%);
+            border: 2px solid rgba(255, 214, 102, 0.7);
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.2), 0 10px 20px rgba(0, 0, 0, 0.2);
         }
         .spinning { animation: spin 4s ease; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(1800deg); } }
@@ -102,6 +154,31 @@
         .game-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 18px 30px rgba(232, 111, 62, 0.35);
+        }
+        .hud-row {
+            display: grid;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .hud-meter {
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(241, 196, 15, 0.3);
+            overflow: hidden;
+        }
+        .hud-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, rgba(255, 209, 102, 0.9), rgba(232, 111, 62, 0.9));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .hud-fill.cool {
+            background: linear-gradient(90deg, rgba(120, 220, 255, 0.9), rgba(46, 125, 215, 0.9));
+        }
+        .hud-fill.safe {
+            background: linear-gradient(90deg, rgba(120, 255, 200, 0.9), rgba(27, 184, 166, 0.9));
         }
         .loading { width: 20px; height: 20px; border: 2px solid #fff; border-top: 2px solid #f59e0b; border-radius: 50%; animation: rotate 1s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -1036,7 +1113,7 @@
                         <div class="relative casino-frame">
                             <div class="wheel" id="wheel">
                                 <div class="absolute inset-0 flex items-center justify-center">
-                                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                    <div class="w-16 h-16 wheel-core rounded-full flex items-center justify-center shadow-lg">
                                         <span class="text-2xl">🎯</span>
                                     </div>
                                 </div>
@@ -1554,6 +1631,10 @@
                 </div>
                 <div class="text-sm text-slate-600"><span data-i18n="heist_loot">劫获值</span>: <span id="heistLoot">0</span> | <span data-i18n="heist_heat">警报</span>: <span id="heistHeat">20</span></div>
                 <div class="text-sm text-slate-600"><span data-i18n="heist_step">阶段</span>: <span id="heistStep">0</span>/5</div>
+                <div class="hud-row">
+                    <div class="hud-meter"><div id="heistHeatBar" class="hud-fill"></div></div>
+                    <div class="hud-meter"><div id="heistLootBar" class="hud-fill safe"></div></div>
+                </div>
                 <div class="grid grid-cols-2 gap-3 mt-3">
                     <button class="game-btn" id="heistStart" data-i18n="heist_start">开始潜入</button>
                     <button class="game-btn" id="heistMove" data-i18n="heist_move">潜入一步</button>
@@ -1576,6 +1657,10 @@
                 </div>
                 <div class="text-sm text-slate-600"><span data-i18n="duel_player">玩家</span>: <span id="duelPlayerHp">100</span> | <span data-i18n="duel_boss">王座</span>: <span id="duelBossHp">100</span></div>
                 <div class="text-sm text-slate-600"><span data-i18n="duel_round">回合</span>: <span id="duelRound">1</span>/5</div>
+                <div class="hud-row">
+                    <div class="hud-meter"><div id="duelPlayerBar" class="hud-fill safe"></div></div>
+                    <div class="hud-meter"><div id="duelBossBar" class="hud-fill"></div></div>
+                </div>
                 <div class="grid grid-cols-2 gap-3 mt-3">
                     <button class="game-btn" id="duelStart" data-i18n="duel_start">开始对决</button>
                     <button class="game-btn" id="duelAttack" data-i18n="duel_attack">发动攻击</button>
@@ -1598,6 +1683,10 @@
                 </div>
                 <div class="text-sm text-slate-600"><span data-i18n="train_station">站点</span>: <span id="trainStation">1</span>/6</div>
                 <div class="text-sm text-slate-600"><span data-i18n="train_fuel">能量</span>: <span id="trainFuel">100</span> | <span data-i18n="train_bonus">增幅</span>: <span id="trainBonus">0</span></div>
+                <div class="hud-row">
+                    <div class="hud-meter"><div id="trainFuelBar" class="hud-fill cool"></div></div>
+                    <div class="hud-meter"><div id="trainBonusBar" class="hud-fill safe"></div></div>
+                </div>
                 <div class="grid grid-cols-2 gap-3 mt-3">
                     <button class="game-btn" id="trainStart" data-i18n="train_start">启动列车</button>
                     <button class="game-btn" id="trainAdvance" data-i18n="train_advance">前往下一站</button>
@@ -4710,11 +4799,15 @@
                 const step = document.getElementById('heistStep');
                 const moveBtn = document.getElementById('heistMove');
                 const settleBtn = document.getElementById('heistSettle');
+                const heatBar = document.getElementById('heistHeatBar');
+                const lootBar = document.getElementById('heistLootBar');
                 if (loot) loot.textContent = heist.loot;
                 if (heat) heat.textContent = heist.heat;
                 if (step) step.textContent = heist.step;
                 if (moveBtn) moveBtn.disabled = !heist.running || heist.ready;
                 if (settleBtn) settleBtn.disabled = !heist.ready;
+                if (heatBar) heatBar.style.width = `${Math.min(heist.heat, 100)}%`;
+                if (lootBar) lootBar.style.width = `${Math.min((heist.loot / 180) * 100, 100)}%`;
             }
 
             updateDuelUI() {
@@ -4724,11 +4817,15 @@
                 const round = document.getElementById('duelRound');
                 const attackBtn = document.getElementById('duelAttack');
                 const settleBtn = document.getElementById('duelSettle');
+                const playerBar = document.getElementById('duelPlayerBar');
+                const bossBar = document.getElementById('duelBossBar');
                 if (player) player.textContent = duel.playerHp;
                 if (boss) boss.textContent = duel.bossHp;
                 if (round) round.textContent = Math.min(duel.round, 5);
                 if (attackBtn) attackBtn.disabled = !duel.running || duel.ready;
                 if (settleBtn) settleBtn.disabled = !duel.ready;
+                if (playerBar) playerBar.style.width = `${Math.max(0, duel.playerHp)}%`;
+                if (bossBar) bossBar.style.width = `${Math.max(0, duel.bossHp)}%`;
             }
 
             updateTrainUI() {
@@ -4738,11 +4835,15 @@
                 const bonus = document.getElementById('trainBonus');
                 const advanceBtn = document.getElementById('trainAdvance');
                 const settleBtn = document.getElementById('trainSettle');
+                const fuelBar = document.getElementById('trainFuelBar');
+                const bonusBar = document.getElementById('trainBonusBar');
                 if (station) station.textContent = Math.min(train.station, 6);
                 if (fuel) fuel.textContent = train.fuel;
                 if (bonus) bonus.textContent = train.bonus;
                 if (advanceBtn) advanceBtn.disabled = !train.running || train.ready;
                 if (settleBtn) settleBtn.disabled = !train.ready;
+                if (fuelBar) fuelBar.style.width = `${Math.min(train.fuel, 100)}%`;
+                if (bonusBar) bonusBar.style.width = `${Math.min((train.bonus / 25) * 100, 100)}%`;
             }
 
             updateSprintBoard(latestScore) {
