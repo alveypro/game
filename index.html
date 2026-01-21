@@ -618,7 +618,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 46px;
+            font-size: clamp(40px, 7vw, 56px);
             height: 90px;
             perspective: 800px;
         }
@@ -634,13 +634,13 @@
             display: flex;
             gap: 12px;
             justify-content: center;
-            font-size: 26px;
-            height: 80px;
+            font-size: clamp(22px, 4vw, 32px);
+            height: 96px;
             align-items: center;
         }
         .flip-stage .flip-card {
-            width: 64px;
-            height: 72px;
+            width: clamp(72px, 18vw, 110px);
+            height: clamp(86px, 20vw, 130px);
         }
         .dungeon-stage {
             height: 80px;
@@ -846,12 +846,12 @@
             gap: 10px;
         }
         .flip-card {
-            padding: 12px;
+            padding: 14px;
             border-radius: 14px;
             background: rgba(27, 26, 23, 0.08);
-            font-size: 20px;
+            font-size: clamp(18px, 4vw, 26px);
             text-align: center;
-            height: 60px;
+            height: clamp(70px, 16vw, 100px);
             perspective: 600px;
             transform-style: preserve-3d;
         }
@@ -867,7 +867,7 @@
             background: rgba(27, 26, 23, 0.08);
             border-radius: 14px;
             padding: 16px;
-            font-size: 28px;
+            font-size: clamp(24px, 5vw, 34px);
             text-align: center;
             transform-style: preserve-3d;
         }
@@ -4267,7 +4267,9 @@
                 stage.classList.add('dice-rolling');
                 stage.classList.add('stage-running');
                 this.diceTimer = setInterval(() => {
-                    result.textContent = `${faces[idx % faces.length]} ${this.lang === 'en' ? 'Rolling...' : '掷骰中...'}`;
+                    const face = faces[idx % faces.length];
+                    stage.textContent = face;
+                    result.textContent = `${face} ${this.lang === 'en' ? 'Rolling...' : '掷骰中...'}`;
                     idx += 1;
                 }, 120);
             }
@@ -4308,8 +4310,14 @@
                         if (choice === 'mid') roll = 2;
                         if (choice === 'high') roll = 1;
                     }
+                    const faces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                    const face = faces[Math.max(1, Math.min(6, roll)) - 1];
                     const resultNode = document.getElementById('diceResult');
-                    if (resultNode) resultNode.textContent = this.lang === 'en' ? `🎲 Roll: ${roll}` : `🎲 点数：${roll}`;
+                    const stage = document.getElementById('diceStage');
+                    if (stage) stage.textContent = face;
+                    if (resultNode) resultNode.textContent = this.lang === 'en'
+                        ? `${face} Roll: ${roll}`
+                        : `${face} 点数：${roll}`;
                     const hint = document.getElementById('diceHint');
                     if (hint) hint.textContent = win
                         ? (this.lang === 'en' ? '✅ Hit! Reward sent' : '✅ 命中，链上奖励已发放')
