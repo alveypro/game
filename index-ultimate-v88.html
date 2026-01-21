@@ -1755,6 +1755,7 @@
                 this.activeMiniGame = null;
                 this.diceTimer = null;
                 this.slotTimer = null;
+                this.confirmTimer = null;
                 this.lang = localStorage.getItem('mao_lang') || 'zh';
                 this.i18n = {
                     zh: {
@@ -2317,6 +2318,7 @@
                     this.updateBurnedTotal();
                 }, 2000);
 
+                this.stopConfirmingStatus();
                 if (this.activeMiniGame) {
                     this.applyMiniResult(result);
                     this.activeMiniGame = null;
@@ -2797,7 +2799,8 @@
                     }, 3, "区块链游戏");
 
                     this.setStatus('真实区块链确认中...请耐心等待', 'loading');
-                    const receipt = await gameTx.wait(10);
+                    this.startConfirmingStatus();
+                    const receipt = await gameTx.wait(1);
 
                     let result = null;
                     
@@ -2853,13 +2856,15 @@
                         this.setStatus('游戏已完成，但解析结果时遇到网络延迟。请查看钱包余额变化。', 'warning');
                     }
 
+                    this.stopConfirmingStatus();
                     setTimeout(() => {
                         this.showResult(result, gameTx.hash);
                         this.loadStats();
-                    }, 2000);
+                    }, 800);
 
                 } catch (error) {
                     console.error('真实区块链游戏错误:', error);
+                    this.stopConfirmingStatus();
                     
                     let errorMsg = error.message;
                     
@@ -3190,6 +3195,24 @@
                 this.toastTimer = setTimeout(() => {
                     toast.classList.remove('show');
                 }, 2400);
+            }
+
+            startConfirmingStatus() {
+                const base = this.t('spin_loading');
+                let dots = 0;
+                if (this.confirmTimer) clearInterval(this.confirmTimer);
+                this.confirmTimer = setInterval(() => {
+                    dots = (dots + 1) % 4;
+                    const suffix = '.'.repeat(dots);
+                    this.setStatus(`${base}${suffix}`, 'loading');
+                }, 600);
+            }
+
+            stopConfirmingStatus() {
+                if (this.confirmTimer) {
+                    clearInterval(this.confirmTimer);
+                    this.confirmTimer = null;
+                }
             }
 
             flashCard(cardId, type = 'info') {
