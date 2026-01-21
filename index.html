@@ -438,6 +438,9 @@
         .game-card[data-game="dungeon"] .vegas-hero { background: linear-gradient(120deg, rgba(83, 15, 27, 0.55), rgba(22, 6, 8, 0.7)); }
         .game-card[data-game="slot"] .vegas-hero { background: linear-gradient(120deg, rgba(96, 51, 5, 0.55), rgba(28, 14, 4, 0.7)); }
         .game-card[data-game="sprint"] .vegas-hero { background: linear-gradient(120deg, rgba(18, 69, 112, 0.6), rgba(8, 18, 30, 0.75)); }
+        .game-card[data-game="heist"] .vegas-hero { background: linear-gradient(120deg, rgba(38, 108, 94, 0.6), rgba(10, 24, 20, 0.75)); }
+        .game-card[data-game="duel"] .vegas-hero { background: linear-gradient(120deg, rgba(120, 36, 45, 0.6), rgba(30, 8, 12, 0.78)); }
+        .game-card[data-game="train"] .vegas-hero { background: linear-gradient(120deg, rgba(32, 82, 140, 0.6), rgba(8, 18, 36, 0.78)); }
         .vegas-modal {
             background: radial-gradient(circle at top, rgba(255, 226, 167, 0.35), transparent 55%),
                 linear-gradient(160deg, rgba(65, 28, 10, 0.95), rgba(12, 6, 2, 0.98));
@@ -618,6 +621,83 @@
         }
         .arena-stage.running {
             animation: stagePulse 1.2s ease-in-out infinite;
+        }
+        .heist-stage {
+            height: 110px;
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(12, 24, 20, 0.9), rgba(24, 70, 58, 0.6));
+        }
+        .heist-grid {
+            position: absolute;
+            inset: 10px;
+            border-radius: 12px;
+            border: 1px dashed rgba(80, 220, 180, 0.4);
+        }
+        .heist-laser {
+            position: absolute;
+            top: 18px;
+            left: -30%;
+            width: 160%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(80, 220, 180, 0.9), transparent);
+            opacity: 0.8;
+        }
+        .heist-stage.running .heist-laser {
+            animation: heistScan 1.4s linear infinite;
+        }
+        @keyframes heistScan {
+            0% { transform: translateY(0); opacity: 0.2; }
+            50% { transform: translateY(28px); opacity: 0.9; }
+            100% { transform: translateY(58px); opacity: 0.2; }
+        }
+        .duel-stage {
+            height: 110px;
+            border-radius: 14px;
+            position: relative;
+            background: linear-gradient(135deg, rgba(40, 10, 12, 0.95), rgba(110, 30, 40, 0.6));
+            overflow: hidden;
+        }
+        .duel-silhouette {
+            position: absolute;
+            bottom: 8px;
+            font-size: 30px;
+        }
+        .duel-silhouette.left { left: 14px; }
+        .duel-silhouette.right { right: 14px; }
+        .duel-stage.running .duel-silhouette {
+            animation: duelShake 0.6s ease-in-out infinite;
+        }
+        @keyframes duelShake {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .train-stage {
+            height: 110px;
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(6, 18, 36, 0.98), rgba(30, 78, 140, 0.6));
+        }
+        .train-track {
+            position: absolute;
+            inset: 12px;
+            border-radius: 12px;
+            border: 1px dashed rgba(90, 180, 255, 0.5);
+        }
+        .train-engine {
+            position: absolute;
+            bottom: 14px;
+            left: 16px;
+            font-size: 28px;
+        }
+        .train-stage.running .train-engine {
+            animation: trainRide 1.2s ease-in-out infinite;
+        }
+        @keyframes trainRide {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(120px); }
         }
         .game-card.large {
             grid-column: span 1;
@@ -1118,6 +1198,54 @@
                     <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
                     <button class="game-btn" data-open="arenaModal" data-i18n="btn_enter">进入</button>
                 </div>
+                <div class="game-card vegas-card" data-game="heist">
+                    <div class="game-card-header">
+                        <div>
+                            <div class="game-card-title" data-i18n="game_heist_title">霓虹劫案</div>
+                            <div class="game-card-desc" data-i18n="game_heist_desc">多阶段潜入，压住警报。</div>
+                        </div>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🕶️</span>
+                        <span>💼</span>
+                        <span>🔒</span>
+                    </div>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="heistModal" data-i18n="btn_enter">进入</button>
+                </div>
+                <div class="game-card vegas-card" data-game="duel">
+                    <div class="game-card-header">
+                        <div>
+                            <div class="game-card-title" data-i18n="game_duel_title">皇室对决</div>
+                            <div class="game-card-desc" data-i18n="game_duel_desc">回合对抗，终局结算。</div>
+                        </div>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>👑</span>
+                        <span>⚔️</span>
+                        <span>🛡️</span>
+                    </div>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="duelModal" data-i18n="btn_enter">进入</button>
+                </div>
+                <div class="game-card vegas-card" data-game="train">
+                    <div class="game-card-header">
+                        <div>
+                            <div class="game-card-title" data-i18n="game_train_title">时空列车</div>
+                            <div class="game-card-desc" data-i18n="game_train_desc">多站推进，集结奖励。</div>
+                        </div>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🚄</span>
+                        <span>🛰️</span>
+                        <span>✨</span>
+                    </div>
+                    <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
+                    <button class="game-btn" data-open="trainModal" data-i18n="btn_enter">进入</button>
+                </div>
             </div>
         </div>
         
@@ -1414,6 +1542,72 @@
             </div>
         </div>
 
+        <div id="heistModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
+            <div class="game-modal vegas-modal" data-game="heist">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold" data-i18n="game_heist_title">霓虹劫案</h3>
+                    <button class="modal-close" data-close="heistModal" data-i18n="btn_close">关闭</button>
+                </div>
+                <div class="vegas-stage heist-stage mb-4" id="heistStage">
+                    <div class="heist-grid"></div>
+                    <div class="heist-laser"></div>
+                </div>
+                <div class="text-sm text-slate-600"><span data-i18n="heist_loot">劫获值</span>: <span id="heistLoot">0</span> | <span data-i18n="heist_heat">警报</span>: <span id="heistHeat">20</span></div>
+                <div class="text-sm text-slate-600"><span data-i18n="heist_step">阶段</span>: <span id="heistStep">0</span>/5</div>
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                    <button class="game-btn" id="heistStart" data-i18n="heist_start">开始潜入</button>
+                    <button class="game-btn" id="heistMove" data-i18n="heist_move">潜入一步</button>
+                </div>
+                <button class="game-btn mt-3 w-full" id="heistSettle" data-i18n="heist_settle">链上结算</button>
+                <div id="heistAchievements" class="text-xs text-slate-500 mt-2"></div>
+                <div id="heistHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
+        <div id="duelModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
+            <div class="game-modal vegas-modal" data-game="duel">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold" data-i18n="game_duel_title">皇室对决</h3>
+                    <button class="modal-close" data-close="duelModal" data-i18n="btn_close">关闭</button>
+                </div>
+                <div class="vegas-stage duel-stage mb-4" id="duelStage">
+                    <span class="duel-silhouette left">🧍</span>
+                    <span class="duel-silhouette right">👑</span>
+                </div>
+                <div class="text-sm text-slate-600"><span data-i18n="duel_player">玩家</span>: <span id="duelPlayerHp">100</span> | <span data-i18n="duel_boss">王座</span>: <span id="duelBossHp">100</span></div>
+                <div class="text-sm text-slate-600"><span data-i18n="duel_round">回合</span>: <span id="duelRound">1</span>/5</div>
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                    <button class="game-btn" id="duelStart" data-i18n="duel_start">开始对决</button>
+                    <button class="game-btn" id="duelAttack" data-i18n="duel_attack">发动攻击</button>
+                </div>
+                <button class="game-btn mt-3 w-full" id="duelSettle" data-i18n="duel_settle">链上结算</button>
+                <div id="duelAchievements" class="text-xs text-slate-500 mt-2"></div>
+                <div id="duelHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
+        <div id="trainModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden game-overlay">
+            <div class="game-modal vegas-modal" data-game="train">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold" data-i18n="game_train_title">时空列车</h3>
+                    <button class="modal-close" data-close="trainModal" data-i18n="btn_close">关闭</button>
+                </div>
+                <div class="vegas-stage train-stage mb-4" id="trainStage">
+                    <div class="train-track"></div>
+                    <div class="train-engine">🚄</div>
+                </div>
+                <div class="text-sm text-slate-600"><span data-i18n="train_station">站点</span>: <span id="trainStation">1</span>/6</div>
+                <div class="text-sm text-slate-600"><span data-i18n="train_fuel">能量</span>: <span id="trainFuel">100</span> | <span data-i18n="train_bonus">增幅</span>: <span id="trainBonus">0</span></div>
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                    <button class="game-btn" id="trainStart" data-i18n="train_start">启动列车</button>
+                    <button class="game-btn" id="trainAdvance" data-i18n="train_advance">前往下一站</button>
+                </div>
+                <button class="game-btn mt-3 w-full" id="trainSettle" data-i18n="train_settle">链上结算</button>
+                <div id="trainAchievements" class="text-xs text-slate-500 mt-2"></div>
+                <div id="trainHint" class="text-xs text-slate-500 mt-2"></div>
+            </div>
+        </div>
+
         <div id="particleRain" class="particle-rain"></div>
 
         <div id="bossOverlay" class="fx-overlay fx-hidden">
@@ -1540,6 +1734,9 @@
                         tower: { level: 1, best: 1 },
                         chain: { streak: 0, ready: false },
                         arena: { points: 0, rank: 'Rookie', best: 0 },
+                        heist: { step: 0, loot: 0, heat: 20, ready: false, running: false },
+                        duel: { round: 1, playerHp: 100, bossHp: 100, ready: false, running: false },
+                        train: { station: 1, fuel: 100, bonus: 0, ready: false, running: false },
                         stats: { plays: {}, wins: {} }
                     },
                     dailyMini: { date: null, plays: 0, wins: 0, sprint50: false, claimed: false, supplyClaimed: false },
@@ -1626,6 +1823,12 @@
                         game_chain_desc: '中奖触发连锁，再开一局。',
                         game_arena_title: '王者赌桌',
                         game_arena_desc: '胜利加分，升级段位。',
+                        game_heist_title: '霓虹劫案',
+                        game_heist_desc: '多阶段潜入，压住警报。',
+                        game_duel_title: '皇室对决',
+                        game_duel_desc: '回合对抗，终局结算。',
+                        game_train_title: '时空列车',
+                        game_train_desc: '多站推进，集结奖励。',
                         btn_enter: '进入',
                         odds_title: '🎯 中奖概率一览（MAO）',
                         odds_lose: '未中奖',
@@ -1699,6 +1902,24 @@
                         arena_points: '赌桌积分',
                         arena_rank: '段位',
                         arena_play: '挑战赌桌',
+                        heist_loot: '劫获值',
+                        heist_heat: '警报',
+                        heist_step: '阶段',
+                        heist_start: '开始潜入',
+                        heist_move: '潜入一步',
+                        heist_settle: '链上结算',
+                        duel_player: '玩家',
+                        duel_boss: '王座',
+                        duel_round: '回合',
+                        duel_start: '开始对决',
+                        duel_attack: '发动攻击',
+                        duel_settle: '链上结算',
+                        train_station: '站点',
+                        train_fuel: '能量',
+                        train_bonus: '增幅',
+                        train_start: '启动列车',
+                        train_advance: '前往下一站',
+                        train_settle: '链上结算',
                         mini_chain: '链上开奖中...',
                         mini_supply_hint: '今日补给：+100 筹码',
                         mini_supply_claimed: '今日补给已领取',
@@ -1773,6 +1994,12 @@
                         game_chain_desc: 'Win triggers a chain streak.',
                         game_arena_title: 'King Table',
                         game_arena_desc: 'Win points to rank up.',
+                        game_heist_title: 'Neon Heist',
+                        game_heist_desc: 'Multi-stage stealth, keep heat low.',
+                        game_duel_title: 'Royal Duel',
+                        game_duel_desc: 'Round-based clash with final settle.',
+                        game_train_title: 'Time Train',
+                        game_train_desc: 'Advance stations, collect boosts.',
                         btn_enter: 'Enter',
                         odds_title: '🎯 Win Odds (MAO)',
                         odds_lose: 'No Win',
@@ -1846,6 +2073,24 @@
                         arena_points: 'Table Points',
                         arena_rank: 'Rank',
                         arena_play: 'Challenge Table',
+                        heist_loot: 'Loot',
+                        heist_heat: 'Heat',
+                        heist_step: 'Phase',
+                        heist_start: 'Start Heist',
+                        heist_move: 'Sneak Step',
+                        heist_settle: 'Settle On-chain',
+                        duel_player: 'Player',
+                        duel_boss: 'Crown',
+                        duel_round: 'Round',
+                        duel_start: 'Start Duel',
+                        duel_attack: 'Attack',
+                        duel_settle: 'Settle On-chain',
+                        train_station: 'Station',
+                        train_fuel: 'Fuel',
+                        train_bonus: 'Boost',
+                        train_start: 'Start Train',
+                        train_advance: 'Next Station',
+                        train_settle: 'Settle On-chain',
                         mini_chain: 'On-chain draw...',
                         mini_supply_hint: 'Daily Supply: +100 chips',
                         mini_supply_claimed: 'Daily supply claimed',
@@ -2044,7 +2289,10 @@
                         sprint: { zh: '竞速冲榜', en: 'Sprint Ranking' },
                         tower: { zh: '无限爬塔', en: 'Infinite Tower' },
                         chain: { zh: '连锁爆奖', en: 'Chain Jackpot' },
-                        arena: { zh: '王者赌桌', en: 'King Table' }
+                        arena: { zh: '王者赌桌', en: 'King Table' },
+                        heist: { zh: '霓虹劫案', en: 'Neon Heist' },
+                        duel: { zh: '皇室对决', en: 'Royal Duel' },
+                        train: { zh: '时空列车', en: 'Time Train' }
                     };
                     const entry = nameMap[this.activeMiniGame.id] || { zh: '小游戏', en: 'Mini Game' };
                     const name = this.lang === 'en' ? entry.en : entry.zh;
@@ -2663,6 +2911,9 @@
                     this.stopTowerAnimation();
                     this.stopChainAnimation();
                     this.stopArenaAnimation();
+                    this.stopHeistAnimation();
+                    this.stopDuelAnimation();
+                    this.stopTrainAnimation();
                     this.updateUI(false);
                 }
             }
@@ -2794,6 +3045,15 @@
                 document.getElementById('chainPlay')?.addEventListener('click', () => this.playChain('start'));
                 document.getElementById('chainAgain')?.addEventListener('click', () => this.playChain('again'));
                 document.getElementById('arenaPlay')?.addEventListener('click', () => this.playArena());
+                document.getElementById('heistStart')?.addEventListener('click', () => this.startHeist());
+                document.getElementById('heistMove')?.addEventListener('click', () => this.heistMove());
+                document.getElementById('heistSettle')?.addEventListener('click', () => this.settleHeist());
+                document.getElementById('duelStart')?.addEventListener('click', () => this.startDuel());
+                document.getElementById('duelAttack')?.addEventListener('click', () => this.duelAttack());
+                document.getElementById('duelSettle')?.addEventListener('click', () => this.settleDuel());
+                document.getElementById('trainStart')?.addEventListener('click', () => this.startTrain());
+                document.getElementById('trainAdvance')?.addEventListener('click', () => this.trainAdvance());
+                document.getElementById('trainSettle')?.addEventListener('click', () => this.settleTrain());
 
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
@@ -3000,6 +3260,9 @@
                 if (id === 'towerModal') this.updateTowerUI();
                 if (id === 'chainModal') this.updateChainUI();
                 if (id === 'arenaModal') this.updateArenaUI();
+                if (id === 'heistModal') this.updateHeistUI();
+                if (id === 'duelModal') this.updateDuelUI();
+                if (id === 'trainModal') this.updateTrainUI();
             }
 
             closeGameModal(id) {
@@ -3014,6 +3277,9 @@
                 this.stopTowerAnimation();
                 this.stopChainAnimation();
                 this.stopArenaAnimation();
+                this.stopHeistAnimation();
+                this.stopDuelAnimation();
+                this.stopTrainAnimation();
             }
 
             spendChips(cost, hintId) {
@@ -3036,6 +3302,9 @@
                 this.updateTowerUI();
                 this.updateChainUI();
                 this.updateArenaUI();
+                this.updateHeistUI();
+                this.updateDuelUI();
+                this.updateTrainUI();
                 this.updateMiniTasksUI();
                 this.updateFeaturedGame();
                 this.updateMiniAchievementsUI();
@@ -3089,6 +3358,27 @@
                                     rank: data.mini?.arena?.rank || 'Rookie',
                                     best: data.mini?.arena?.best || 0
                                 },
+                                heist: {
+                                    step: data.mini?.heist?.step || 0,
+                                    loot: data.mini?.heist?.loot || 0,
+                                    heat: data.mini?.heist?.heat || 20,
+                                    ready: data.mini?.heist?.ready || false,
+                                    running: data.mini?.heist?.running || false
+                                },
+                                duel: {
+                                    round: data.mini?.duel?.round || 1,
+                                    playerHp: data.mini?.duel?.playerHp || 100,
+                                    bossHp: data.mini?.duel?.bossHp || 100,
+                                    ready: data.mini?.duel?.ready || false,
+                                    running: data.mini?.duel?.running || false
+                                },
+                                train: {
+                                    station: data.mini?.train?.station || 1,
+                                    fuel: data.mini?.train?.fuel || 100,
+                                    bonus: data.mini?.train?.bonus || 0,
+                                    ready: data.mini?.train?.ready || false,
+                                    running: data.mini?.train?.running || false
+                                },
                                 stats: data.mini?.stats || { plays: {}, wins: {} }
                             },
                             dailyMini: data.dailyMini || { date: null, plays: 0, wins: 0, sprint50: false, claimed: false, supplyClaimed: false },
@@ -3101,7 +3391,7 @@
                             }
                         };
                     } catch (e) {
-                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, totalPlays: 0, totalWins: 0, mapLevel: 1, mapProgress: 0, achievements: {}, lastDoubleWin: false, lastBossWin: false, season: { month: null, points: 0, plays: 0, wins: 0, rewardsClaimed: [] }, mini: { flip: { cards: [], picks: [], costPaid: false }, dungeonStage: 1, sprint: { active: false, endsAt: 0, score: 0, best: 0 }, tower: { level: 1, best: 1 }, chain: { streak: 0, ready: false }, arena: { points: 0, rank: 'Rookie', best: 0 }, stats: { plays: {}, wins: {} } }, dailyMini: { date: null, plays: 0, wins: 0, sprint50: false, claimed: false, supplyClaimed: false }, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
+                        this.localGame = { streak: 0, maxStreak: 0, chips: 0, charmCharges: 0, bossReady: false, bossActive: false, totalPlays: 0, totalWins: 0, mapLevel: 1, mapProgress: 0, achievements: {}, lastDoubleWin: false, lastBossWin: false, season: { month: null, points: 0, plays: 0, wins: 0, rewardsClaimed: [] }, mini: { flip: { cards: [], picks: [], costPaid: false }, dungeonStage: 1, sprint: { active: false, endsAt: 0, score: 0, best: 0 }, tower: { level: 1, best: 1 }, chain: { streak: 0, ready: false }, arena: { points: 0, rank: 'Rookie', best: 0 }, heist: { step: 0, loot: 0, heat: 20, ready: false, running: false }, duel: { round: 1, playerHp: 100, bossHp: 100, ready: false, running: false }, train: { station: 1, fuel: 100, bonus: 0, ready: false, running: false }, stats: { plays: {}, wins: {} } }, dailyMini: { date: null, plays: 0, wins: 0, sprint50: false, claimed: false, supplyClaimed: false }, daily: { date: null, playCount: 0, winCount: 0, doubleCount: 0, claimed: false } };
                     }
                 }
                 this.syncDaily();
@@ -3569,7 +3859,10 @@
                     { id: 'sprintModal', name: { zh: '竞速冲榜', en: 'Sprint Ranking' }, desc: { zh: '60 秒冲分，挑战极限。', en: 'Score in 60s, push your limits.' } },
                     { id: 'towerModal', name: { zh: '无限爬塔', en: 'Infinite Tower' }, desc: { zh: '层数越高奖励越大。', en: 'Higher floors, bigger rewards.' } },
                     { id: 'chainModal', name: { zh: '连锁爆奖', en: 'Chain Jackpot' }, desc: { zh: '连赢触发连锁奖励。', en: 'Win streaks trigger chain rewards.' } },
-                    { id: 'arenaModal', name: { zh: '王者赌桌', en: 'King Table' }, desc: { zh: '积分升段位，冲击传奇。', en: 'Climb ranks to reach legend.' } }
+                    { id: 'arenaModal', name: { zh: '王者赌桌', en: 'King Table' }, desc: { zh: '积分升段位，冲击传奇。', en: 'Climb ranks to reach legend.' } },
+                    { id: 'heistModal', name: { zh: '霓虹劫案', en: 'Neon Heist' }, desc: { zh: '潜入多阶段，压住警报。', en: 'Stealth multi-stage, keep heat low.' } },
+                    { id: 'duelModal', name: { zh: '皇室对决', en: 'Royal Duel' }, desc: { zh: '回合对抗，终局见分晓。', en: 'Round-based clash with final settle.' } },
+                    { id: 'trainModal', name: { zh: '时空列车', en: 'Time Train' }, desc: { zh: '连过站点，能量越多越好。', en: 'Advance stations, keep fuel up.' } }
                 ];
                 if (!this.featuredGameId) {
                     const pick = games[Math.floor(Math.random() * games.length)];
@@ -3593,7 +3886,10 @@
                     sprint: { id: 'sprintAchievements', label: { zh: '竞速冲榜', en: 'Sprint Ranking' } },
                     tower: { id: 'towerAchievements', label: { zh: '无限爬塔', en: 'Infinite Tower' } },
                     chain: { id: 'chainAchievements', label: { zh: '连锁爆奖', en: 'Chain Jackpot' } },
-                    arena: { id: 'arenaAchievements', label: { zh: '王者赌桌', en: 'King Table' } }
+                    arena: { id: 'arenaAchievements', label: { zh: '王者赌桌', en: 'King Table' } },
+                    heist: { id: 'heistAchievements', label: { zh: '霓虹劫案', en: 'Neon Heist' } },
+                    duel: { id: 'duelAchievements', label: { zh: '皇室对决', en: 'Royal Duel' } },
+                    train: { id: 'trainAchievements', label: { zh: '时空列车', en: 'Time Train' } }
                 };
                 Object.keys(configs).forEach((key) => {
                     const node = document.getElementById(configs[key].id);
@@ -3713,6 +4009,36 @@
             stopArenaAnimation() {
                 document.getElementById('arenaStage')?.classList.remove('running');
                 document.getElementById('arenaStage')?.classList.remove('stage-running');
+            }
+
+            startHeistAnimation() {
+                document.getElementById('heistStage')?.classList.add('running');
+                document.getElementById('heistStage')?.classList.add('stage-running');
+            }
+
+            stopHeistAnimation() {
+                document.getElementById('heistStage')?.classList.remove('running');
+                document.getElementById('heistStage')?.classList.remove('stage-running');
+            }
+
+            startDuelAnimation() {
+                document.getElementById('duelStage')?.classList.add('running');
+                document.getElementById('duelStage')?.classList.add('stage-running');
+            }
+
+            stopDuelAnimation() {
+                document.getElementById('duelStage')?.classList.remove('running');
+                document.getElementById('duelStage')?.classList.remove('stage-running');
+            }
+
+            startTrainAnimation() {
+                document.getElementById('trainStage')?.classList.add('running');
+                document.getElementById('trainStage')?.classList.add('stage-running');
+            }
+
+            stopTrainAnimation() {
+                document.getElementById('trainStage')?.classList.remove('running');
+                document.getElementById('trainStage')?.classList.remove('stage-running');
             }
 
             startDiceAnimation() {
@@ -3898,6 +4224,31 @@
                         : (this.lang === 'en' ? 'Defeat, points dropped' : '失利，积分下降');
                     this.recordMiniResult('arena', win);
                 }
+                if (context.id === 'heist') {
+                    this.stopHeistAnimation();
+                    const heist = this.localGame.mini.heist;
+                    const hint = document.getElementById('heistHint');
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '💎 Heist settled, reward sent' : '💎 劫案结算成功，奖励已发放')
+                        : (this.lang === 'en' ? 'Alarmed, no reward' : '警报触发，未中奖');
+                    this.recordMiniResult('heist', win);
+                }
+                if (context.id === 'duel') {
+                    this.stopDuelAnimation();
+                    const hint = document.getElementById('duelHint');
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '👑 Victory settled, reward sent' : '👑 对决胜利，奖励已发放')
+                        : (this.lang === 'en' ? 'Defeat settled, try again' : '对决失利，继续挑战');
+                    this.recordMiniResult('duel', win);
+                }
+                if (context.id === 'train') {
+                    this.stopTrainAnimation();
+                    const hint = document.getElementById('trainHint');
+                    if (hint) hint.textContent = win
+                        ? (this.lang === 'en' ? '🚄 Train settled, reward sent' : '🚄 列车结算完成，奖励已发放')
+                        : (this.lang === 'en' ? 'Stalled, no reward' : '能量不足，未中奖');
+                    this.recordMiniResult('train', win);
+                }
             }
 
             playMine(choiceIndex) {
@@ -4055,6 +4406,195 @@
                 this.startRealBlockchainGame();
             }
 
+            startHeist() {
+                const heist = this.localGame.mini.heist;
+                heist.step = 0;
+                heist.loot = 0;
+                heist.heat = 20;
+                heist.ready = false;
+                heist.running = true;
+                this.startHeistAnimation();
+                const hint = document.getElementById('heistHint');
+                if (hint) hint.textContent = this.lang === 'en' ? 'Heist started' : '潜入开始';
+                this.updateHeistUI();
+                this.saveLocalGame();
+            }
+
+            heistMove() {
+                const heist = this.localGame.mini.heist;
+                const hint = document.getElementById('heistHint');
+                if (!heist.running) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Start heist first' : '请先开始潜入';
+                    return;
+                }
+                if (heist.ready) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Ready to settle on-chain' : '已准备结算';
+                    return;
+                }
+                heist.step += 1;
+                const lootGain = Math.floor(Math.random() * 21) + 15;
+                const heatGain = Math.floor(Math.random() * 16) + 10;
+                heist.loot += lootGain;
+                heist.heat += heatGain;
+                if (Math.random() < 0.25) {
+                    heist.heat += 10;
+                }
+                if (heist.heat >= 100 || heist.step >= 5) {
+                    heist.ready = true;
+                    heist.running = false;
+                    this.stopHeistAnimation();
+                    if (hint) hint.textContent = this.lang === 'en'
+                        ? 'Run complete. Settle on-chain.'
+                        : '行动结束，请链上结算';
+                } else if (hint) {
+                    hint.textContent = this.lang === 'en'
+                        ? `Loot +${lootGain}, Heat +${heatGain}`
+                        : `劫获 +${lootGain}，警报 +${heatGain}`;
+                }
+                this.updateHeistUI();
+                this.saveLocalGame();
+            }
+
+            settleHeist() {
+                const heist = this.localGame.mini.heist;
+                const hint = document.getElementById('heistHint');
+                if (!heist.ready) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Complete the run first' : '请先完成行动';
+                    return;
+                }
+                if (this.state.isPlaying) return;
+                if (hint) hint.textContent = this.t('mini_chain');
+                heist.running = false;
+                this.stopHeistAnimation();
+                this.updateHeistUI();
+                this.activeMiniGame = { id: 'heist', loot: heist.loot, heat: heist.heat };
+                this.startRealBlockchainGame();
+            }
+
+            startDuel() {
+                const duel = this.localGame.mini.duel;
+                duel.round = 1;
+                duel.playerHp = 100;
+                duel.bossHp = 100;
+                duel.ready = false;
+                duel.running = true;
+                this.startDuelAnimation();
+                const hint = document.getElementById('duelHint');
+                if (hint) hint.textContent = this.lang === 'en' ? 'Duel started' : '对决开始';
+                this.updateDuelUI();
+                this.saveLocalGame();
+            }
+
+            duelAttack() {
+                const duel = this.localGame.mini.duel;
+                const hint = document.getElementById('duelHint');
+                if (!duel.running) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Start duel first' : '请先开始对决';
+                    return;
+                }
+                if (duel.ready) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Ready to settle' : '已准备结算';
+                    return;
+                }
+                const hit = Math.floor(Math.random() * 16) + 10;
+                const counter = Math.floor(Math.random() * 16) + 5;
+                duel.bossHp = Math.max(0, duel.bossHp - hit);
+                duel.playerHp = Math.max(0, duel.playerHp - counter);
+                duel.round += 1;
+                if (duel.bossHp <= 0 || duel.playerHp <= 0 || duel.round > 5) {
+                    duel.ready = true;
+                    duel.running = false;
+                    this.stopDuelAnimation();
+                    if (hint) hint.textContent = this.lang === 'en'
+                        ? 'Duel complete. Settle on-chain.'
+                        : '对决结束，请链上结算';
+                } else if (hint) {
+                    hint.textContent = this.lang === 'en'
+                        ? `Hit ${hit}, Counter ${counter}`
+                        : `造成 ${hit} 伤害，被反击 ${counter}`;
+                }
+                this.updateDuelUI();
+                this.saveLocalGame();
+            }
+
+            settleDuel() {
+                const duel = this.localGame.mini.duel;
+                const hint = document.getElementById('duelHint');
+                if (!duel.ready) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Finish the duel first' : '请先完成对决';
+                    return;
+                }
+                if (this.state.isPlaying) return;
+                if (hint) hint.textContent = this.t('mini_chain');
+                duel.running = false;
+                this.stopDuelAnimation();
+                this.updateDuelUI();
+                this.activeMiniGame = { id: 'duel', playerHp: duel.playerHp, bossHp: duel.bossHp };
+                this.startRealBlockchainGame();
+            }
+
+            startTrain() {
+                const train = this.localGame.mini.train;
+                train.station = 1;
+                train.fuel = 100;
+                train.bonus = 0;
+                train.ready = false;
+                train.running = true;
+                this.startTrainAnimation();
+                const hint = document.getElementById('trainHint');
+                if (hint) hint.textContent = this.lang === 'en' ? 'Train launched' : '列车启动';
+                this.updateTrainUI();
+                this.saveLocalGame();
+            }
+
+            trainAdvance() {
+                const train = this.localGame.mini.train;
+                const hint = document.getElementById('trainHint');
+                if (!train.running) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Start train first' : '请先启动列车';
+                    return;
+                }
+                if (train.ready) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Ready to settle' : '已准备结算';
+                    return;
+                }
+                const fuelUse = Math.floor(Math.random() * 16) + 10;
+                const bonusGain = Math.floor(Math.random() * 4) + 1;
+                train.fuel = Math.max(0, train.fuel - fuelUse);
+                train.bonus += bonusGain;
+                train.station += 1;
+                if (train.fuel <= 0 || train.station > 6) {
+                    train.ready = true;
+                    train.running = false;
+                    this.stopTrainAnimation();
+                    if (hint) hint.textContent = this.lang === 'en'
+                        ? 'Route complete. Settle on-chain.'
+                        : '旅程结束，请链上结算';
+                } else if (hint) {
+                    hint.textContent = this.lang === 'en'
+                        ? `Fuel -${fuelUse}, Boost +${bonusGain}`
+                        : `能量 -${fuelUse}，增幅 +${bonusGain}`;
+                }
+                this.updateTrainUI();
+                this.saveLocalGame();
+            }
+
+            settleTrain() {
+                const train = this.localGame.mini.train;
+                const hint = document.getElementById('trainHint');
+                if (!train.ready) {
+                    if (hint) hint.textContent = this.lang === 'en' ? 'Complete the route first' : '请先完成旅程';
+                    return;
+                }
+                if (this.state.isPlaying) return;
+                if (hint) hint.textContent = this.t('mini_chain');
+                train.running = false;
+                this.stopTrainAnimation();
+                this.updateTrainUI();
+                this.activeMiniGame = { id: 'train', bonus: train.bonus, station: train.station };
+                this.startRealBlockchainGame();
+            }
+
             updateSprintUI(tickOnly) {
                 const sprint = this.localGame.mini.sprint;
                 const timeNode = document.getElementById('sprintTime');
@@ -4138,6 +4678,48 @@
                 arena.rank = rank.key;
                 if (points) points.textContent = arena.points;
                 if (rankNode) rankNode.textContent = rank.label[this.lang === 'en' ? 'en' : 'zh'];
+            }
+
+            updateHeistUI() {
+                const heist = this.localGame.mini.heist;
+                const loot = document.getElementById('heistLoot');
+                const heat = document.getElementById('heistHeat');
+                const step = document.getElementById('heistStep');
+                const moveBtn = document.getElementById('heistMove');
+                const settleBtn = document.getElementById('heistSettle');
+                if (loot) loot.textContent = heist.loot;
+                if (heat) heat.textContent = heist.heat;
+                if (step) step.textContent = heist.step;
+                if (moveBtn) moveBtn.disabled = !heist.running || heist.ready;
+                if (settleBtn) settleBtn.disabled = !heist.ready;
+            }
+
+            updateDuelUI() {
+                const duel = this.localGame.mini.duel;
+                const player = document.getElementById('duelPlayerHp');
+                const boss = document.getElementById('duelBossHp');
+                const round = document.getElementById('duelRound');
+                const attackBtn = document.getElementById('duelAttack');
+                const settleBtn = document.getElementById('duelSettle');
+                if (player) player.textContent = duel.playerHp;
+                if (boss) boss.textContent = duel.bossHp;
+                if (round) round.textContent = Math.min(duel.round, 5);
+                if (attackBtn) attackBtn.disabled = !duel.running || duel.ready;
+                if (settleBtn) settleBtn.disabled = !duel.ready;
+            }
+
+            updateTrainUI() {
+                const train = this.localGame.mini.train;
+                const station = document.getElementById('trainStation');
+                const fuel = document.getElementById('trainFuel');
+                const bonus = document.getElementById('trainBonus');
+                const advanceBtn = document.getElementById('trainAdvance');
+                const settleBtn = document.getElementById('trainSettle');
+                if (station) station.textContent = Math.min(train.station, 6);
+                if (fuel) fuel.textContent = train.fuel;
+                if (bonus) bonus.textContent = train.bonus;
+                if (advanceBtn) advanceBtn.disabled = !train.running || train.ready;
+                if (settleBtn) settleBtn.disabled = !train.ready;
             }
 
             updateSprintBoard(latestScore) {
