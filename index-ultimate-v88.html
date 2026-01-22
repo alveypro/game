@@ -558,6 +558,9 @@
         .game-card[data-game="heist"] .vegas-hero { background: linear-gradient(120deg, rgba(38, 108, 94, 0.6), rgba(10, 24, 20, 0.75)); }
         .game-card[data-game="duel"] .vegas-hero { background: linear-gradient(120deg, rgba(120, 36, 45, 0.6), rgba(30, 8, 12, 0.78)); }
         .game-card[data-game="train"] .vegas-hero { background: linear-gradient(120deg, rgba(32, 82, 140, 0.6), rgba(8, 18, 36, 0.78)); }
+        .game-card[data-game="ddz"] .vegas-hero { background: linear-gradient(120deg, rgba(72, 48, 14, 0.6), rgba(26, 16, 6, 0.78)); }
+        .game-card[data-game="guandan"] .vegas-hero { background: linear-gradient(120deg, rgba(18, 82, 56, 0.6), rgba(8, 24, 16, 0.78)); }
+        .game-card[data-game="mahjong"] .vegas-hero { background: linear-gradient(120deg, rgba(24, 60, 108, 0.6), rgba(8, 16, 30, 0.78)); }
         .vegas-modal {
             background: radial-gradient(circle at top, rgba(255, 226, 167, 0.35), transparent 55%),
                 linear-gradient(160deg, rgba(65, 28, 10, 0.95), rgba(12, 6, 2, 0.98));
@@ -1377,6 +1380,54 @@
                     <div class="text-xs text-slate-500" data-i18n="game_cost">消耗 100 MAO / 1000 PI</div>
                     <button class="game-btn" data-open="trainModal" data-i18n="btn_enter">进入</button>
                 </div>
+                <div class="game-card vegas-card" data-game="ddz">
+                    <div class="game-card-header">
+                        <div>
+                            <div class="game-card-title" data-i18n="game_ddz_title">斗地主</div>
+                            <div class="game-card-desc" data-i18n="game_ddz_desc">多人对战 + 单机练习。</div>
+                        </div>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🃏</span>
+                        <span>🧧</span>
+                        <span>♠️</span>
+                    </div>
+                    <div class="text-xs text-slate-500" data-i18n="lobby_note">多人匹配 + 邀请链接</div>
+                    <a class="game-btn inline-block text-center" href="battle-lobby.html?game=ddz" data-i18n="lobby_enter">进入大厅</a>
+                </div>
+                <div class="game-card vegas-card" data-game="guandan">
+                    <div class="game-card-header">
+                        <div>
+                            <div class="game-card-title" data-i18n="game_guandan_title">惯蛋</div>
+                            <div class="game-card-desc" data-i18n="game_guandan_desc">4人对抗，连胜冲榜。</div>
+                        </div>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🂡</span>
+                        <span>🂮</span>
+                        <span>♣️</span>
+                    </div>
+                    <div class="text-xs text-slate-500" data-i18n="lobby_note">多人匹配 + 邀请链接</div>
+                    <a class="game-btn inline-block text-center" href="battle-lobby.html?game=guandan" data-i18n="lobby_enter">进入大厅</a>
+                </div>
+                <div class="game-card vegas-card" data-game="mahjong">
+                    <div class="game-card-header">
+                        <div>
+                            <div class="game-card-title" data-i18n="game_mahjong_title">麻将</div>
+                            <div class="game-card-desc" data-i18n="game_mahjong_desc">标准四人局 + 自定义。</div>
+                        </div>
+                        <span class="vegas-marquee" data-i18n="badge_onchain">链上</span>
+                    </div>
+                    <div class="vegas-hero">
+                        <span>🀄</span>
+                        <span>🎴</span>
+                        <span>🧩</span>
+                    </div>
+                    <div class="text-xs text-slate-500" data-i18n="lobby_note">多人匹配 + 邀请链接</div>
+                    <a class="game-btn inline-block text-center" href="battle-lobby.html?game=mahjong" data-i18n="lobby_enter">进入大厅</a>
+                </div>
             </div>
         </div>
         
@@ -1975,6 +2026,14 @@
                         game_duel_desc: '回合对抗，终局结算。',
                         game_train_title: '时空列车',
                         game_train_desc: '多站推进，集结奖励。',
+                        game_ddz_title: '斗地主',
+                        game_ddz_desc: '多人对战 + 单机练习。',
+                        game_guandan_title: '惯蛋',
+                        game_guandan_desc: '4人对抗，连胜冲榜。',
+                        game_mahjong_title: '麻将',
+                        game_mahjong_desc: '标准四人局 + 自定义。',
+                        lobby_note: '多人匹配 + 邀请链接',
+                        lobby_enter: '进入大厅',
                         btn_enter: '进入',
                         odds_title: '🎯 中奖概率一览（MAO）',
                         odds_lose: '未中奖',
@@ -2146,6 +2205,14 @@
                         game_duel_desc: 'Round-based clash with final settle.',
                         game_train_title: 'Time Train',
                         game_train_desc: 'Advance stations, collect boosts.',
+                        game_ddz_title: 'Landlord',
+                        game_ddz_desc: 'Multiplayer + solo practice.',
+                        game_guandan_title: 'Guandan',
+                        game_guandan_desc: '4-player battle with streaks.',
+                        game_mahjong_title: 'Mahjong',
+                        game_mahjong_desc: 'Standard 4-player + custom rules.',
+                        lobby_note: 'Matchmaking + Invite link',
+                        lobby_enter: 'Enter Lobby',
                         btn_enter: 'Enter',
                         odds_title: '🎯 Win Odds (MAO)',
                         odds_lose: 'No Win',
