@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAO Game Lobby</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Bebas+Neue&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --ink: #1b1a17;
+      --glow: #ffd166;
+      --mint: #1bb8a6;
+      --ember: #e86f3e;
+    }
+    body {
+      min-height: 100vh;
+      font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+      background-image:
+        radial-gradient(900px 700px at 10% 10%, #fff6d5 0%, transparent 55%),
+        radial-gradient(900px 600px at 90% 20%, #dff6f1 0%, transparent 60%),
+        linear-gradient(140deg, #f7f2e8 0%, #f0e0c9 45%, #e6f1ff 100%);
+      color: var(--ink);
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(27, 26, 23, 0.08);
+      box-shadow: 0 18px 50px rgba(17, 24, 39, 0.12);
+      backdrop-filter: blur(12px);
+    }
+    .hero-title {
+      font-family: "Bebas Neue", "Space Grotesk", sans-serif;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .game-btn {
+      background: linear-gradient(135deg, var(--ember), #2e7dd7);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 20px rgba(46, 125, 215, 0.2);
+    }
+    .game-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 26px rgba(232, 111, 62, 0.28);
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 209, 102, 0.25);
+      font-size: 12px;
+    }
+    .log-box {
+      height: 180px;
+      overflow: auto;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid rgba(27, 26, 23, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="max-w-5xl mx-auto p-6">
+    <div class="text-center mb-6">
+      <h1 class="text-4xl hero-title">MAO Multiplayer Lobby</h1>
+      <p class="text-sm text-slate-600">公平匹配 · commit-reveal 发牌 · 链上结算</p>
+      <div class="mt-2">
+        <span id="gameLabel" class="badge">---</span>
+      </div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="glass rounded-2xl p-4">
+        <h2 class="font-bold text-lg mb-2">连接服务</h2>
+        <div class="text-xs text-slate-500 mb-2">默认: wss://api.maopi.me</div>
+        <input id="wsUrl" class="w-full p-2 rounded-xl border mb-2" placeholder="WebSocket URL">
+        <input id="playerName" class="w-full p-2 rounded-xl border mb-2" placeholder="昵称">
+        <input id="playerAddress" class="w-full p-2 rounded-xl border mb-2" placeholder="钱包地址(可选)">
+        <div class="flex gap-2">
+          <button id="connectBtn" class="game-btn">连接</button>
+          <button id="disconnectBtn" class="game-btn bg-slate-600">断开</button>
+        </div>
+        <div id="connStatus" class="text-xs text-slate-500 mt-2">未连接</div>
+      </div>
+
+      <div class="glass rounded-2xl p-4">
+        <h2 class="font-bold text-lg mb-2">房间管理</h2>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <button id="createPublic" class="game-btn">创建公开房</button>
+          <button id="createPrivate" class="game-btn">创建私人房</button>
+        </div>
+        <div class="flex gap-2 mb-2">
+          <input id="roomCode" class="flex-1 p-2 rounded-xl border" placeholder="输入房间码">
+          <button id="joinRoom" class="game-btn">加入</button>
+        </div>
+        <div class="text-xs text-slate-500">房间码即邀请链接参数</div>
+        <div id="inviteBox" class="text-xs mt-2 text-slate-600"></div>
+      </div>
+
+      <div class="glass rounded-2xl p-4 md:col-span-2">
+        <h2 class="font-bold text-lg mb-2">房间状态</h2>
+        <div id="roomInfo" class="text-sm text-slate-600">未加入房间</div>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button id="readyBtn" class="game-btn">准备/取消</button>
+          <button id="startMatch" class="game-btn">开始对局(房主)</button>
+          <button id="leaveRoom" class="game-btn bg-slate-600">离开</button>
+        </div>
+        <div class="mt-4">
+          <div class="text-xs text-slate-500 mb-2">对局日志</div>
+          <div id="logBox" class="log-box"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const gameMap = {
+      ddz: { label: '斗地主', players: 3 },
+      guandan: { label: '惯蛋', players: 4 },
+      mahjong: { label: '麻将', players: 4 }
+    };
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameType = urlParams.get('game') || 'ddz';
+    const gameLabel = document.getElementById('gameLabel');
+    if (gameLabel) gameLabel.textContent = `${gameMap[gameType]?.label || '牌局'} · ${gameType}`;
+
+    const wsUrlInput = document.getElementById('wsUrl');
+    const nameInput = document.getElementById('playerName');
+    const addrInput = document.getElementById('playerAddress');
+    const statusNode = document.getElementById('connStatus');
+    const logBox = document.getElementById('logBox');
+    const roomInfo = document.getElementById('roomInfo');
+    const inviteBox = document.getElementById('inviteBox');
+
+    wsUrlInput.value = localStorage.getItem('mao_ws_url') || 'wss://api.maopi.me';
+
+    let ws = null;
+    let clientId = null;
+    let currentRoom = null;
+    let ready = false;
+    const revealSeeds = new Map();
+
+    function logLine(text) {
+      const line = document.createElement('div');
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+      logBox.appendChild(line);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function send(payload) {
+      if (!ws || ws.readyState !== 1) return;
+      ws.send(JSON.stringify(payload));
+    }
+
+    function updateRoomInfo(room) {
+      if (!room) {
+        roomInfo.textContent = '未加入房间';
+        inviteBox.textContent = '';
+        return;
+      }
+      const players = room.players.map((p) => `${p.name || '玩家'} ${p.ready ? '✅' : '⏳'}`).join(' · ');
+      roomInfo.textContent = `房间: ${room.roomId} | 房主: ${room.hostId === clientId ? '你' : room.hostId} | 玩家: ${players}`;
+      inviteBox.textContent = `邀请链接: ${window.location.origin}/battle-lobby.html?game=${gameType}&room=${room.roomId}`;
+    }
+
+    document.getElementById('connectBtn').addEventListener('click', () => {
+      if (ws && ws.readyState === 1) return;
+      ws = new WebSocket(wsUrlInput.value);
+      localStorage.setItem('mao_ws_url', wsUrlInput.value);
+
+      ws.onopen = () => {
+        statusNode.textContent = '已连接';
+        send({ type: 'hello', name: nameInput.value || '玩家', address: addrInput.value || '' });
+        logLine('已连接多人服务');
+      };
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'welcome') {
+          clientId = msg.clientId;
+        }
+        if (msg.type === 'room_created') {
+          currentRoom = { roomId: msg.roomId, players: [], hostId: clientId };
+          updateRoomInfo(currentRoom);
+          logLine(`创建房间 ${msg.roomId}`);
+        }
+        if (msg.type === 'room_update') {
+          currentRoom = msg;
+          updateRoomInfo(currentRoom);
+        }
+        if (msg.type === 'round_start') {
+          logLine('发牌进入提交阶段');
+          const seed = crypto.getRandomValues(new Uint32Array(4)).join('-');
+          revealSeeds.set(msg.roundId, seed);
+          awaitHash(seed).then((commit) => {
+            send({ type: 'commit', roundId: msg.roundId, commit });
+          });
+        }
+        if (msg.type === 'reveal_start') {
+          const seed = revealSeeds.get(msg.roundId);
+          if (seed) send({ type: 'reveal', roundId: msg.roundId, reveal: seed });
+        }
+        if (msg.type === 'round_seed') {
+          logLine(`公平种子生成: ${msg.seed.slice(0, 10)}...`);
+        }
+        if (msg.type === 'settle_requested') {
+          logLine('收到链上结算请求');
+        }
+        if (msg.type === 'arbitration_requested') {
+          logLine('收到仲裁请求');
+        }
+        if (msg.type === 'error') {
+          logLine(`错误: ${msg.message}`);
+        }
+      };
+
+      ws.onclose = () => {
+        statusNode.textContent = '已断开';
+        currentRoom = null;
+        updateRoomInfo(null);
+        logLine('连接已断开');
+      };
+    });
+
+    document.getElementById('disconnectBtn').addEventListener('click', () => {
+      if (ws) ws.close();
+    });
+
+    document.getElementById('createPublic').addEventListener('click', () => {
+      send({ type: 'create_room', gameType, maxPlayers: gameMap[gameType]?.players || 4, isPrivate: false });
+    });
+
+    document.getElementById('createPrivate').addEventListener('click', () => {
+      send({ type: 'create_room', gameType, maxPlayers: gameMap[gameType]?.players || 4, isPrivate: true });
+    });
+
+    document.getElementById('joinRoom').addEventListener('click', () => {
+      const code = document.getElementById('roomCode').value.trim().toUpperCase();
+      if (!code) return;
+      send({ type: 'join_room', roomId: code });
+    });
+
+    document.getElementById('readyBtn').addEventListener('click', () => {
+      ready = !ready;
+      send({ type: 'ready', ready });
+    });
+
+    document.getElementById('startMatch').addEventListener('click', () => {
+      send({ type: 'start_match' });
+    });
+
+    document.getElementById('leaveRoom').addEventListener('click', () => {
+      send({ type: 'leave_room' });
+      currentRoom = null;
+      updateRoomInfo(null);
+    });
+
+    function awaitHash(input) {
+      const enc = new TextEncoder().encode(input);
+      return crypto.subtle.digest('SHA-256', enc).then((buf) => {
+        return Array.from(new Uint8Array(buf))
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+      });
+    }
+
+    const roomFromUrl = urlParams.get('room');
+    if (roomFromUrl) {
+      document.getElementById('roomCode').value = roomFromUrl;
+    }
+  </script>
+</body>
+</html>
