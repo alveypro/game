@@ -119,6 +119,30 @@
           <div id="logBox" class="log-box"></div>
         </div>
       </div>
+      <div class="glass rounded-2xl p-4 md:col-span-2">
+        <h2 class="font-bold text-lg mb-2">对局桌面（多人）</h2>
+        <div id="tableHint" class="text-xs text-slate-500">等待房主开始对局并完成发牌</div>
+        <div class="grid gap-3 md:grid-cols-3 mt-3">
+          <div class="md:col-span-2">
+            <div class="text-sm text-slate-600">当前桌面牌：<span id="tableCard">无</span></div>
+            <div class="text-sm text-slate-600">轮到：<span id="turnLabel">-</span></div>
+            <div class="text-xs text-slate-500 mt-2">你的手牌</div>
+            <div id="myHand" class="flex flex-wrap gap-2 mt-2"></div>
+            <div class="flex gap-2 mt-3">
+              <button id="playCardBtn" class="game-btn">出牌</button>
+              <button id="passBtn" class="game-btn bg-slate-600">过牌</button>
+              <button id="settleBtn" class="game-btn">请求结算</button>
+              <button id="arbitrateBtn" class="game-btn bg-amber-600">仲裁</button>
+            </div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">玩家手牌数</div>
+            <div id="playerCounts" class="text-sm text-slate-600 mt-2"></div>
+            <div class="text-xs text-slate-500 mt-3">对局哈希</div>
+            <div id="hashBox" class="text-xs text-slate-600 break-all mt-1"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -150,6 +174,9 @@
     let currentRoom = null;
     let ready = false;
     const revealSeeds = new Map();
+    let gameState = null;
+    let selectedCard = null;
+    let roundSeed = null;
 
     function logLine(text) {
       const line = document.createElement('div');
@@ -172,6 +199,157 @@
       const players = room.players.map((p) => `${p.name || '玩家'} ${p.ready ? '✅' : '⏳'}`).join(' · ');
       roomInfo.textContent = `房间: ${room.roomId} | 房主: ${room.hostId === clientId ? '你' : room.hostId} | 玩家: ${players}`;
       inviteBox.textContent = `邀请链接: ${window.location.origin}/battle-lobby.html?game=${gameType}&room=${room.roomId}`;
+    }
+
+    function sortPlayers(players) {
+      return players.slice().sort((a, b) => a.id.localeCompare(b.id));
+    }
+
+    function buildDeck(type) {
+      const ranks = ['3','4','5','6','7','8','9','10','J','Q','K','A','2','SJ','BJ'];
+      const suitSymbols = ['♠','♥','♦','♣'];
+      const deck = [];
+      const loops = type === 'guandan' ? 2 : 1;
+      for (let d = 0; d < loops; d += 1) {
+        ranks.slice(0, 13).forEach((r) => {
+          suitSymbols.forEach((s) => deck.push({ label: `${r}${s}`, rank: r }));
+        });
+        deck.push({ label: '小王', rank: 'SJ' });
+        deck.push({ label: '大王', rank: 'BJ' });
+      }
+      return deck;
+    }
+
+    function rankValue(rank) {
+      const ranks = ['3','4','5','6','7','8','9','10','J','Q','K','A','2','SJ','BJ'];
+      return ranks.indexOf(rank);
+    }
+
+    function mulberry32(seed) {
+      let t = seed;
+      return function () {
+        t += 0x6D2B79F5;
+        let x = Math.imul(t ^ (t >>> 15), 1 | t);
+        x ^= x + Math.imul(x ^ (x >>> 7), 61 | x);
+        return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    async function seedToInt(seed) {
+      const hash = await awaitHash(seed);
+      return parseInt(hash.slice(0, 8), 16);
+    }
+
+    function shuffleWithSeed(deck, rand) {
+      for (let i = deck.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(rand() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return deck;
+    }
+
+    async function initGame(seed) {
+      if (gameType === 'mahjong') {
+        document.getElementById('tableHint').textContent = '麻将多人对局逻辑开发中';
+        return;
+      }
+      const players = sortPlayers(currentRoom.players);
+      const seatIndex = players.findIndex((p) => p.id === clientId);
+      const seedInt = await seedToInt(seed);
+      const rand = mulberry32(seedInt);
+      const deck = shuffleWithSeed(buildDeck(gameType), rand);
+      const hands = {};
+      players.forEach((p) => { hands[p.id] = []; });
+      deck.forEach((card, idx) => {
+        const p = players[idx % players.length];
+        hands[p.id].push(card);
+      });
+      players.forEach((p) => {
+        hands[p.id].sort((a, b) => rankValue(b.rank) - rankValue(a.rank));
+      });
+      gameState = {
+        players,
+        seatIndex,
+        hands,
+        turnIndex: 0,
+        currentCard: null,
+        passCount: 0,
+        lastPlayerIndex: 0,
+        history: []
+      };
+      roundSeed = seed;
+      selectedCard = null;
+      document.getElementById('tableHint').textContent = '对局开始：只支持单张牌规则（公平种子已同步）';
+      renderTable();
+    }
+
+    function renderTable() {
+      if (!gameState) return;
+      const handNode = document.getElementById('myHand');
+      handNode.innerHTML = '';
+      const myId = gameState.players[gameState.seatIndex].id;
+      gameState.hands[myId].forEach((card) => {
+        const btn = document.createElement('button');
+        btn.className = 'card-btn';
+        btn.textContent = card.label;
+        if (selectedCard && selectedCard.label === card.label) {
+          btn.style.outline = '2px solid #f59e0b';
+        }
+        btn.addEventListener('click', () => {
+          selectedCard = card;
+          renderTable();
+        });
+        handNode.appendChild(btn);
+      });
+      document.getElementById('tableCard').textContent = gameState.currentCard ? gameState.currentCard.label : '无';
+      document.getElementById('turnLabel').textContent = gameState.players[gameState.turnIndex]?.name || '-';
+      const counts = gameState.players.map((p) => `${p.name || '玩家'}: ${gameState.hands[p.id].length}`).join('<br>');
+      document.getElementById('playerCounts').innerHTML = counts;
+    }
+
+    function nextTurnIndex(index) {
+      return (index + 1) % gameState.players.length;
+    }
+
+    function canBeat(card) {
+      if (!gameState.currentCard) return true;
+      return rankValue(card.rank) > rankValue(gameState.currentCard.rank);
+    }
+
+    function applyPlay(byId, cardLabel) {
+      const hand = gameState.hands[byId] || [];
+      const idx = hand.findIndex((c) => c.label === cardLabel);
+      if (idx === -1) return;
+      const card = hand.splice(idx, 1)[0];
+      gameState.currentCard = card;
+      gameState.lastPlayerIndex = gameState.players.findIndex((p) => p.id === byId);
+      gameState.turnIndex = nextTurnIndex(gameState.lastPlayerIndex);
+      gameState.passCount = 0;
+      gameState.history.push({ type: 'play', by: byId, card: card.label });
+      renderTable();
+      checkWin();
+    }
+
+    function applyPass(byId) {
+      gameState.passCount += 1;
+      gameState.history.push({ type: 'pass', by: byId });
+      if (gameState.passCount >= gameState.players.length - 1) {
+        gameState.currentCard = null;
+        gameState.passCount = 0;
+        gameState.turnIndex = gameState.lastPlayerIndex;
+        logLine('重新开一轮出牌');
+      } else {
+        gameState.turnIndex = nextTurnIndex(gameState.turnIndex);
+      }
+      renderTable();
+    }
+
+    function checkWin() {
+      const winner = gameState.players.find((p) => gameState.hands[p.id].length === 0);
+      if (winner) {
+        logLine(`对局结束：${winner.name || winner.id} 胜利`);
+        document.getElementById('tableHint').textContent = `胜者：${winner.name || winner.id}`;
+      }
     }
 
     document.getElementById('connectBtn').addEventListener('click', () => {
@@ -213,6 +391,17 @@
         }
         if (msg.type === 'round_seed') {
           logLine(`公平种子生成: ${msg.seed.slice(0, 10)}...`);
+          initGame(msg.seed);
+        }
+        if (msg.type === 'action') {
+          if (!gameState) return;
+          const byId = msg.by;
+          if (msg.action === 'play_card') {
+            applyPlay(byId, msg.payload.card);
+          }
+          if (msg.action === 'pass') {
+            applyPass(byId);
+          }
         }
         if (msg.type === 'settle_requested') {
           logLine('收到链上结算请求');
@@ -264,6 +453,43 @@
       send({ type: 'leave_room' });
       currentRoom = null;
       updateRoomInfo(null);
+    });
+
+    document.getElementById('playCardBtn').addEventListener('click', () => {
+      if (!gameState || !selectedCard) return;
+      const myId = gameState.players[gameState.seatIndex].id;
+      if (gameState.players[gameState.turnIndex].id !== myId) {
+        logLine('未轮到你出牌');
+        return;
+      }
+      if (!canBeat(selectedCard)) {
+        logLine('出牌必须大于桌面牌');
+        return;
+      }
+      send({ type: 'action', action: 'play_card', payload: { card: selectedCard.label } });
+      selectedCard = null;
+    });
+
+    document.getElementById('passBtn').addEventListener('click', () => {
+      if (!gameState) return;
+      const myId = gameState.players[gameState.seatIndex].id;
+      if (gameState.players[gameState.turnIndex].id !== myId) return;
+      send({ type: 'action', action: 'pass' });
+    });
+
+    document.getElementById('settleBtn').addEventListener('click', async () => {
+      if (!gameState || !roundSeed) return;
+      const payload = JSON.stringify({ seed: roundSeed, history: gameState.history });
+      const hash = await awaitHash(payload);
+      document.getElementById('hashBox').textContent = hash;
+      send({ type: 'request_settle', resultHash: hash });
+    });
+
+    document.getElementById('arbitrateBtn').addEventListener('click', async () => {
+      if (!gameState || !roundSeed) return;
+      const payload = JSON.stringify({ seed: roundSeed, history: gameState.history });
+      const hash = await awaitHash(payload);
+      send({ type: 'arbitrate', evidenceHash: hash, note: 'player arbitration request' });
     });
 
     function awaitHash(input) {
