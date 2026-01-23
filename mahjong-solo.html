@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>麻将 · 单机练习</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+      background: linear-gradient(140deg, #f7f2e8 0%, #efe2c8 50%, #e6f1ff 100%);
+      color: #1b1a17;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(27, 26, 23, 0.08);
+      box-shadow: 0 18px 50px rgba(17, 24, 39, 0.12);
+      backdrop-filter: blur(10px);
+    }
+    .tile-btn {
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(27, 26, 23, 0.08);
+      border: 1px solid rgba(27, 26, 23, 0.15);
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .tile-btn:hover { transform: translateY(-2px); }
+    .log-box {
+      height: 160px;
+      overflow: auto;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid rgba(27, 26, 23, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="max-w-5xl mx-auto p-6">
+    <div class="mb-4">
+      <h1 class="text-3xl font-bold">麻将 · 单机练习</h1>
+      <div class="text-xs text-slate-600">练习模式：摸牌/出牌节奏体验（胡牌检测后续补全）</div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="glass rounded-2xl p-4 md:col-span-2">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-bold">你的手牌</div>
+          <div class="text-xs text-slate-500">点击牌即可打出</div>
+        </div>
+        <div id="hand" class="flex flex-wrap gap-2"></div>
+        <div class="flex gap-2 mt-4">
+          <button id="drawBtn" class="px-4 py-2 rounded-lg bg-blue-600 text-white">摸牌</button>
+          <button id="restartBtn" class="px-4 py-2 rounded-lg bg-emerald-500 text-white">重新开局</button>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-4">
+        <div class="font-bold mb-2">牌局状态</div>
+        <div class="text-sm text-slate-600">剩余牌墙：<span id="wallCount">0</span></div>
+        <div class="text-sm text-slate-600">最近摸牌：<span id="lastDraw">-</span></div>
+        <div class="text-sm text-slate-600 mt-2">弃牌堆：</div>
+        <div id="discard" class="text-xs text-slate-500 mt-1"></div>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl p-4 mt-4">
+      <div class="font-bold mb-2">操作日志</div>
+      <div id="logBox" class="log-box"></div>
+    </div>
+  </div>
+
+  <script>
+    const tiles = [];
+    const suits = ['万','筒','条'];
+    suits.forEach((s) => {
+      for (let i = 1; i <= 9; i += 1) {
+        for (let k = 0; k < 4; k += 1) tiles.push(`${i}${s}`);
+      }
+    });
+    ['东','南','西','北','中','发','白'].forEach((t) => {
+      for (let k = 0; k < 4; k += 1) tiles.push(t);
+    });
+
+    const logBox = document.getElementById('logBox');
+    const handNode = document.getElementById('hand');
+    const wallCount = document.getElementById('wallCount');
+    const lastDraw = document.getElementById('lastDraw');
+    const discardNode = document.getElementById('discard');
+
+    let wall = [];
+    let hand = [];
+    let discard = [];
+
+    function logLine(text) {
+      const line = document.createElement('div');
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+      logBox.appendChild(line);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function shuffle(deck) {
+      for (let i = deck.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return deck;
+    }
+
+    function render() {
+      handNode.innerHTML = '';
+      hand.forEach((tile, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'tile-btn';
+        btn.textContent = tile;
+        btn.addEventListener('click', () => discardTile(idx));
+        handNode.appendChild(btn);
+      });
+      wallCount.textContent = wall.length;
+      discardNode.textContent = discard.join(' ');
+    }
+
+    function start() {
+      wall = shuffle([...tiles]);
+      hand = [];
+      discard = [];
+      for (let i = 0; i < 13; i += 1) {
+        hand.push(wall.pop());
+      }
+      lastDraw.textContent = '-';
+      logLine('新局开始');
+      render();
+    }
+
+    function drawTile() {
+      if (wall.length === 0) {
+        logLine('牌墙已空');
+        return;
+      }
+      const tile = wall.pop();
+      hand.push(tile);
+      lastDraw.textContent = tile;
+      logLine(`摸牌 ${tile}`);
+      render();
+    }
+
+    function discardTile(idx) {
+      const tile = hand.splice(idx, 1)[0];
+      discard.push(tile);
+      logLine(`打出 ${tile}`);
+      render();
+    }
+
+    document.getElementById('drawBtn').addEventListener('click', drawTile);
+    document.getElementById('restartBtn').addEventListener('click', start);
+
+    start();
+  </script>
+</body>
+</html>

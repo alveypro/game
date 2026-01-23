@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>斗地主 · 单机练习</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+      background: linear-gradient(140deg, #f7f2e8 0%, #efe2c8 50%, #e6f1ff 100%);
+      color: #1b1a17;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(27, 26, 23, 0.08);
+      box-shadow: 0 18px 50px rgba(17, 24, 39, 0.12);
+      backdrop-filter: blur(10px);
+    }
+    .card-btn {
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(27, 26, 23, 0.08);
+      border: 1px solid rgba(27, 26, 23, 0.15);
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .card-btn:hover { transform: translateY(-2px); }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 209, 102, 0.35);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .log-box {
+      height: 160px;
+      overflow: auto;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid rgba(27, 26, 23, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="max-w-5xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-3xl font-bold">斗地主 · 单机练习</h1>
+        <div class="text-xs text-slate-600">快速练习模式：仅单张牌规则（便于上手）</div>
+      </div>
+      <span id="roleBadge" class="badge">未发牌</span>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="glass rounded-2xl p-4 md:col-span-2">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-bold">你的手牌</div>
+          <div class="text-xs text-slate-500">点击出牌，或选择“过牌”</div>
+        </div>
+        <div id="playerHand" class="flex flex-wrap gap-2"></div>
+        <div class="flex gap-2 mt-4">
+          <button id="passBtn" class="px-4 py-2 rounded-lg bg-slate-700 text-white">过牌</button>
+          <button id="restartBtn" class="px-4 py-2 rounded-lg bg-amber-500 text-white">重新发牌</button>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-4">
+        <div class="font-bold mb-2">对局状态</div>
+        <div class="text-sm text-slate-600">当前桌面牌：<span id="tableCard">无</span></div>
+        <div class="text-sm text-slate-600">轮到：<span id="turnLabel">-</span></div>
+        <div class="text-sm text-slate-600 mt-2">AI1 手牌：<span id="ai1Count">0</span></div>
+        <div class="text-sm text-slate-600">AI2 手牌：<span id="ai2Count">0</span></div>
+        <div class="text-sm text-slate-600 mt-2">底牌：<span id="bottomCards">--</span></div>
+        <div class="text-xs text-slate-500 mt-3">胜利条件：任意玩家出完手牌。</div>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl p-4 mt-4">
+      <div class="font-bold mb-2">对局日志</div>
+      <div id="logBox" class="log-box"></div>
+    </div>
+  </div>
+
+  <script>
+    const ranks = ['3','4','5','6','7','8','9','10','J','Q','K','A','2','SJ','BJ'];
+    const rankValue = Object.fromEntries(ranks.map((r, i) => [r, i]));
+    const suitSymbols = ['♠','♥','♦','♣'];
+    const logBox = document.getElementById('logBox');
+    const playerHandNode = document.getElementById('playerHand');
+    const tableCardNode = document.getElementById('tableCard');
+    const turnLabel = document.getElementById('turnLabel');
+    const ai1Count = document.getElementById('ai1Count');
+    const ai2Count = document.getElementById('ai2Count');
+    const bottomCardsNode = document.getElementById('bottomCards');
+    const roleBadge = document.getElementById('roleBadge');
+
+    let hands = { player: [], ai1: [], ai2: [] };
+    let bottomCards = [];
+    let currentTurn = 'player';
+    let currentCard = null;
+    let passCount = 0;
+    let lastPlayer = null;
+
+    function logLine(text) {
+      const line = document.createElement('div');
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+      logBox.appendChild(line);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function buildDeck() {
+      const deck = [];
+      ranks.slice(0, 13).forEach((r) => {
+        suitSymbols.forEach((s) => deck.push({ label: `${r}${s}`, rank: r }));
+      });
+      deck.push({ label: '小王', rank: 'SJ' });
+      deck.push({ label: '大王', rank: 'BJ' });
+      return deck;
+    }
+
+    function shuffle(deck) {
+      for (let i = deck.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return deck;
+    }
+
+    function sortHand(hand) {
+      hand.sort((a, b) => rankValue[b.rank] - rankValue[a.rank]);
+    }
+
+    function deal() {
+      const deck = shuffle(buildDeck());
+      hands = { player: [], ai1: [], ai2: [] };
+      for (let i = 0; i < 51; i += 1) {
+        const card = deck[i];
+        if (i % 3 === 0) hands.player.push(card);
+        if (i % 3 === 1) hands.ai1.push(card);
+        if (i % 3 === 2) hands.ai2.push(card);
+      }
+      bottomCards = deck.slice(51);
+      const landlord = ['player', 'ai1', 'ai2'][Math.floor(Math.random() * 3)];
+      hands[landlord].push(...bottomCards);
+      Object.keys(hands).forEach((key) => sortHand(hands[key]));
+      currentTurn = landlord;
+      currentCard = null;
+      passCount = 0;
+      lastPlayer = landlord;
+      roleBadge.textContent = landlord === 'player' ? '你是地主' : '你是农民';
+      bottomCardsNode.textContent = bottomCards.map((c) => c.label).join(' ');
+      logLine(`新局开始，地主：${landlord}`);
+      render();
+      if (currentTurn !== 'player') aiTurn();
+    }
+
+    function render() {
+      playerHandNode.innerHTML = '';
+      hands.player.forEach((card, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'card-btn';
+        btn.textContent = card.label;
+        btn.addEventListener('click', () => playCard('player', idx));
+        playerHandNode.appendChild(btn);
+      });
+      ai1Count.textContent = hands.ai1.length;
+      ai2Count.textContent = hands.ai2.length;
+      tableCardNode.textContent = currentCard ? currentCard.label : '无';
+      turnLabel.textContent = currentTurn;
+    }
+
+    function canBeat(card) {
+      if (!currentCard) return true;
+      return rankValue[card.rank] > rankValue[currentCard.rank];
+    }
+
+    function nextTurn() {
+      if (currentTurn === 'player') currentTurn = 'ai1';
+      else if (currentTurn === 'ai1') currentTurn = 'ai2';
+      else currentTurn = 'player';
+    }
+
+    function checkWin() {
+      const winner = Object.keys(hands).find((k) => hands[k].length === 0);
+      if (winner) {
+        logLine(`游戏结束，胜者：${winner}`);
+        alert(`胜者：${winner}`);
+        return true;
+      }
+      return false;
+    }
+
+    function resetTrick() {
+      currentCard = null;
+      passCount = 0;
+      currentTurn = lastPlayer;
+      logLine('重新开始一轮出牌');
+    }
+
+    function playCard(player, idx) {
+      if (player !== currentTurn) return;
+      const card = hands[player][idx];
+      if (!canBeat(card)) {
+        logLine('需要出比桌面更大的牌');
+        return;
+      }
+      hands[player].splice(idx, 1);
+      currentCard = card;
+      lastPlayer = player;
+      passCount = 0;
+      logLine(`${player} 出牌 ${card.label}`);
+      if (checkWin()) return;
+      nextTurn();
+      render();
+      if (currentTurn !== 'player') aiTurn();
+    }
+
+    function pass(player) {
+      logLine(`${player} 过牌`);
+      passCount += 1;
+      if (passCount >= 2) {
+        resetTrick();
+      } else {
+        nextTurn();
+      }
+      render();
+      if (currentTurn !== 'player') aiTurn();
+    }
+
+    function aiTurn() {
+      setTimeout(() => {
+        const hand = hands[currentTurn];
+        let playIdx = hand.findIndex((c) => canBeat(c));
+        if (playIdx === -1) {
+          pass(currentTurn);
+          return;
+        }
+        playCard(currentTurn, playIdx);
+      }, 600);
+    }
+
+    document.getElementById('passBtn').addEventListener('click', () => pass('player'));
+    document.getElementById('restartBtn').addEventListener('click', () => deal());
+
+    deal();
+  </script>
+</body>
+</html>
