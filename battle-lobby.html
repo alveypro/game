@@ -175,7 +175,7 @@
     let ready = false;
     const revealSeeds = new Map();
     let gameState = null;
-    let selectedCard = null;
+    let selectedCards = [];
     let roundSeed = null;
 
     function logLine(text) {
@@ -210,12 +210,15 @@
       const suitSymbols = ['♠','♥','♦','♣'];
       const deck = [];
       const loops = type === 'guandan' ? 2 : 1;
+      let idx = 0;
       for (let d = 0; d < loops; d += 1) {
         ranks.slice(0, 13).forEach((r) => {
-          suitSymbols.forEach((s) => deck.push({ label: `${r}${s}`, rank: r }));
+          suitSymbols.forEach((s) => {
+            deck.push({ id: `${r}${s}-${idx++}`, label: `${r}${s}`, rank: r });
+          });
         });
-        deck.push({ label: '小王', rank: 'SJ' });
-        deck.push({ label: '大王', rank: 'BJ' });
+        deck.push({ id: `SJ-${idx++}`, label: '小王', rank: 'SJ' });
+        deck.push({ id: `BJ-${idx++}`, label: '大王', rank: 'BJ' });
       }
       return deck;
     }
@@ -272,14 +275,14 @@
         seatIndex,
         hands,
         turnIndex: 0,
-        currentCard: null,
+        currentCombo: null,
         passCount: 0,
         lastPlayerIndex: 0,
         history: []
       };
       roundSeed = seed;
-      selectedCard = null;
-      document.getElementById('tableHint').textContent = '对局开始：只支持单张牌规则（公平种子已同步）';
+      selectedCards = [];
+      document.getElementById('tableHint').textContent = '对局开始：支持常见牌型（单张/对子/三张/顺子/连对/炸弹/王炸）';
       renderTable();
     }
 
@@ -292,16 +295,23 @@
         const btn = document.createElement('button');
         btn.className = 'card-btn';
         btn.textContent = card.label;
-        if (selectedCard && selectedCard.label === card.label) {
+        if (selectedCards.find((c) => c.id === card.id)) {
           btn.style.outline = '2px solid #f59e0b';
         }
         btn.addEventListener('click', () => {
-          selectedCard = card;
+          const exists = selectedCards.find((c) => c.id === card.id);
+          if (exists) {
+            selectedCards = selectedCards.filter((c) => c.id !== card.id);
+          } else {
+            selectedCards = [...selectedCards, card];
+          }
           renderTable();
         });
         handNode.appendChild(btn);
       });
-      document.getElementById('tableCard').textContent = gameState.currentCard ? gameState.currentCard.label : '无';
+      document.getElementById('tableCard').textContent = gameState.currentCombo
+        ? `${comboLabel(gameState.currentCombo)} · ${gameState.currentCombo.cards.map((c) => c.label).join(' ')}`
+        : '无';
       document.getElementById('turnLabel').textContent = gameState.players[gameState.turnIndex]?.name || '-';
       const counts = gameState.players.map((p) => `${p.name || '玩家'}: ${gameState.hands[p.id].length}`).join('<br>');
       document.getElementById('playerCounts').innerHTML = counts;
@@ -311,21 +321,94 @@
       return (index + 1) % gameState.players.length;
     }
 
-    function canBeat(card) {
-      if (!gameState.currentCard) return true;
-      return rankValue(card.rank) > rankValue(gameState.currentCard.rank);
+    function analyzeCombo(cards) {
+      const len = cards.length;
+      if (!len) return null;
+      const counts = {};
+      cards.forEach((c) => { counts[c.rank] = (counts[c.rank] || 0) + 1; });
+      const ranks = Object.keys(counts).sort((a, b) => rankValue(a) - rankValue(b));
+      const values = ranks.map((r) => rankValue(r));
+      const maxValue = Math.max(...values);
+      const minValue = Math.min(...values);
+
+      if (len === 2 && counts.SJ === 1 && counts.BJ === 1) {
+        return { type: 'rocket', mainRank: 99, length: 2, cards };
+      }
+      if (len === 4 && ranks.length === 1) {
+        return { type: 'bomb', mainRank: rankValue(ranks[0]), length: 4, cards };
+      }
+      if (len === 1) {
+        return { type: 'single', mainRank: rankValue(ranks[0]), length: 1, cards };
+      }
+      if (len === 2 && ranks.length === 1) {
+        return { type: 'pair', mainRank: rankValue(ranks[0]), length: 2, cards };
+      }
+      if (len === 3 && ranks.length === 1) {
+        return { type: 'triple', mainRank: rankValue(ranks[0]), length: 3, cards };
+      }
+      if (len === 4 && ranks.length === 2) {
+        const tripleRank = ranks.find((r) => counts[r] === 3);
+        if (tripleRank) return { type: 'triple1', mainRank: rankValue(tripleRank), length: 4, cards };
+      }
+      if (len === 5 && ranks.length === 2) {
+        const tripleRank = ranks.find((r) => counts[r] === 3);
+        const pairRank = ranks.find((r) => counts[r] === 2);
+        if (tripleRank && pairRank) return { type: 'triple2', mainRank: rankValue(tripleRank), length: 5, cards };
+      }
+      if (len >= 5 && ranks.length === len && maxValue <= rankValue('A') && maxValue - minValue === len - 1) {
+        return { type: 'straight', mainRank: maxValue, length: len, cards };
+      }
+      if (len >= 6 && len % 2 === 0 && ranks.length === len / 2) {
+        const allPairs = ranks.every((r) => counts[r] === 2);
+        if (allPairs && maxValue <= rankValue('A') && maxValue - minValue === ranks.length - 1) {
+          return { type: 'pair_straight', mainRank: maxValue, length: len, cards };
+        }
+      }
+      return null;
     }
 
-    function applyPlay(byId, cardLabel) {
+    function comboLabel(combo) {
+      const map = {
+        rocket: '王炸',
+        bomb: '炸弹',
+        single: '单张',
+        pair: '对子',
+        triple: '三张',
+        triple1: '三带一',
+        triple2: '三带二',
+        straight: '顺子',
+        pair_straight: '连对'
+      };
+      return map[combo.type] || '牌型';
+    }
+
+    function canBeatCombo(nextCombo) {
+      const current = gameState.currentCombo;
+      if (!current) return true;
+      if (nextCombo.type === 'rocket') return true;
+      if (current.type === 'rocket') return false;
+      if (nextCombo.type === 'bomb' && current.type !== 'bomb') return true;
+      if (nextCombo.type !== current.type) return false;
+      if (nextCombo.length !== current.length) return false;
+      return nextCombo.mainRank > current.mainRank;
+    }
+
+    function applyPlay(byId, cardIds) {
       const hand = gameState.hands[byId] || [];
-      const idx = hand.findIndex((c) => c.label === cardLabel);
-      if (idx === -1) return;
-      const card = hand.splice(idx, 1)[0];
-      gameState.currentCard = card;
+      const played = [];
+      cardIds.forEach((id) => {
+        const idx = hand.findIndex((c) => c.id === id);
+        if (idx !== -1) {
+          played.push(hand.splice(idx, 1)[0]);
+        }
+      });
+      const combo = analyzeCombo(played);
+      if (!combo) return;
+      gameState.currentCombo = combo;
       gameState.lastPlayerIndex = gameState.players.findIndex((p) => p.id === byId);
       gameState.turnIndex = nextTurnIndex(gameState.lastPlayerIndex);
       gameState.passCount = 0;
-      gameState.history.push({ type: 'play', by: byId, card: card.label });
+      gameState.history.push({ type: 'play', by: byId, cards: played.map((c) => c.id) });
       renderTable();
       checkWin();
     }
@@ -334,7 +417,7 @@
       gameState.passCount += 1;
       gameState.history.push({ type: 'pass', by: byId });
       if (gameState.passCount >= gameState.players.length - 1) {
-        gameState.currentCard = null;
+        gameState.currentCombo = null;
         gameState.passCount = 0;
         gameState.turnIndex = gameState.lastPlayerIndex;
         logLine('重新开一轮出牌');
@@ -397,7 +480,7 @@
           if (!gameState) return;
           const byId = msg.by;
           if (msg.action === 'play_card') {
-            applyPlay(byId, msg.payload.card);
+            applyPlay(byId, msg.payload.cards || []);
           }
           if (msg.action === 'pass') {
             applyPass(byId);
@@ -456,18 +539,23 @@
     });
 
     document.getElementById('playCardBtn').addEventListener('click', () => {
-      if (!gameState || !selectedCard) return;
+      if (!gameState || !selectedCards.length) return;
       const myId = gameState.players[gameState.seatIndex].id;
       if (gameState.players[gameState.turnIndex].id !== myId) {
         logLine('未轮到你出牌');
         return;
       }
-      if (!canBeat(selectedCard)) {
-        logLine('出牌必须大于桌面牌');
+      const combo = analyzeCombo(selectedCards);
+      if (!combo) {
+        logLine('出牌牌型无效（暂不支持的组合）');
         return;
       }
-      send({ type: 'action', action: 'play_card', payload: { card: selectedCard.label } });
-      selectedCard = null;
+      if (!canBeatCombo(combo)) {
+        logLine('出牌必须大于桌面牌或为炸弹/王炸');
+        return;
+      }
+      send({ type: 'action', action: 'play_card', payload: { cards: selectedCards.map((c) => c.id) } });
+      selectedCards = [];
     });
 
     document.getElementById('passBtn').addEventListener('click', () => {
