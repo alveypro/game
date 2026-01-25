@@ -122,6 +122,11 @@
       <div class="glass rounded-2xl p-4 md:col-span-2">
         <h2 class="font-bold text-lg mb-2">对局桌面（多人）</h2>
         <div id="tableHint" class="text-xs text-slate-500">等待房主开始对局并完成发牌</div>
+        <div class="flex flex-wrap gap-2 text-xs text-slate-600 mt-2">
+          <span>地主：<span id="landlordLabel">-</span></span>
+          <span>倍率：<span id="multiplierLabel">1x</span></span>
+          <span>阶段：<span id="phaseLabel">等待</span></span>
+        </div>
         <div class="grid gap-3 md:grid-cols-3 mt-3">
           <div class="md:col-span-2">
             <div class="text-sm text-slate-600">当前桌面牌：<span id="tableCard">无</span></div>
@@ -133,6 +138,12 @@
               <button id="passBtn" class="game-btn bg-slate-600">过牌</button>
               <button id="settleBtn" class="game-btn">请求结算</button>
               <button id="arbitrateBtn" class="game-btn bg-amber-600">仲裁</button>
+            </div>
+            <div id="bidPanel" class="flex gap-2 mt-3 hidden">
+              <button id="bid1" class="game-btn">叫地主</button>
+              <button id="bid2" class="game-btn">加倍</button>
+              <button id="bid3" class="game-btn">抢地主</button>
+              <button id="bid0" class="game-btn bg-slate-600">不叫</button>
             </div>
           </div>
           <div>
@@ -177,6 +188,7 @@
     let gameState = null;
     let selectedCards = [];
     let roundSeed = null;
+    let pendingBid = null;
 
     function logLine(text) {
       const line = document.createElement('div');
@@ -263,7 +275,13 @@
       const deck = shuffleWithSeed(buildDeck(gameType), rand);
       const hands = {};
       players.forEach((p) => { hands[p.id] = []; });
-      deck.forEach((card, idx) => {
+      let bottomCards = [];
+      let dealDeck = deck;
+      if (gameType === 'ddz') {
+        bottomCards = deck.slice(-3);
+        dealDeck = deck.slice(0, deck.length - 3);
+      }
+      dealDeck.forEach((card, idx) => {
         const p = players[idx % players.length];
         hands[p.id].push(card);
       });
@@ -278,11 +296,26 @@
         currentCombo: null,
         passCount: 0,
         lastPlayerIndex: 0,
-        history: []
+        history: [],
+        phase: gameType === 'ddz' ? 'bidding' : 'playing',
+        landlordId: null,
+        bids: {},
+        highBid: 0,
+        highBidder: null,
+        multiplier: 1,
+        bottomCards
       };
       roundSeed = seed;
       selectedCards = [];
-      document.getElementById('tableHint').textContent = '对局开始：支持常见牌型（单张/对子/三张/顺子/连对/炸弹/王炸）';
+      document.getElementById('tableHint').textContent = gameType === 'ddz'
+        ? '叫地主阶段：请出价'
+        : '对局开始：支持常见牌型（单张/对子/三张/顺子/连对/炸弹/王炸）';
+      if (gameType === 'ddz') {
+        showBidPanel(true);
+        gameState.turnIndex = 0;
+      } else {
+        showBidPanel(false);
+      }
       renderTable();
     }
 
@@ -315,10 +348,62 @@
       document.getElementById('turnLabel').textContent = gameState.players[gameState.turnIndex]?.name || '-';
       const counts = gameState.players.map((p) => `${p.name || '玩家'}: ${gameState.hands[p.id].length}`).join('<br>');
       document.getElementById('playerCounts').innerHTML = counts;
+      document.getElementById('landlordLabel').textContent = gameState.landlordId
+        ? (gameState.players.find((p) => p.id === gameState.landlordId)?.name || gameState.landlordId)
+        : '-';
+      document.getElementById('multiplierLabel').textContent = `${gameState.multiplier}x`;
+      document.getElementById('phaseLabel').textContent = gameState.phase === 'bidding' ? '叫地主' : '出牌';
     }
 
     function nextTurnIndex(index) {
       return (index + 1) % gameState.players.length;
+    }
+
+    function showBidPanel(show) {
+      const panel = document.getElementById('bidPanel');
+      if (!panel) return;
+      panel.classList.toggle('hidden', !show);
+    }
+
+    function finalizeBids() {
+      if (!gameState) return;
+      const bids = gameState.bids;
+      const entries = Object.entries(bids);
+      if (!entries.length) return;
+      const allPassed = entries.every(([, value]) => value === 0);
+      if (allPassed) {
+        gameState.landlordId = gameState.players[0].id;
+        gameState.multiplier = 1;
+      } else {
+        gameState.landlordId = gameState.highBidder;
+        gameState.multiplier = Math.max(1, gameState.highBid);
+      }
+      if (gameState.landlordId && gameState.bottomCards?.length) {
+        gameState.hands[gameState.landlordId].push(...gameState.bottomCards);
+        gameState.hands[gameState.landlordId].sort((a, b) => rankValue(b.rank) - rankValue(a.rank));
+      }
+      gameState.phase = 'playing';
+      gameState.turnIndex = gameState.players.findIndex((p) => p.id === gameState.landlordId);
+      gameState.lastPlayerIndex = gameState.turnIndex;
+      showBidPanel(false);
+      document.getElementById('tableHint').textContent = '叫地主结束，开始出牌';
+      renderTable();
+    }
+
+    function handleBid(byId, bid) {
+      if (!gameState || gameState.phase !== 'bidding') return;
+      if (gameState.bids[byId] !== undefined) return;
+      gameState.bids[byId] = bid;
+      if (bid > gameState.highBid) {
+        gameState.highBid = bid;
+        gameState.highBidder = byId;
+      }
+      gameState.turnIndex = nextTurnIndex(gameState.turnIndex);
+      const bidsCount = Object.keys(gameState.bids).length;
+      if (bid === 3 || bidsCount >= gameState.players.length) {
+        finalizeBids();
+      }
+      renderTable();
     }
 
     function analyzeCombo(cards) {
@@ -364,6 +449,39 @@
           return { type: 'pair_straight', mainRank: maxValue, length: len, cards };
         }
       }
+      if (len >= 6 && len % 3 === 0) {
+        const tripleRanks = ranks.filter((r) => counts[r] === 3);
+        if (tripleRanks.length === len / 3) {
+          const values = tripleRanks.map((r) => rankValue(r)).sort((a, b) => a - b);
+          const max = Math.max(...values);
+          const min = Math.min(...values);
+          if (max <= rankValue('A') && max - min === values.length - 1) {
+            return { type: 'plane', mainRank: max, length: len, cards };
+          }
+        }
+      }
+      if (len >= 8 && len % 4 === 0) {
+        const tripleRanks = ranks.filter((r) => counts[r] === 3);
+        if (tripleRanks.length === len / 4) {
+          const values = tripleRanks.map((r) => rankValue(r)).sort((a, b) => a - b);
+          const max = Math.max(...values);
+          const min = Math.min(...values);
+          if (max <= rankValue('A') && max - min === values.length - 1) {
+            return { type: 'plane1', mainRank: max, length: len, cards };
+          }
+        }
+      }
+      if (len === 6 && ranks.length === 3) {
+        const fourRank = ranks.find((r) => counts[r] === 4);
+        if (fourRank) return { type: 'four2', mainRank: rankValue(fourRank), length: 6, cards };
+      }
+      if (len === 8 && ranks.length === 3) {
+        const fourRank = ranks.find((r) => counts[r] === 4);
+        const pairRanks = ranks.filter((r) => counts[r] === 2);
+        if (fourRank && pairRanks.length === 2) {
+          return { type: 'four2pair', mainRank: rankValue(fourRank), length: 8, cards };
+        }
+      }
       return null;
     }
 
@@ -377,7 +495,11 @@
         triple1: '三带一',
         triple2: '三带二',
         straight: '顺子',
-        pair_straight: '连对'
+        pair_straight: '连对',
+        plane: '飞机',
+        plane1: '飞机带翅膀',
+        four2: '四带二',
+        four2pair: '四带两对'
       };
       return map[combo.type] || '牌型';
     }
@@ -394,6 +516,7 @@
     }
 
     function applyPlay(byId, cardIds) {
+      if (gameState.phase !== 'playing') return;
       const hand = gameState.hands[byId] || [];
       const played = [];
       cardIds.forEach((id) => {
@@ -404,16 +527,21 @@
       });
       const combo = analyzeCombo(played);
       if (!combo) return;
+      if (!canBeatCombo(combo)) return;
       gameState.currentCombo = combo;
       gameState.lastPlayerIndex = gameState.players.findIndex((p) => p.id === byId);
       gameState.turnIndex = nextTurnIndex(gameState.lastPlayerIndex);
       gameState.passCount = 0;
       gameState.history.push({ type: 'play', by: byId, cards: played.map((c) => c.id) });
+      if (combo.type === 'bomb' || combo.type === 'rocket') {
+        gameState.multiplier *= 2;
+      }
       renderTable();
       checkWin();
     }
 
     function applyPass(byId) {
+      if (gameState.phase !== 'playing') return;
       gameState.passCount += 1;
       gameState.history.push({ type: 'pass', by: byId });
       if (gameState.passCount >= gameState.players.length - 1) {
@@ -485,6 +613,9 @@
           if (msg.action === 'pass') {
             applyPass(byId);
           }
+          if (msg.action === 'bid') {
+            handleBid(byId, Number(msg.payload.bid || 0));
+          }
         }
         if (msg.type === 'settle_requested') {
           logLine('收到链上结算请求');
@@ -540,6 +671,10 @@
 
     document.getElementById('playCardBtn').addEventListener('click', () => {
       if (!gameState || !selectedCards.length) return;
+      if (gameState.phase === 'bidding') {
+        logLine('叫地主阶段不能出牌');
+        return;
+      }
       const myId = gameState.players[gameState.seatIndex].id;
       if (gameState.players[gameState.turnIndex].id !== myId) {
         logLine('未轮到你出牌');
@@ -560,10 +695,30 @@
 
     document.getElementById('passBtn').addEventListener('click', () => {
       if (!gameState) return;
+      if (gameState.phase === 'bidding') {
+        logLine('叫地主阶段不能过牌');
+        return;
+      }
       const myId = gameState.players[gameState.seatIndex].id;
       if (gameState.players[gameState.turnIndex].id !== myId) return;
       send({ type: 'action', action: 'pass' });
     });
+
+    function sendBid(value) {
+      if (!gameState || gameState.phase !== 'bidding') return;
+      const myId = gameState.players[gameState.seatIndex].id;
+      if (gameState.players[gameState.turnIndex].id !== myId) {
+        logLine('未轮到你叫地主');
+        return;
+      }
+      pendingBid = value;
+      send({ type: 'action', action: 'bid', payload: { bid: value } });
+    }
+
+    document.getElementById('bid0')?.addEventListener('click', () => sendBid(0));
+    document.getElementById('bid1')?.addEventListener('click', () => sendBid(1));
+    document.getElementById('bid2')?.addEventListener('click', () => sendBid(2));
+    document.getElementById('bid3')?.addEventListener('click', () => sendBid(3));
 
     document.getElementById('settleBtn').addEventListener('click', async () => {
       if (!gameState || !roundSeed) return;
